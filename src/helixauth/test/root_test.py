@@ -1,6 +1,7 @@
 import unittest
 
-import helixauth.test.test_environment #IGNORE:W0611 @UnusedImport
+# setting test environment variables
+import helixauth.test.test_env #IGNORE:W0611 @UnusedImport
 
 
 class RootTestCase(unittest.TestCase):

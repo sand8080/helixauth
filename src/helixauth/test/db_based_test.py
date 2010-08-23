@@ -1,12 +1,11 @@
 from helixcore.install import install
 
-# setting test environment variables
-import helixauth.test.test_environment #IGNORE:W0611 @UnusedImport
+# must be imported before other user imports
+from helixauth.test.root_test import RootTestCase
 
 from helixauth.conf.db import get_connection, put_connection
 from helixauth.conf.settings import patch_table_name
-from helixauth.test.root_test import RootTestCase
-from helixauth.test.test_environment import patches_path
+from helixauth.test.test_env import patches_path
 
 
 class DbBasedTestCase(RootTestCase):
