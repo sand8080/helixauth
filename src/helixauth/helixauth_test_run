@@ -1,0 +1,6 @@
+#!/usr/bin/env python
+import helixbilling.test.test_environment
+from helixbilling.wsgi.server import Server
+
+if __name__ == '__main__':
+    Server.run()
