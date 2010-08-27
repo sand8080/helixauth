@@ -6,7 +6,7 @@ import unittest
 from helixauth.test.service_test import ServiceTestCase
 
 
-class OperatorTestCase(ServiceTestCase):
+class EnvironmentTestCase(ServiceTestCase):
     def test_add_environment(self):
         pass
 
