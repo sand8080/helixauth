@@ -11,7 +11,6 @@ from helixauth.test.wsgi.client import Client
 from helixauth.wsgi.server import Server
 
 eventlet.patcher.monkey_patch(all=False, socket=True)
-#util.wrap_socket_with_coroutine_socket()
 
 eventlet.spawn(Server.run)
 
@@ -22,8 +21,8 @@ class ApplicationTestCase(ServiceTestCase):
         self.cli = Client('%s' % datetime.datetime.now(), 'qazwsx')
         self.manager = self.cli
 
-    def check_status_ok(self, raw_result):
-        self.assertEqual('ok', cjson.decode(raw_result)['status'])
+    def check_status_ok(self, result):
+        self.assertEqual('ok', result['status'])
 
     @profile
     def ping_loading(self, repeats=1): #IGNORE:W0613
@@ -31,9 +30,9 @@ class ApplicationTestCase(ServiceTestCase):
 
     def test_ping_ok(self):
         self.cli.ping()
-#        self.check_status_ok(self.cli.ping()) #IGNORE:E1101
-#        self.ping_loading(repeats=1)
-#        self.ping_loading(repeats=100)
+        self.check_status_ok(self.cli.ping()) #IGNORE:E1101
+        self.ping_loading(repeats=1)
+        self.ping_loading(repeats=10000)
 
 #    def test_invalid_request(self):
 #        raw_result = self.cli.request({'action': 'fakeaction'})

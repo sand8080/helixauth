@@ -17,9 +17,8 @@ from helixcore.utils import filter_all_field_values
 class HelixauthApplication(Application):
     def __init__(self, h, p, l):
         self.unauthorized_trackable = ['add_environment']
-        super(HelixauthApplication, self).__init__(h, p, l, (
-            'add_environment',
-        ))
+        tracking_api_calls = ('add_environment',)
+        super(HelixauthApplication, self).__init__(h, p, l, tracking_api_calls)
 
     @transaction()
     def track_api_call(self, remote_addr, s_req, s_resp, authorized_data, curs=None): #IGNORE:W0221

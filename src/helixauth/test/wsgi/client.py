@@ -9,13 +9,13 @@ from helixauth.wsgi.server import HelixauthApplication
 class Client(ClientApplication):
     def __init__(self, login, password):
         app = HelixauthApplication(handle_action, protocol, logger)
-        super(Client, self).__init__(app, login, password)
+        unauthorized_commands = ('ping', )
+        super(Client, self).__init__(app, login, password, unauthorized_commands)
 
 
 def make_api_call(f_name):
     def m(self, **kwargs):
         kwargs['action'] = f_name
-        print '### kwargs: %s' % kwargs
         return self.request(kwargs)
     m.__name__ = f_name #IGNORE:W0621
     return m
