@@ -1,9 +1,7 @@
 from helixcore.server.api import ApiCall
-from helixcore.valik.valik import (Optional, AnyOf, NonNegative, Scheme,
-    Text, NullableText, ArbitraryDict)
+from helixcore.json_validator import (Optional, AnyOf, NonNegative,
+    Scheme, Text, ArbitraryDict)
 
-
-PING = {}
 
 RESPONSE_STATUS_OK = {'status': 'ok'}
 
@@ -21,39 +19,29 @@ RESPONSE_STATUS_ERROR = {
 
 RESPONSE_STATUS_ONLY = AnyOf(RESPONSE_STATUS_OK, RESPONSE_STATUS_ERROR)
 
-#AUTH_INFO = {
-#    'login': Text(),
-#    'password': Text(),
-#    Optional('custom_user_info'): NullableText(),
-#}
+PING_REQUEST = {}
 
+PING_RESPONSE = RESPONSE_STATUS_ONLY
 
-#ACTION_LOG_INFO = {
-#    'custom_operator_info': NullableText(),
-#    'action': Text(),
-#    'customer_ids': [Text()],
-#    'request_date': IsoDatetime(),
-#    'remote_addr': NullableText(),
-#    'request': Text(),
-#    'response': Text(),
-#}
-#
-#
-#VIEW_ACTION_LOGS_RESPONSE = AnyOf(
-#    dict(
-#        RESPONSE_STATUS_OK,
-#        **{
-#            'total': NonNegative(int),
-#            'action_logs': [ACTION_LOG_INFO],
-#        }
-#    ),
-#    RESPONSE_STATUS_ERROR
-#)
+GET_API_ACTIONS_REQUEST = {}
 
+GET_API_ACTIONS_RESPONSE = AnyOf(
+    dict(
+        RESPONSE_STATUS_OK,
+        **{'actions': [Text()],}
+    ),
+    RESPONSE_STATUS_ERROR
+)
 
 protocol = [
-    ApiCall('ping_request', Scheme(PING)),
-    ApiCall('ping_response', Scheme(RESPONSE_STATUS_ONLY)),
+    ApiCall('ping_request', Scheme(PING_REQUEST)),
+    ApiCall('ping_response', Scheme(PING_RESPONSE)),
+
+    ApiCall('get_api_actions_request', Scheme(GET_API_ACTIONS_REQUEST)),
+    ApiCall('get_api_actions_response', Scheme(GET_API_ACTIONS_RESPONSE)),
+
+    ApiCall('get_authorized_api_actions_request', Scheme(GET_API_ACTIONS_REQUEST)),
+    ApiCall('get_authorized_api_actions_response', Scheme(GET_API_ACTIONS_RESPONSE)),
 
 #    # currencies
 #    ApiCall('view_currencies_request', Scheme(VIEW_CURRENCIES)),

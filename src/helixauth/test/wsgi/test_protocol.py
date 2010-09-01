@@ -4,10 +4,10 @@ from helixcore.server.api import Api
 from helixcore.server.exceptions import ValidationError
 
 from helixauth.test.root_test import RootTestCase
-from helixauth.validator.validator import protocol
+from helixauth.wsgi.protocol import protocol
 
 
-class ValidatorTestCase(RootTestCase):
+class ProtocolTestCase(RootTestCase):
     api = Api(protocol)
 
     def validate_error_response(self, action_name):
@@ -27,6 +27,17 @@ class ValidatorTestCase(RootTestCase):
     def test_ping(self):
         self.api.validate_request('ping', {})
         self.validate_status_response('ping')
+
+    def test_get_api_actions(self):
+        a_name = 'get_api_actions'
+        self.api.validate_request(a_name, {})
+        self.api.validate_response(a_name, {'status': 'ok',
+            'actions': ['a', 'b', 'c']})
+        self.api.validate_response(a_name, {'status': 'ok',
+            'actions': []})
+        self.validate_error_response(a_name)
+
+    test_get_auuthorized_api_actions = test_get_api_actions
 
 
 if __name__ == '__main__':
