@@ -1,12 +1,10 @@
 import datetime
-import cjson
 import unittest
 import eventlet
 
 from helixcore.test.util import profile
 
 from helixauth.test.service_test import ServiceTestCase
-from helixauth.conf import settings
 from helixauth.test.wsgi.client import Client
 from helixauth.wsgi.server import Server
 
@@ -24,33 +22,40 @@ class ApplicationTestCase(ServiceTestCase):
     def check_status_ok(self, result):
         self.assertEqual('ok', result['status'])
 
+#    def test_invalid_request(self):
+#        result = self.cli.request({'action': 'fakeaction'})
+#        self.assertEqual('error', result['status'])
+#        self.assertEqual('validation', result['category'])
+
     @profile
     def ping_loading(self, repeats=1): #IGNORE:W0613
         self.cli.ping() #IGNORE:E1101
 
-    def test_ping_ok(self):
+    def test_ping(self):
         self.cli.ping()
         self.check_status_ok(self.cli.ping()) #IGNORE:E1101
         self.ping_loading(repeats=1)
-        self.ping_loading(repeats=10000)
+        self.ping_loading(repeats=1000)
 
-#    def test_invalid_request(self):
-#        raw_result = self.cli.request({'action': 'fakeaction'})
-#        result = cjson.decode(raw_result)
-#        self.assertEqual('error', result['status'])
-#        self.assertEqual('validation', result['category'])
-#
-#    def test_add_balance(self):
-#        client_id = 'client id'
-#        currency = self.get_currencies()[0]
-#        self.cli.add_balance( #IGNORE:E1101
-#            login=self.test_login,
-#            password=self.test_password,
-#            client_id=client_id,
-#            active=True,
-#            currency=currency.code,
-#            overdraft_limit='100.00'
-#        )
+    @profile
+    def get_api_actions_loading(self, repeats=1): #IGNORE:W0613
+        self.cli.get_api_actions() #IGNORE:E1101
+
+    def test_get_api_actions(self):
+        self.cli.get_api_actions()
+        self.get_api_actions_loading(repeats=1)
+        self.get_api_actions_loading(repeats=1000)
+
+    @profile
+    def get_authorized_api_actions_loading(self, repeats=1): #IGNORE:W0613
+        self.cli.get_authorized_api_actions() #IGNORE:E1101
+
+    def test_get_authorized_api_actions(self):
+        actions = self.cli.get_authorized_api_actions()
+        for unauthorized in self.cli.unauthorized_commands:
+            self.assertFalse(unauthorized in actions)
+        self.get_authorized_api_actions_loading(repeats=1)
+        self.get_authorized_api_actions_loading(repeats=1000)
 
 
 if __name__ == '__main__':

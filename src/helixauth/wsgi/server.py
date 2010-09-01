@@ -4,14 +4,15 @@
 from eventlet import wsgi
 from eventlet.green import socket
 
+from helixcore.server.wsgi_application import Application
+
 from helixauth.conf import settings
 from helixauth.conf.db import transaction
 from helixauth.conf.log import logger
-from helixauth.error import ObjectNotFound
+#from helixauth.error import ObjectNotFound
 from helixauth.logic.actions import handle_action
-from helixauth.validator.validator import protocol
-from helixcore.server.wsgi_application import Application
-from helixcore.utils import filter_all_field_values
+from helixauth.wsgi.protocol import protocol
+#from helixcore.utils import filter_all_field_values
 
 
 class HelixauthApplication(Application):

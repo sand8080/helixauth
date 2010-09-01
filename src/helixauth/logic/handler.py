@@ -9,6 +9,8 @@ from helixcore.server.errors import RequestProcessingError
 from helixcore.server.exceptions import (ActionNotAllowedError, AuthError, DataIntegrityError)
 from helixcore.server.response import response_ok
 
+from helixauth.wsgi.protocol import protocol
+
 #from helixauth.conf.db import transaction
 #from helixauth.dataobject import Environment
 #from helixauth.error import HelixauthError
@@ -32,8 +34,21 @@ class Handler(AbstractHandler):
     '''
     Handles all API actions. Method names are called like actions.
     '''
+
     def ping(self, data): #IGNORE:W0613
         return response_ok()
+
+    def get_api_actions(self, data):
+        marker = '_request'
+        actions = [c.name for c in protocol if c.name.endswith(marker)]
+        actions = map(lambda x: x.replace(marker, ''), actions)
+        return response_ok(actions=actions)
+
+    def get_authorized_api_actions(self, data):
+        actions = self.get_api_actions(data)
+        unauthorized_api_actions = ('ping', 'get_api_actions', 'get_authorized_api_actions')
+        actions = filter(lambda x: x not in unauthorized_api_actions, actions)
+        return response_ok(actions=actions)
 
     def get_user(self, curs, data):
         pass

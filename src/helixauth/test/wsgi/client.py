@@ -2,15 +2,17 @@ from helixcore.test.util import ClientApplication
 
 from helixauth.conf.log import logger
 from helixauth.logic.actions import handle_action
-from helixauth.validator.validator import protocol
+from helixauth.wsgi.protocol import protocol
 from helixauth.wsgi.server import HelixauthApplication
 
 
 class Client(ClientApplication):
     def __init__(self, login, password):
         app = HelixauthApplication(handle_action, protocol, logger)
-        unauthorized_commands = ('ping', )
-        super(Client, self).__init__(app, login, password, unauthorized_commands)
+        self.unauthorized_commands = ('ping', 'get_api_actions',
+            'get_authorized_api_actions')
+        super(Client, self).__init__(app, login, password,
+            self.unauthorized_commands)
 
 
 def make_api_call(f_name):
@@ -21,7 +23,7 @@ def make_api_call(f_name):
     return m
 
 
-for func_name in ['ping',
+for func_name in ['ping', 'get_api_actions', 'get_authorized_api_actions'
 #    'add_operator', 'modify_operator', 'delete_operator',
 #    'add_balance', 'modify_balance', 'delete_balance',
 #    'enroll_receipt', 'enroll_bonus',
