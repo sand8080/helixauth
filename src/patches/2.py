@@ -13,4 +13,4 @@ def apply(curs):
 
 def revert(curs):
     print 'Dropping table environment'
-    curs.execute('DROP TABLE environment')
+    curs.execute('DROP TABLE IF EXISTS environment')

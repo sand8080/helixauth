@@ -8,4 +8,4 @@ def apply(curs):
 
 def revert(curs):
     print 'Dropping table %s' % patch_table_name
-    curs.execute('DROP TABLE %s' % patch_table_name)
+    curs.execute('DROP TABLE IF EXISTS %s' % patch_table_name)

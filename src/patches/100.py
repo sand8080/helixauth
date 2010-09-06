@@ -38,13 +38,13 @@ def apply(curs):
 
 def revert(curs):
     print 'Dropping index action_log_environment_id_subject_user_ids_idx on action_log'
-    curs.execute('DROP INDEX action_log_environment_id_subject_user_ids_idx')
+    curs.execute('DROP INDEX IF EXISTS action_log_environment_id_subject_user_ids_idx')
 
     print 'Dropping index action_log_environment_id_action_idx on action_log'
-    curs.execute('DROP INDEX action_log_environment_id_action_idx')
+    curs.execute('DROP INDEX IF EXISTS action_log_environment_id_action_idx')
 
     print 'Dropping index action_log_environment_id_idx on action_log'
-    curs.execute('DROP INDEX action_log_environment_id_idx')
+    curs.execute('DROP INDEX IF EXISTS action_log_environment_id_idx')
 
     print 'Dropping table action_log'
-    curs.execute('DROP TABLE action_log')
+    curs.execute('DROP TABLE IF EXISTS action_log')
