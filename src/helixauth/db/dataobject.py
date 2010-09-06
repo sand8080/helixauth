@@ -10,3 +10,11 @@ class ActionLog(Mapped):
 class Environment(Mapped):
     __slots__ = ['id', 'name']
     table = 'environment'
+
+
+class User(Mapped):
+    __slots__ = ['id', 'environment_id', 'login', 'password']
+    table = 'user_data'
+
+    def __repr__(self, except_attrs=()):
+        return super(User, self).__repr__(except_attrs=except_attrs + ('password',))
