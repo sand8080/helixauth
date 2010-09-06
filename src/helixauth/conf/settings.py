@@ -6,7 +6,7 @@ DSN = {
 }
 
 
-patch_table_name = 'patches'
+patch_table_name = 'patch'
 
 server_host = 'localhost'
 server_port = 9999
