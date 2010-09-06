@@ -1,6 +1,6 @@
 from helixcore.server.api import ApiCall
 from helixcore.json_validator import (Optional, AnyOf, NonNegative,
-    Scheme, Text, ArbitraryDict)
+    Scheme, Text, ArbitraryDict, NullableText)
 
 
 RESPONSE_STATUS_OK = {'status': 'ok'}
@@ -33,6 +33,16 @@ GET_API_ACTIONS_RESPONSE = AnyOf(
     RESPONSE_STATUS_ERROR
 )
 
+ADD_ENVIRONMENT_REQUEST = {
+    'name': Text(),
+    'su_login': Text(),
+    'su_password': Text(),
+    Optional('custom_user_info'): NullableText(),
+}
+
+ADD_ENVIRONMENT_RESPONSE = RESPONSE_STATUS_ONLY
+
+
 protocol = [
     ApiCall('ping_request', Scheme(PING_REQUEST)),
     ApiCall('ping_response', Scheme(PING_RESPONSE)),
@@ -42,6 +52,9 @@ protocol = [
 
     ApiCall('get_authorized_api_actions_request', Scheme(GET_API_ACTIONS_REQUEST)),
     ApiCall('get_authorized_api_actions_response', Scheme(GET_API_ACTIONS_RESPONSE)),
+
+    ApiCall('add_environment_request', Scheme(ADD_ENVIRONMENT_REQUEST)),
+    ApiCall('add_environment_response', Scheme(ADD_ENVIRONMENT_RESPONSE)),
 
 #    # currencies
 #    ApiCall('view_currencies_request', Scheme(VIEW_CURRENCIES)),

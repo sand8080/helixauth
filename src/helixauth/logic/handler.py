@@ -9,7 +9,14 @@ from helixcore.server.errors import RequestProcessingError
 from helixcore.server.exceptions import (ActionNotAllowedError, AuthError, DataIntegrityError)
 from helixcore.server.response import response_ok
 
+from helixauth.conf.db import transaction
+from helixauth.error import EnvironmentNotFound, HelixauthError,\
+    HelixauthObjectAlreadyExists
+from helixauth.db.filters import EnvironmentFilter
+from helixauth.db.dataobject import Environment, User
+from helixauth.conf.log import logger
 from helixauth.wsgi.protocol import protocol
+
 
 #from helixauth.conf.db import transaction
 #from helixauth.dataobject import Environment
@@ -54,3 +61,24 @@ class Handler(AbstractHandler):
         pass
 #        return selector.get_auth_opertator(curs, data['login'], data['password'])
 
+    @transaction()
+    @detalize_error(HelixauthObjectAlreadyExists,
+        RequestProcessingError.Category.data_integrity, 'name')
+    def add_environment(self, data, curs=None):
+        try:
+            f = EnvironmentFilter(data, {}, {})
+            env = f.filter_one_obj(curs)
+            raise HelixauthObjectAlreadyExists('Environment "%s" already exist' % env.name)
+        except EnvironmentNotFound, _:
+            pass
+
+        env_data = {'name': data.get('name')}
+        env = Environment(**env_data)
+        mapping.save(curs, env)
+
+        u_data = {'environment_id': env.id, 'login': data.get('su_login'),
+            'password': security.encrypt_password(data.get('su_password'))}
+        user = User(**u_data)
+        mapping.save(curs, user)
+
+        return response_ok()

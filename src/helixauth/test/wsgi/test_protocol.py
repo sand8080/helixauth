@@ -39,6 +39,16 @@ class ProtocolTestCase(RootTestCase):
 
     test_get_auuthorized_api_actions = test_get_api_actions
 
+    def test_add_environment(self):
+        a_name = 'add_environment'
+        self.api.validate_request(a_name, {'name': 'n', 'su_login': 'l',
+            'su_password': 'p'})
+        self.api.validate_request(a_name, {'name': 'n', 'su_login': 'l',
+            'su_password': 'p', 'custom_user_info': 'i'})
+        self.api.validate_request(a_name, {'name': 'n', 'su_login': 'l',
+            'su_password': 'p', 'custom_user_info': None})
+        self.validate_status_response(a_name)
+
 
 if __name__ == '__main__':
     unittest.main()
