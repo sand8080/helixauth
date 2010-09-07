@@ -5,8 +5,8 @@ from helixcore import utils
 from helixcore.actions.handler import detalize_error, AbstractHandler
 from helixcore.db.wrapper import ObjectCreationError, SelectedMoreThanOneRow
 from helixcore.misc import security
-from helixcore.server.errors import RequestProcessingError
-from helixcore.server.exceptions import (ActionNotAllowedError, AuthError, DataIntegrityError)
+from helixcore.server.errors import (RequestProcessingError,
+    ActionNotAllowedError, AuthError, DataIntegrityError)
 from helixcore.server.response import response_ok
 
 from helixauth.conf.db import transaction

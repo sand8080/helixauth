@@ -19,7 +19,7 @@ class EnvironmentTestCase(ServiceTestCase):
         su_password = 'qweasdzxc'
         self.add_environment(name, su_login, su_password)
         self.assertRaises(RequestProcessingError, self.add_environment,
-            name, ' ', ' ')
+            name,'a', 'b', 'c')
 
 
 if __name__ == '__main__':
