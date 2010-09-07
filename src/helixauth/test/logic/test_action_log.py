@@ -42,13 +42,19 @@ class ActionLogTestCase(ServiceTestCase):
         environment = self.get_environment_by_name(name)
         self._check_action_tracked(environment, action, None)
 
-#    def test_tracking_error_action(self):
-#        self.cli.add_environment(name=None, su_login=self.cli.login, su_password=self.cli.password) #IGNORE:E1101
-#        operator = self.get_operator_by_login(self.cli.login)
-#        self._check_action_tracked(operator, 'add_operator', custom_operator_info)
-#        c_id = 'cc'
-#        self._make_trackable_action(operator, 'add_balance', {'customer_id': c_id, 'active': True,
-#            'currency': self.currency.code})
+    @transaction()
+    def get_action_logs_num(self, environment, curs=None):
+        f = ActionLogFilter(environment, {}, {}, {})
+        return f.filter_objs_count(curs)
+
+
+    def test_tracking_error_action(self):
+        name = 'action_logged'
+        self.cli.add_environment(name=name, su_login=self.cli.login, su_password=self.cli.password) #IGNORE:E1101
+        environment = self.get_environment_by_name(name)
+        self.assertEquals(1, self.get_action_logs_num(environment))
+        self.cli.add_environment(name=name, su_login=self.cli.login, su_password=self.cli.password) #IGNORE:E1101
+        self.assertEquals(2, self.get_action_logs_num(environment))
 
 #    def test_tracking_action(self):
 #        self.cli.add_operator(login=self.cli.login, password=self.cli.password) #IGNORE:E1101
