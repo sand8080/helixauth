@@ -85,7 +85,8 @@ class Handler(AbstractHandler):
 
         # creating user
         u_data = {'environment_id': env.id, 'login': data.get('su_login'),
-            'password': security.encrypt_password(data.get('su_password'))}
+            'password': security.encrypt_password(data.get('su_password')),
+            'role': User.ROLE_SUPER}
         user = User(**u_data)
         mapping.save(curs, user)
 

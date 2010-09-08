@@ -14,7 +14,9 @@ class Environment(Mapped):
 
 
 class User(Mapped):
-    __slots__ = ['id', 'environment_id', 'login', 'password']
+    ROLE_SUPER = 'super'
+    ROLE_USER = 'user'
+    __slots__ = ['id', 'environment_id', 'login', 'password', 'role']
     table = 'user_data'
 
     def __repr__(self, except_attrs=()):
