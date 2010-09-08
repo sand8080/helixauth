@@ -20,9 +20,28 @@ class ProtocolTestCase(RootTestCase):
         self.assertRaises(ValidationError, self.api.validate_response, action_name,
             {'status': 'error', 'category': 'test', 'message': 'm'})
 
+    def validate_authorized_error_response(self, action_name):
+        self.api.validate_response(action_name, {'session_id': 'i',
+            'status': 'error', 'category': 't',
+            'message': 'h', 'details': [{'f': 'v'}]})
+        self.api.validate_response(action_name, {'session_id': 'i',
+            'status': 'error', 'category': 't',
+            'message': 'h', 'details': [{}]})
+        self.assertRaises(ValidationError, self.api.validate_response, action_name,
+            {'status': 'error', 'category': 't',
+            'message': 'h', 'details': [{'f': 'v'}]})
+        self.assertRaises(ValidationError, self.api.validate_response, action_name,
+            {'status': 'error', 'category': 'test'})
+        self.assertRaises(ValidationError, self.api.validate_response, action_name,
+            {'status': 'error', 'category': 'test', 'message': 'm'})
+
     def validate_status_response(self, action_name):
         self.api.validate_response(action_name, {'status': 'ok'})
         self.validate_error_response(action_name)
+
+    def validate_authorized_status_response(self, action_name):
+        self.api.validate_response(action_name, {'status': 'ok', 'session_id': 'i'})
+        self.validate_authorized_error_response(action_name)
 
     def test_ping(self):
         self.api.validate_request('ping', {})
@@ -47,7 +66,7 @@ class ProtocolTestCase(RootTestCase):
             'su_password': 'p', 'custom_user_info': 'i'})
         self.api.validate_request(a_name, {'name': 'n', 'su_login': 'l',
             'su_password': 'p', 'custom_user_info': None})
-        self.validate_status_response(a_name)
+        self.validate_authorized_status_response(a_name)
 
 
 if __name__ == '__main__':

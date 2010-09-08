@@ -3,12 +3,12 @@ from helixcore.json_validator import (Optional, AnyOf, NonNegative,
     Scheme, Text, ArbitraryDict, NullableText)
 
 
-RESPONSE_STATUS_OK = {'status': 'ok'}
-
 PAGING_PARAMS = {
     Optional('limit'): NonNegative(int),
     Optional('offset'): NonNegative(int),
 }
+
+RESPONSE_STATUS_OK = {'status': 'ok'}
 
 RESPONSE_STATUS_ERROR = {
     'status': 'error',
@@ -17,7 +17,21 @@ RESPONSE_STATUS_ERROR = {
     'details': [ArbitraryDict()],
 }
 
+AUTHORIZED_RESPONSE_STATUS_OK = dict(
+    RESPONSE_STATUS_OK,
+    **{'session_id': Text()}
+)
+
+AUTHORIZED_RESPONSE_STATUS_ERROR = dict(
+    RESPONSE_STATUS_ERROR,
+    **{'session_id': Text()}
+)
+
 RESPONSE_STATUS_ONLY = AnyOf(RESPONSE_STATUS_OK, RESPONSE_STATUS_ERROR)
+AUTHORIZED_RESPONSE_STATUS_ONLY = AnyOf(
+    AUTHORIZED_RESPONSE_STATUS_OK,
+    AUTHORIZED_RESPONSE_STATUS_ERROR
+)
 
 PING_REQUEST = {}
 
@@ -40,7 +54,7 @@ ADD_ENVIRONMENT_REQUEST = {
     Optional('custom_user_info'): NullableText(),
 }
 
-ADD_ENVIRONMENT_RESPONSE = RESPONSE_STATUS_ONLY
+ADD_ENVIRONMENT_RESPONSE = AUTHORIZED_RESPONSE_STATUS_ONLY
 
 
 protocol = [
