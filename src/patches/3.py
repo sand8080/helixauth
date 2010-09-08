@@ -4,7 +4,7 @@ def apply(curs):
     '''
         CREATE TABLE user_data (
             id serial,
-            environment_id integer,
+            environment_id integer NOT NULL,
             FOREIGN KEY (environment_id) REFERENCES environment(id),
             login varchar NOT NULL,
             password varchar NOT NULL,
