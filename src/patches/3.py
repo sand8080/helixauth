@@ -12,6 +12,12 @@ def apply(curs):
         )
     ''')
 
+    print 'Creating index user_data_environment_id_idx on user_data'
+    curs.execute(
+    '''
+        CREATE INDEX user_data_environment_id_idx ON user_data(environment_id);
+    ''')
+
     print 'Creating index user_data_environment_id_login_password_idx on user_data'
     curs.execute(
     '''
@@ -20,6 +26,9 @@ def apply(curs):
 
 
 def revert(curs):
+    print 'Dropping user_data_environment_id_idx on user_data'
+    curs.execute('DROP INDEX IF EXISTS user_data_environment_id_idx')
+
     print 'Dropping index user_data_environment_id_login_password_idx on user_data'
     curs.execute('DROP INDEX IF EXISTS user_data_environment_id_login_password_idx')
 
