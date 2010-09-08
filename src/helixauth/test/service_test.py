@@ -33,11 +33,13 @@ class ServiceTestCase(DbBasedTestCase):
         return f.filter_one_obj(curs)
 
     def add_environment(self, name, su_login, su_password, custom_user_info=None):
-        self.handle_action('add_environment', {'name': name, 'su_login': su_login,
+        response = self.handle_action('add_environment', {'name': name, 'su_login': su_login,
             'su_password': su_password, 'custom_user_info': custom_user_info})
+        session_id = response.get('session_id')
         environment = self.get_environment_by_name(name)
         self.assertEqual(name, environment.name)
 
         user = self.get_auth_user(environment, su_login, su_password)
         self.assertEqual(su_login, user.login)
         self.assertEqual(environment.id, user.environment_id)
+        return session_id

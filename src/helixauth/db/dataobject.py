@@ -19,3 +19,9 @@ class User(Mapped):
 
     def __repr__(self, except_attrs=()):
         return super(User, self).__repr__(except_attrs=except_attrs + ('password',))
+
+
+class Session(Mapped):
+    __slots__ = ['id', 'session_id', 'environment_id', 'user_id',
+        'serialized_data', 'start_date', 'update_date']
+    table = 'session'

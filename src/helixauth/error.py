@@ -24,3 +24,11 @@ class UserNotFound(HelixauthObjectNotFound):
 class EnvironmentNotFound(HelixauthObjectNotFound):
     def __init__(self, **kwargs):
         super(EnvironmentNotFound, self).__init__('Environment', **kwargs)
+
+
+class UserAuthError(HelixauthError):
+    pass
+
+
+class SessionAuthError(HelixauthError):
+    pass

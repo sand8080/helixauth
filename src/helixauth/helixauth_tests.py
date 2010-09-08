@@ -6,5 +6,6 @@ from helixauth.test.logic.test_action_log import ActionLogTestCase #IGNORE:W0611
 from helixauth.test.wsgi.test_protocol import ProtocolTestCase #IGNORE:W0611 @UnusedImport
 from helixauth.test.wsgi.test_application_loading import ApplicationTestCase #IGNORE:W0611 @UnusedImport
 
+
 if __name__ == '__main__':
     unittest.main()
