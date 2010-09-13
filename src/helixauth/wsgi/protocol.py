@@ -3,9 +3,16 @@ from helixcore.json_validator import (Optional, AnyOf, NonNegative,
     Scheme, Text, ArbitraryDict, NullableText)
 
 
-PAGING_PARAMS = {
+REQUEST_PAGING_PARAMS = {
     Optional('limit'): NonNegative(int),
     Optional('offset'): NonNegative(int),
+}
+
+AUTHORIZED_REQUEST_AUTH_INFO = {
+    Optional('login'): Text(),
+    Optional('password'): Text(),
+    Optional('session_id'): Text(),
+    Optional('custom_user_info'): NullableText(),
 }
 
 RESPONSE_STATUS_OK = {'status': 'ok'}
@@ -56,8 +63,19 @@ ADD_ENVIRONMENT_REQUEST = {
 
 ADD_ENVIRONMENT_RESPONSE = AUTHORIZED_RESPONSE_STATUS_ONLY
 
+MODIFY_ENVIRONMENT_REQUEST = dict(
+    {
+        'name': Text(),
+        'new_name': Text(),
+    },
+    **AUTHORIZED_REQUEST_AUTH_INFO
+)
+
+MODIFY_ENVIRONMENT_RESPONSE = AUTHORIZED_RESPONSE_STATUS_ONLY
+
 
 protocol = [
+
     ApiCall('ping_request', Scheme(PING_REQUEST)),
     ApiCall('ping_response', Scheme(PING_RESPONSE)),
 
@@ -69,6 +87,9 @@ protocol = [
 
     ApiCall('add_environment_request', Scheme(ADD_ENVIRONMENT_REQUEST)),
     ApiCall('add_environment_response', Scheme(ADD_ENVIRONMENT_RESPONSE)),
+
+    ApiCall('modify_environment_request', Scheme(MODIFY_ENVIRONMENT_REQUEST)),
+    ApiCall('modify_environment_response', Scheme(MODIFY_ENVIRONMENT_RESPONSE)),
 
 #    # currencies
 #    ApiCall('view_currencies_request', Scheme(VIEW_CURRENCIES)),

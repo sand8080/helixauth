@@ -68,6 +68,18 @@ class ProtocolTestCase(RootTestCase):
             'su_password': 'p', 'custom_user_info': None})
         self.validate_authorized_status_response(a_name)
 
+    def test_modify_environment(self):
+        a_name = 'modify_environment'
+        self.api.validate_request(a_name, {'login': 'l', 'password': 'p',
+            'custom_user_info': 'i', 'name': 'n', 'new_name': 'nn'})
+        self.api.validate_request(a_name, {'login': 'l', 'password': 'p',
+            'name': 'n', 'new_name': 'nn'})
+        self.api.validate_request(a_name, {'session_id': 'i',
+            'custom_user_info': 'i', 'name': 'n', 'new_name': 'n'})
+        self.api.validate_request(a_name, {'session_id': 'i',
+            'name': 'n', 'new_name': 'n'})
+        self.validate_authorized_status_response(a_name)
+
 
 if __name__ == '__main__':
     unittest.main()
