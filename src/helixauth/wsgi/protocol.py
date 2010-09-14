@@ -11,6 +11,7 @@ REQUEST_PAGING_PARAMS = {
 AUTHORIZED_REQUEST_AUTH_INFO = {
     Optional('login'): Text(),
     Optional('password'): Text(),
+    Optional('environment_name'): Text(),
     Optional('session_id'): Text(),
     Optional('custom_user_info'): NullableText(),
 }
@@ -74,6 +75,16 @@ MODIFY_ENVIRONMENT_REQUEST = dict(
 MODIFY_ENVIRONMENT_RESPONSE = AUTHORIZED_RESPONSE_STATUS_ONLY
 
 
+LOGIN_REQUEST = {
+    'login': Text(),
+    'password': Text(),
+    'environment_name': Text(),
+    Optional('custom_user_info'): NullableText(),
+}
+
+LOGIN_RESPONSE = AUTHORIZED_RESPONSE_STATUS_ONLY
+
+
 protocol = [
 
     ApiCall('ping_request', Scheme(PING_REQUEST)),
@@ -90,6 +101,12 @@ protocol = [
 
     ApiCall('modify_environment_request', Scheme(MODIFY_ENVIRONMENT_REQUEST)),
     ApiCall('modify_environment_response', Scheme(MODIFY_ENVIRONMENT_RESPONSE)),
+
+    # login user
+    ApiCall('login_request', Scheme(LOGIN_REQUEST)),
+    ApiCall('login_response', Scheme(LOGIN_RESPONSE)),
+
+
 
 #    # currencies
 #    ApiCall('view_currencies_request', Scheme(VIEW_CURRENCIES)),

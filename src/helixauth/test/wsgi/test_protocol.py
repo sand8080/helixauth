@@ -71,13 +71,22 @@ class ProtocolTestCase(RootTestCase):
     def test_modify_environment(self):
         a_name = 'modify_environment'
         self.api.validate_request(a_name, {'login': 'l', 'password': 'p',
-            'custom_user_info': 'i', 'name': 'n', 'new_name': 'nn'})
-        self.api.validate_request(a_name, {'login': 'l', 'password': 'p',
+            'environment_name': 'e', 'custom_user_info': 'i',
             'name': 'n', 'new_name': 'nn'})
+        self.api.validate_request(a_name, {'login': 'l', 'password': 'p',
+            'environment_name': 'n', 'name': 'n', 'new_name': 'nn'})
         self.api.validate_request(a_name, {'session_id': 'i',
             'custom_user_info': 'i', 'name': 'n', 'new_name': 'n'})
         self.api.validate_request(a_name, {'session_id': 'i',
             'name': 'n', 'new_name': 'n'})
+        self.validate_authorized_status_response(a_name)
+
+    def test_login(self):
+        a_name = 'login'
+        self.api.validate_request(a_name, {'login': 'l', 'password': 'p',
+            'environment_name': 'e', 'custom_user_info': 'i'})
+        self.api.validate_request(a_name, {'login': 'l', 'password': 'p',
+            'environment_name': 'n'})
         self.validate_authorized_status_response(a_name)
 
 
