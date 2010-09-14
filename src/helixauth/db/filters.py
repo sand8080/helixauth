@@ -2,8 +2,9 @@ from helixcore.db.sql import And, Eq, Like, MoreEq, LessEq
 from helixcore.db.wrapper import SelectedMoreThanOneRow, ObjectNotFound
 from helixcore.db.filters import ObjectsFilter as OFImpl
 
-from helixauth.db.dataobject import User, Environment, ActionLog
-from helixauth.error import UserNotFound, EnvironmentNotFound
+from helixauth.db.dataobject import User, Environment, ActionLog, Session
+from helixauth.error import UserNotFound, EnvironmentNotFound, SessionNotFound
+from helixauth import security
 
 
 class EnvironmentObjectsFilter(OFImpl):
@@ -18,9 +19,28 @@ class EnvironmentObjectsFilter(OFImpl):
         return cond
 
 
+class SessionFilter(OFImpl):
+    cond_map = [
+        ('session_id', 'session_id', Eq),
+#        ('envirionment_id', 'envirionment_id', Eq),
+    ]
+
+    def __init__(self, filter_params, paging_params, ordering_params):
+        super(SessionFilter, self).__init__(filter_params, paging_params,
+            ordering_params, Session)
+
+    def filter_one_obj(self, curs, for_update=False):
+        try:
+            return super(SessionFilter, self).filter_one_obj(curs, for_update=for_update)
+        except (ObjectNotFound, SelectedMoreThanOneRow):
+            raise SessionNotFound(**self.filter_params)
+
+
 class EnvironmentFilter(OFImpl):
     cond_map = [
         ('name', 'name', Eq),
+        ('environment_name', 'name', Eq),
+        ('environment_id', 'id', Eq),
     ]
 
     def __init__(self, filter_params, paging_params, ordering_params):
@@ -35,6 +55,7 @@ class EnvironmentFilter(OFImpl):
 
 class UserFilter(EnvironmentObjectsFilter):
     cond_map = [
+        ('id', 'id', Eq),
         ('login', 'login', Eq),
         ('login_like', 'login', Like),
         ('password', 'password', Eq),
@@ -48,7 +69,7 @@ class UserFilter(EnvironmentObjectsFilter):
         try:
             return super(UserFilter, self).filter_one_obj(curs, for_update=for_update)
         except (ObjectNotFound, SelectedMoreThanOneRow):
-            raise UserNotFound(self.filter_params)
+            raise UserNotFound(**self.filter_params)
 
 
 class ActionLogFilter(EnvironmentObjectsFilter):
