@@ -4,11 +4,11 @@ from helixcore.server.api import Api
 
 # must be imported first in helixauth set
 from helixauth.test.db_based_test import DbBasedTestCase
-from helixauth.db.filters import EnvironmentFilter, UserFilter
+from helixauth import security
+from helixauth.db.filters import EnvironmentFilter, UserFilter, SessionFilter
 from helixauth.conf.db import transaction
 from helixauth.logic import actions
 from helixauth.wsgi.protocol import protocol
-from helixcore.misc import security
 
 
 class ServiceTestCase(DbBasedTestCase):
@@ -35,11 +35,27 @@ class ServiceTestCase(DbBasedTestCase):
     def add_environment(self, name, su_login, su_password, custom_user_info=None):
         response = self.handle_action('add_environment', {'name': name, 'su_login': su_login,
             'su_password': su_password, 'custom_user_info': custom_user_info})
-        session_id = response.get('session_id')
         environment = self.get_environment_by_name(name)
         self.assertEqual(name, environment.name)
 
         user = self.get_auth_user(environment, su_login, su_password)
         self.assertEqual(su_login, user.login)
         self.assertEqual(environment.id, user.environment_id)
-        return session_id
+        return response
+
+    def modify_environment(self, **kwargs):
+        env_old = self.get_environment_by_name(kwargs['name'])
+        response = self.handle_action('modify_environment', kwargs)
+        env_new = self.get_environment_by_name(kwargs['new_name'])
+        self.assertEqual(env_old.name, env_new.name)
+        return response
+
+    def login(self, **kwargs):
+        response = self.handle_action('login', kwargs)
+#        self.assertEqual('ok', response['status'])
+#        return response
+
+    @transaction()
+    def get_session(self, session_id, curs=None):
+        f = SessionFilter({'session_id': session_id}, {}, {})
+        return f.filter_one_obj(curs)

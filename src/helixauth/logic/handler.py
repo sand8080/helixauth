@@ -1,20 +1,22 @@
-import datetime
+from datetime import datetime
 import pytz
+import cjson
 from uuid import uuid4
 
 from helixcore import mapping
 from helixcore.actions.handler import detalize_error, AbstractHandler
-from helixcore.misc import security
 from helixcore.server.errors import RequestProcessingError
 from helixcore.server.response import response_ok
 
+from helixauth import security
 from helixauth.conf.db import transaction
 from helixauth.error import (EnvironmentNotFound,
-    HelixauthObjectAlreadyExists, UserAuthError, SessionAuthError)
-from helixauth.db.filters import EnvironmentFilter
+    HelixauthObjectAlreadyExists, UserAuthError, SessionAuthError,
+    SessionNotFound, UserNotFound)
+from helixauth.db.filters import EnvironmentFilter, SessionFilter, UserFilter
 from helixauth.db.dataobject import Environment, User, Session
+from helixauth.logic.auth import Authentifier
 from helixauth.wsgi.protocol import protocol
-import cjson
 
 
 #from helixauth.conf.db import transaction
@@ -23,18 +25,21 @@ import cjson
 
 #from helixcore.utils import filter_dict
 
-
 def authentificate(method):
     @detalize_error(UserAuthError, RequestProcessingError.Category.auth, 'login')
-    @detalize_error(SessionAuthError, RequestProcessingError.Category.auth, 'session_id')
+    @detalize_error(SessionNotFound, RequestProcessingError.Category.auth, 'session_id')
     def decroated(self, data, curs):
-        user = self.get_user(curs, data)
-        data['user_id'] = user.id
+        auth = Authentifier()
+        (session, environment, user) = auth.get_credentials(data)
+        auth.check_access(session, user)
+#        data['user_id'] = user.id
         data.pop('login', None)
         data.pop('password', None)
         data.pop('session_id', None)
         data.pop('custom_user_info', None)
-        return method(self, data, user, curs)
+        result = method(self, data, environment, user, curs)
+        result['session_id'] = session.session_id
+        return result
     return decroated
 
 
@@ -58,15 +63,6 @@ class Handler(AbstractHandler):
         actions = filter(lambda x: x not in unauthorized_api_actions, actions)
         return response_ok(actions=actions)
 
-    def get_user(self, curs, data):
-        if 'session_id' in data:
-            session_id = data['session_id']
-        else:
-            login = data['login']
-            password = data['password']
-#            UserFilter
-#        return selector.get_auth_opertator(curs, data['login'], data['password'])
-
     @transaction()
     @detalize_error(HelixauthObjectAlreadyExists,
         RequestProcessingError.Category.data_integrity, 'name')
@@ -75,7 +71,7 @@ class Handler(AbstractHandler):
         try:
             f = EnvironmentFilter(data, {}, {})
             env = f.filter_one_obj(curs)
-            raise HelixauthObjectAlreadyExists('Environment "%s" already exist' % env.name)
+            raise HelixauthObjectAlreadyExists('Environment "%s" already exists' % env.name)
         except EnvironmentNotFound, _:
             pass
 
@@ -91,19 +87,41 @@ class Handler(AbstractHandler):
         mapping.save(curs, user)
 
         # creating session
-        session = self._create_session(curs, env, user, {})
+#        session = self._create_session(curs, env, user, {})
+        return response_ok(session_id='aaa')
+
+    @transaction()
+    @detalize_error(EnvironmentNotFound,
+        RequestProcessingError.Category.auth, 'login')
+    @detalize_error(UserNotFound,
+        RequestProcessingError.Category.auth, 'login')
+    def login(self, data, curs=None):
+        enc_data = security.encrypt_passwords(data)
+        f = EnvironmentFilter(enc_data, {}, {})
+        env = f.filter_one_obj(curs)
+
+        f = UserFilter(env, enc_data, {}, {})
+        user = f.filter_one_obj(curs)
+
+        # creating session
+        auth = Authentifier()
+        rights = auth.get_acess_rights(env, user)
+        sz_data = cjson.encode({'rights': rights})
+        session = auth.create_session(curs, env, user, sz_data)
         return response_ok(session_id=session.session_id)
 
-    def _create_session(self, curs, env, user, sz_data):
-        d = datetime.datetime.now(pytz.utc)
-        data = {
-            'session_id': '%s' % uuid4(),
-            'environment_id': env.id,
-            'user_id': user.id,
-            'serialized_data': cjson.encode(sz_data),
-            'start_date': d,
-            'update_date': d,
-        }
-        session = Session(**data)
-        mapping.save(curs, session)
-        return session
+#    def _get_environment_from_sesion(self, curs, session):
+#        f = EnvironmentFilter({'environment_id': session.environment_id}, {}, {})
+#        return f.filter_one_obj(curs)
+#
+#    def _get_user_from_sesion(self, curs, env, session):
+#        f = UserFilter(env, {'id': session.user_id}, {}, {})
+#        return f.filter_one_obj(curs)
+
+    @transaction()
+    @authentificate
+#    @detalize_error(HelixauthObjectAlreadyExists,
+#        RequestProcessingError.Category.data_integrity, 'name')
+    def modify_environment(self, data, env, user, curs=None):
+        return response_ok()
+
