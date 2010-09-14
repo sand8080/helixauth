@@ -1,5 +1,6 @@
-#from helixcore.server.exceptions import ActionNotAllowedError
 from helixcore.db.wrapper import ObjectNotFound, ObjectCreationError
+
+from helixauth.security import sanitize_credentials
 
 
 class HelixauthError(Exception):
@@ -8,8 +9,9 @@ class HelixauthError(Exception):
 
 class HelixauthObjectNotFound(HelixauthError, ObjectNotFound):
     def __init__(self, class_name, **kwargs):
+        sanitized_kwargs = sanitize_credentials(kwargs)
         super(HelixauthObjectNotFound, self).__init__('%s not found by params: %s' %
-            (class_name, kwargs))
+            (class_name, sanitized_kwargs))
 
 
 class HelixauthObjectAlreadyExists(HelixauthError, ObjectCreationError):
@@ -19,6 +21,11 @@ class HelixauthObjectAlreadyExists(HelixauthError, ObjectCreationError):
 class UserNotFound(HelixauthObjectNotFound):
     def __init__(self, **kwargs):
         super(UserNotFound, self).__init__('User', **kwargs)
+
+
+class SessionNotFound(HelixauthObjectNotFound):
+    def __init__(self, **kwargs):
+        super(SessionNotFound, self).__init__('Session', **kwargs)
 
 
 class EnvironmentNotFound(HelixauthObjectNotFound):
