@@ -58,6 +58,14 @@ class ProtocolTestCase(RootTestCase):
 
     test_get_auuthorized_api_actions = test_get_api_actions
 
+    def test_login(self):
+        a_name = 'login'
+        self.api.validate_request(a_name, {'login': 'l', 'password': 'p',
+            'environment_name': 'e', 'custom_user_info': 'i'})
+        self.api.validate_request(a_name, {'login': 'l', 'password': 'p',
+            'environment_name': 'n'})
+        self.validate_authorized_status_response(a_name)
+
     def test_add_environment(self):
         a_name = 'add_environment'
         self.api.validate_request(a_name, {'name': 'n', 'su_login': 'l',
@@ -70,24 +78,11 @@ class ProtocolTestCase(RootTestCase):
 
     def test_modify_environment(self):
         a_name = 'modify_environment'
-        self.api.validate_request(a_name, {'login': 'l', 'password': 'p',
-            'environment_name': 'e', 'custom_user_info': 'i',
-            'name': 'n', 'new_name': 'nn'})
-        self.api.validate_request(a_name, {'login': 'l', 'password': 'p',
-            'environment_name': 'n', 'name': 'n', 'new_name': 'nn'})
         self.api.validate_request(a_name, {'session_id': 'i',
             'custom_user_info': 'i', 'name': 'n', 'new_name': 'n'})
         self.api.validate_request(a_name, {'session_id': 'i',
             'name': 'n', 'new_name': 'n'})
-        self.validate_authorized_status_response(a_name)
-
-    def test_login(self):
-        a_name = 'login'
-        self.api.validate_request(a_name, {'login': 'l', 'password': 'p',
-            'environment_name': 'e', 'custom_user_info': 'i'})
-        self.api.validate_request(a_name, {'login': 'l', 'password': 'p',
-            'environment_name': 'n'})
-        self.validate_authorized_status_response(a_name)
+        self.validate_status_response(a_name)
 
 
 if __name__ == '__main__':
