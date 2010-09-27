@@ -1,10 +1,11 @@
 from uuid import uuid4
 import cjson
 import pytz
-from datetime import datetime
+from datetime import datetime, timedelta
 
 from helixcore import mapping
 
+from helixauth.conf import settings
 from helixauth.conf.db import transaction
 from helixauth.db.dataobject import Session, User
 from helixauth.db.filters import SessionFilter
@@ -44,6 +45,11 @@ class Authentifier(object):
 #        mapping.save(curs, session)
 #        return session
 
+    def session_valid_until(self):
+        cur_date = datetime.now(pytz.utc)
+        valid_period = timedelta(minutes=settings.session_valid_minutes)
+        return cur_date + valid_period
+
     def create_session(self, curs, env, user, sz_data):
         d = datetime.now(pytz.utc)
         data = {
@@ -58,8 +64,17 @@ class Authentifier(object):
         mapping.save(curs, session)
         return session
 
-    def get_acess_rights(self, env, user):
+    def get_access_rights(self, env, user):
         if user.role == User.ROLE_SUPER:
             return {}
         else:
             raise NotImplemented
+
+    def get_serialized_access_rights(self, env, user):
+        return cjson.encode(self.get_access_rights(env, user))
+
+    def is_access_granted(self, user, action, rights):
+        if user.role == User.ROLE_SUPER:
+            return True
+        else:
+            return action in rights and rights[action] is True
