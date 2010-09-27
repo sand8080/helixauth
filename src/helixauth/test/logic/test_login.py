@@ -1,6 +1,7 @@
 import unittest
 
 from helixauth.test.service_test import ServiceTestCase
+from helixcore.server.errors import RequestProcessingError
 
 
 class LoginTestCase(ServiceTestCase):
@@ -16,8 +17,19 @@ class LoginTestCase(ServiceTestCase):
     def test_login_super_user(self):
         response = self.login(environment_name=self.env_name,
             login=self.su_login, password=self.su_password)
-        self.assertEqual('ok', response['status'])
+        self.check_response_ok(response)
         self.get_session(response['session_id'])
+
+    def test_login_failed(self):
+        self.assertRaises(RequestProcessingError,
+            self.login, environment_name='%s ' % self.env_name,
+            login=self.su_login, password=self.su_password)
+        self.assertRaises(RequestProcessingError,
+            self.login, environment_name=self.env_name,
+            login='%s ' % self.su_login, password=self.su_password)
+        self.assertRaises(RequestProcessingError,
+            self.login, environment_name=self.env_name,
+            login=self.su_login, password='%s ' % self.su_password)
 
 
 if __name__ == '__main__':
