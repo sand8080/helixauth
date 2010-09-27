@@ -12,6 +12,8 @@ server_host = 'localhost'
 server_port = 9999
 server_connections = 50
 
+session_valid_minutes = 5
+
 import logging
 log_filename = '/var/log/helix/helixauth.log'
 log_level = logging.DEBUG
