@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timedelta
 import pytz
 import cjson
 from uuid import uuid4
@@ -17,6 +17,7 @@ from helixauth.db.filters import EnvironmentFilter, SessionFilter, UserFilter
 from helixauth.db.dataobject import Environment, User, Session
 from helixauth.logic.auth import Authentifier
 from helixauth.wsgi.protocol import protocol
+
 
 
 #from helixauth.conf.db import transaction
@@ -64,6 +65,26 @@ class Handler(AbstractHandler):
         return response_ok(actions=actions)
 
     @transaction()
+    @detalize_error(EnvironmentNotFound,
+        RequestProcessingError.Category.auth, 'login')
+    @detalize_error(UserNotFound,
+        RequestProcessingError.Category.auth, 'login')
+    def login(self, data, curs=None):
+        enc_data = security.encrypt_passwords(data)
+        f = EnvironmentFilter(enc_data, {}, {})
+        env = f.filter_one_obj(curs)
+
+        f = UserFilter(env, enc_data, {}, {})
+        user = f.filter_one_obj(curs)
+
+        # creating session
+        auth = Authentifier()
+        rights = auth.get_access_rights(env, user)
+        sz_data = cjson.encode({'rights': rights})
+        session = auth.create_session(curs, env, user, sz_data)
+        return response_ok(session_id=session.session_id)
+
+    @transaction()
     @detalize_error(HelixauthObjectAlreadyExists,
         RequestProcessingError.Category.data_integrity, 'name')
     def add_environment(self, data, curs=None):
@@ -86,28 +107,10 @@ class Handler(AbstractHandler):
         user = User(**u_data)
         mapping.save(curs, user)
 
-        # creating session
-#        session = self._create_session(curs, env, user, {})
-        return response_ok(session_id='aaa')
-
-    @transaction()
-    @detalize_error(EnvironmentNotFound,
-        RequestProcessingError.Category.auth, 'login')
-    @detalize_error(UserNotFound,
-        RequestProcessingError.Category.auth, 'login')
-    def login(self, data, curs=None):
-        enc_data = security.encrypt_passwords(data)
-        f = EnvironmentFilter(enc_data, {}, {})
-        env = f.filter_one_obj(curs)
-
-        f = UserFilter(env, enc_data, {}, {})
-        user = f.filter_one_obj(curs)
-
-        # creating session
         auth = Authentifier()
-        rights = auth.get_acess_rights(env, user)
-        sz_data = cjson.encode({'rights': rights})
-        session = auth.create_session(curs, env, user, sz_data)
+        sz_rights = auth.get_serialized_access_rights(env, user)
+        session = auth.create_session(curs, env, user, sz_rights)
+
         return response_ok(session_id=session.session_id)
 
 #    def _get_environment_from_sesion(self, curs, session):
