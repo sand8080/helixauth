@@ -41,6 +41,9 @@ class ServiceTestCase(DbBasedTestCase):
         user = self.get_auth_user(environment, su_login, su_password)
         self.assertEqual(su_login, user.login)
         self.assertEqual(environment.id, user.environment_id)
+        self.check_response_ok(response)
+        session_id = response.get('session_id')
+        self.assertNotEqual(None, session_id)
         return response
 
     def modify_environment(self, **kwargs):
