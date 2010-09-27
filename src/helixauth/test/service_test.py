@@ -52,10 +52,12 @@ class ServiceTestCase(DbBasedTestCase):
 
     def login(self, **kwargs):
         response = self.handle_action('login', kwargs)
-#        self.assertEqual('ok', response['status'])
-#        return response
+        return response
 
     @transaction()
     def get_session(self, session_id, curs=None):
         f = SessionFilter({'session_id': session_id}, {}, {})
         return f.filter_one_obj(curs)
+
+    def check_response_ok(self, response):
+        self.assertEqual('ok', response['status'])
