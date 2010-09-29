@@ -9,7 +9,6 @@ REQUEST_PAGING_PARAMS = {
 }
 
 AUTHORIZED_REQUEST_AUTH_INFO = {
-    Optional('environment_name'): Text(),
     Optional('session_id'): Text(),
     Optional('custom_user_info'): NullableText(),
 }
