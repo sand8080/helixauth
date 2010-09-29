@@ -37,5 +37,6 @@ class UserAuthError(HelixauthError):
     pass
 
 
-class SessionAuthError(HelixauthError):
-    pass
+class SessionExpired(HelixauthError):
+    def __init__(self, session_id):
+        super(SessionExpired, self).__init__('Session %s expired', session_id)

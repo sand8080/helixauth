@@ -1,5 +1,7 @@
 import cjson
+from datetime import timedelta
 
+from helixcore import mapping
 from helixcore.server.api import Api
 
 # must be imported first in helixauth set
@@ -9,6 +11,7 @@ from helixauth.db.filters import EnvironmentFilter, UserFilter, SessionFilter
 from helixauth.conf.db import transaction
 from helixauth.logic import actions
 from helixauth.wsgi.protocol import protocol
+from helixauth.conf import settings
 
 
 class ServiceTestCase(DbBasedTestCase):
@@ -47,10 +50,10 @@ class ServiceTestCase(DbBasedTestCase):
         return response
 
     def modify_environment(self, **kwargs):
-        env_old = self.get_environment_by_name(kwargs['name'])
         response = self.handle_action('modify_environment', kwargs)
+        self.check_response_ok(response)
         env_new = self.get_environment_by_name(kwargs['new_name'])
-        self.assertEqual(env_old.name, env_new.name)
+        self.assertEqual(kwargs['new_name'], env_new.name)
         return response
 
     def login(self, **kwargs):
@@ -58,9 +61,18 @@ class ServiceTestCase(DbBasedTestCase):
         return response
 
     @transaction()
-    def get_session(self, session_id, curs=None):
+    def get_session(self, session_id, for_update=False, curs=None):
         f = SessionFilter({'session_id': session_id}, {}, {})
-        return f.filter_one_obj(curs)
+        return f.filter_one_obj(curs, for_update=for_update)
+
+    @transaction()
+    def make_session_expired(self, session_id, curs=None):
+        td = timedelta(minutes=settings.session_valid_minutes)
+        session = self.get_session(session_id, for_update=True)
+        session.start_date = session.start_date - td
+        session.update_date = session.update_date - td
+        mapping.save(curs, session)
 
     def check_response_ok(self, response):
         self.assertEqual('ok', response['status'])
+

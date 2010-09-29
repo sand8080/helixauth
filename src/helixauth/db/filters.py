@@ -4,7 +4,6 @@ from helixcore.db.filters import ObjectsFilter as OFImpl
 
 from helixauth.db.dataobject import User, Environment, ActionLog, Session
 from helixauth.error import UserNotFound, EnvironmentNotFound, SessionNotFound
-from helixauth import security
 
 
 class EnvironmentObjectsFilter(OFImpl):
@@ -22,6 +21,7 @@ class EnvironmentObjectsFilter(OFImpl):
 class SessionFilter(OFImpl):
     cond_map = [
         ('session_id', 'session_id', Eq),
+        ('to_update_date', 'update_date', MoreEq),
 #        ('envirionment_id', 'envirionment_id', Eq),
     ]
 

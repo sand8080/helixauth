@@ -79,9 +79,9 @@ class ProtocolTestCase(RootTestCase):
     def test_modify_environment(self):
         a_name = 'modify_environment'
         self.api.validate_request(a_name, {'session_id': 'i',
-            'custom_user_info': 'i', 'name': 'n', 'new_name': 'n'})
+            'custom_user_info': 'i', 'new_name': 'n'})
         self.api.validate_request(a_name, {'session_id': 'i',
-            'name': 'n', 'new_name': 'n'})
+            'new_name': 'n'})
         self.validate_status_response(a_name)
 
 
