@@ -8,28 +8,33 @@ from helixcore.server.response import response_ok
 from helixauth import security
 from helixauth.conf.db import transaction
 from helixauth.error import (EnvironmentNotFound,
-    HelixauthObjectAlreadyExists, SessionNotFound, UserNotFound)
+    HelixauthObjectAlreadyExists, SessionNotFound, UserNotFound, SessionExpired,
+    HelixauthError)
 from helixauth.db.filters import EnvironmentFilter, UserFilter
 from helixauth.db.dataobject import Environment, User
 from helixauth.logic.auth import Authentifier
 from helixauth.wsgi.protocol import protocol
 
 
-#from helixauth.conf.db import transaction
-#from helixauth.dataobject import Environment
-#from helixauth.error import HelixauthError
-
-#from helixcore.utils import filter_dict
-
 def authentificate(method):
     @detalize_error(SessionNotFound, RequestProcessingError.Category.auth, 'session_id')
+    @detalize_error(SessionExpired, RequestProcessingError.Category.auth, 'session_id')
+    @detalize_error(HelixauthError, RequestProcessingError.Category.auth, 'session_id')
     def decroated(self, data, curs):
         auth = Authentifier()
-        (session, environment, user) = auth.get_credentials(data)
+        session_id = data.get('session_id')
+        session = auth.get_session(session_id)
+
+        f = UserFilter(session, {'id': session.user_id}, {}, {})
+        user = f.filter_one_obj(curs)
+
+        if user.environment_id != session.environment_id:
+            raise HelixauthError('User and session from different environments')
+
         auth.check_access(session, user, method)
         data.pop('session_id', None)
         data.pop('custom_user_info', None)
-        return method(self, data, environment, user, curs)
+        return method(self, data, session, curs)
     return decroated
 
 
@@ -63,7 +68,11 @@ class Handler(AbstractHandler):
         f = EnvironmentFilter(enc_data, {}, {})
         env = f.filter_one_obj(curs)
 
-        f = UserFilter(env, enc_data, {}, {})
+        class SessionImitator(object):
+            def __init__(self):
+                self.environment_id = env.id
+
+        f = UserFilter(SessionImitator(), enc_data, {}, {})
         user = f.filter_one_obj(curs)
 
         # creating session
@@ -103,8 +112,8 @@ class Handler(AbstractHandler):
     @authentificate
     @detalize_error(HelixauthObjectAlreadyExists,
         RequestProcessingError.Category.data_integrity, 'new_name')
-    def modify_environment(self, data, env, user, curs=None):
-        f = EnvironmentFilter({'id': env.id}, {}, {})
+    def modify_environment(self, data, session, curs=None):
+        f = EnvironmentFilter({'id': session.environment_id}, {}, {})
         loader = partial(f.filter_one_obj, curs, for_update=True)
         self.update_obj(curs, data, loader)
         return response_ok()

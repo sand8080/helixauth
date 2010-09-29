@@ -9,47 +9,37 @@ from helixauth.conf import settings
 from helixauth.conf.db import transaction
 from helixauth.db.dataobject import Session, User
 from helixauth.db.filters import SessionFilter, EnvironmentFilter, UserFilter
-from helixauth.error import UserAuthError
+from helixauth.error import UserAuthError, SessionExpired
 
 
 class Authentifier(object):
-    def get_credentials(self, data):
-        '''
-        returns (session, environment, user)
-        '''
-        session = self._get_session(data)
-        env, user = self._extract_credentials(session)
-        return (session, env, user)
-
-    def _get_session(self, data):
-        session_id = data['session_id']
-        return self._update_session(session_id)
-
     @transaction()
-    def _update_session(self, session_id, curs=None):
-        valid_date = self._session_valid_update_date()
-        f = SessionFilter({'session_id': session_id,
-            'to_update_date': valid_date}, {}, {})
+    def get_session(self, session_id, curs=None):
+        f = SessionFilter({'session_id': session_id}, {}, {})
         session = f.filter_one_obj(curs, for_update=True)
-        session.update_date = datetime.now(pytz.utc)
-        mapping.save(curs, session)
+
+        valid_date = self._session_expiration_date()
+        if session.update_date > valid_date:
+            session.update_date = datetime.now(pytz.utc)
+            mapping.save(curs, session)
+        else:
+            raise SessionExpired(session_id)
         return session
 
-    @transaction()
-    def _extract_credentials(self, session, curs=None):
-        '''
-        returns (env, user)
-        '''
-        f = EnvironmentFilter({'environment_id': session.environment_id},
-            {}, {})
-        env = f.filter_one_obj(curs)
+#    def extract_credentials(self, curs, session):
+#        '''
+#        returns (env, user)
+#        '''
+#        f = EnvironmentFilter({'environment_id': session.environment_id},
+#            {}, {})
+#        env = f.filter_one_obj(curs)
+#
+#        f = UserFilter(env, {'id': session.user_id}, {}, {})
+#        user = f.filter_one_obj(curs)
+#
+#        return env, user
 
-        f = UserFilter(env, {'id': session.user_id}, {}, {})
-        user = f.filter_one_obj(curs)
-
-        return env, user
-
-    def _session_valid_update_date(self):
+    def _session_expiration_date(self):
         cur_date = datetime.now(pytz.utc)
         valid_period = timedelta(minutes=settings.session_valid_minutes)
         return cur_date - valid_period
