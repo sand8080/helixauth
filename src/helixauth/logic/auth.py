@@ -2,17 +2,23 @@ from uuid import uuid4
 import cjson
 import pytz
 from datetime import datetime, timedelta
+from hashlib import sha256
 
 from helixcore import mapping
 
 from helixauth.conf import settings
 from helixauth.conf.db import transaction
 from helixauth.db.dataobject import Session, User
-from helixauth.db.filters import SessionFilter, EnvironmentFilter, UserFilter
+from helixauth.db.filters import SessionFilter
 from helixauth.error import UserAuthError, SessionExpired
 
 
 class Authentifier(object):
+    def encrypt_password(self, password):
+        h = sha256()
+        h.update(password)
+        return h.hexdigest()
+
     @transaction()
     def get_session(self, session_id, curs=None):
         f = SessionFilter({'session_id': session_id}, {}, {})
@@ -23,21 +29,8 @@ class Authentifier(object):
             session.update_date = datetime.now(pytz.utc)
             mapping.save(curs, session)
         else:
-            raise SessionExpired(session_id)
+            raise SessionExpired()
         return session
-
-#    def extract_credentials(self, curs, session):
-#        '''
-#        returns (env, user)
-#        '''
-#        f = EnvironmentFilter({'environment_id': session.environment_id},
-#            {}, {})
-#        env = f.filter_one_obj(curs)
-#
-#        f = UserFilter(env, {'id': session.user_id}, {}, {})
-#        user = f.filter_one_obj(curs)
-#
-#        return env, user
 
     def _session_expiration_date(self):
         cur_date = datetime.now(pytz.utc)
