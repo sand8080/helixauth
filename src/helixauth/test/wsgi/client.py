@@ -1,4 +1,4 @@
-from helixcore.test.util import ClientApplication, ClientSimpleApplication
+from helixcore.test.util import ClientSimpleApplication
 
 from helixauth.conf.log import logger
 from helixauth.logic.actions import handle_action
