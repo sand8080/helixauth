@@ -36,17 +36,19 @@ class ServiceTestCase(DbBasedTestCase):
         f = UserFilter(environment, filter_params, {}, {})
         return f.filter_one_obj(curs)
 
-    def add_environment(self, name, su_login, su_password, custom_user_info=None):
-        response = self.handle_action('add_environment', {'name': name, 'su_login': su_login,
-            'su_password': su_password, 'custom_user_info': custom_user_info})
-        environment = self.get_environment_by_name(name)
-        self.assertEqual(name, environment.name)
+    def add_environment(self, **kwargs):
+        response = self.handle_action('add_environment', kwargs)
+        name = kwargs['name']
+        env = self.get_environment_by_name(name)
+        self.assertEqual(name, env.name)
 
         session = self.get_session(response['session_id'])
-        user = self.get_auth_user(session, su_login, su_password)
+        login = kwargs['su_login']
+        password = kwargs['su_password']
+        user = self.get_auth_user(session, login, password)
 
-        self.assertEqual(su_login, user.login)
-        self.assertEqual(environment.id, user.environment_id)
+        self.assertEqual(login, user.login)
+        self.assertEqual(env.id, user.environment_id)
         self.check_response_ok(response)
         session_id = response.get('session_id')
         self.assertNotEqual(None, session_id)

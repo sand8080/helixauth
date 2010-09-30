@@ -42,7 +42,6 @@ def authentificate(method):
         data['environment_id'] = session.environment_id
         data['custom_actor_info'] = custom_actor_info
 
-        print '### data in handler', data
         return result
     return decroated
 
