@@ -11,8 +11,10 @@ class LoginTestCase(ServiceTestCase):
 
     def setUp(self):
         super(LoginTestCase, self).setUp()
-        self.add_environment(self.env_name, self.su_login, self.su_password,
-            'from %s' % self.env_name)
+        req = {'name': self.env_name, 'su_login': self.su_login,
+            'su_password': self.su_password,
+            'custom_actor_info': 'from %s' % self.env_name}
+        self.add_environment(**req)
 
     def test_login_super_user(self):
         response = self.login(environment_name=self.env_name,
