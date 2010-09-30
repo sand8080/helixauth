@@ -78,6 +78,9 @@ class Handler(AbstractHandler):
         f = EnvironmentFilter(enc_data, {}, {})
         env = f.filter_one_obj(curs)
 
+        # Required for proper logging action
+        data['environment_id'] = env.id
+
         class SessionImitator(object):
             def __init__(self):
                 self.environment_id = env.id
@@ -85,13 +88,12 @@ class Handler(AbstractHandler):
         f = UserFilter(SessionImitator(), enc_data, {}, {})
         user = f.filter_one_obj(curs)
 
+        # Required for proper logging action
+        data['actor_user_id'] = user.id
+
         # creating session
         auth = Authentifier()
         session = auth.create_session(curs, env, user)
-
-        # Required for proper logging action
-        data['actor_user_id'] = session.user_id
-        data['environment_id'] = session.environment_id
 
         return response_ok(session_id=session.session_id)
 
