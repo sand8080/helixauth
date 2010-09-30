@@ -1,6 +1,5 @@
+from helixcore import security
 from helixcore.db.wrapper import ObjectNotFound, ObjectCreationError
-
-from helixauth.security import sanitize_credentials
 
 
 class HelixauthError(Exception):
@@ -9,7 +8,7 @@ class HelixauthError(Exception):
 
 class HelixauthObjectNotFound(HelixauthError, ObjectNotFound):
     def __init__(self, class_name, **kwargs):
-        sanitized_kwargs = sanitize_credentials(kwargs)
+        sanitized_kwargs = security.sanitize_credentials(kwargs)
         super(HelixauthObjectNotFound, self).__init__('%s not found by params: %s' %
             (class_name, sanitized_kwargs))
 
@@ -38,5 +37,5 @@ class UserAuthError(HelixauthError):
 
 
 class SessionExpired(HelixauthError):
-    def __init__(self, session_id):
-        super(SessionExpired, self).__init__('Session %s expired', session_id)
+    def __init__(self):
+        super(SessionExpired, self).__init__('Session expired')
