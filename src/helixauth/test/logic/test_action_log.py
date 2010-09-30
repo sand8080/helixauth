@@ -11,7 +11,7 @@ from helixauth.db.filters import ActionLogFilter
 class ActionLogTestCase(ServiceTestCase):
     def setUp(self):
         super(ActionLogTestCase, self).setUp()
-        self.cli = Client(u'авторизация %s' % datetime.datetime.now(), 'qazwsx')
+        self.cli = Client()
 
     @transaction()
     def _check_action_tracked(self, environment, action, custom_actor_user_info, curs=None):
@@ -50,129 +50,22 @@ class ActionLogTestCase(ServiceTestCase):
 
     def test_tracking_error_action(self):
         name = 'action_logged'
-        self.cli.add_environment(name=name, su_login=self.cli.login, su_password=self.cli.password) #IGNORE:E1101
+        su_login = 'su_login_%s' % datetime.datetime.now()
+        su_password = 'qazwsx'
+        self.cli.add_environment(name=name, su_login=su_login, su_password=su_password) #IGNORE:E1101
         environment = self.get_environment_by_name(name)
         self.assertEquals(1, self.get_action_logs_num(environment))
-        self.cli.add_environment(name=name, su_login=self.cli.login, su_password=self.cli.password) #IGNORE:E1101
+
+        self.cli.login(environment_name=name, login='_%s_' % su_login, password=su_password) #IGNORE:E1101
         self.assertEquals(2, self.get_action_logs_num(environment))
 
-#    def test_tracking_action(self):
-#        self.cli.add_operator(login=self.cli.login, password=self.cli.password) #IGNORE:E1101
-#        operator = self.get_operator_by_login(self.cli.login)
-#
-#        self._make_trackable_action(operator, 'modify_operator', {'custom_operator_info': 'jah',
-#            'new_password': self.cli.password})
-#
-#        c_id = 'tracked customer'
-#        self._make_trackable_action(operator, 'add_balance', {'customer_id': c_id, 'active': True,
-#            'currency': self.currency.code})
-#        self._make_trackable_action(operator, 'modify_balance', {'customer_id': c_id, 'new_active': True})
-#        self._make_trackable_action(operator, 'delete_balance', {'customer_id': c_id})
-#        self._make_action('add_balance', {'customer_id': c_id, 'active': True,
-#            'currency': self.currency.code})
-#
-#        self._make_trackable_action(operator, 'enroll_receipt', {'customer_id': c_id, 'amount': '15.00'})
-#        self._make_trackable_action(operator, 'enroll_bonus', {'customer_id': c_id, 'amount': '25.00'})
-#
-#        order_id = 'lock_unlock'
-#        self._make_trackable_action(operator, 'balance_lock', {'customer_id': c_id, 'order_id': order_id,
-#            'amount': '20.00'})
-#
-#        self._make_trackable_action(operator, 'balance_unlock', {'customer_id': c_id, 'order_id': order_id})
-#
-#        order_id = 'lock_chargeoff'
-#        self._make_action('balance_lock', {'customer_id': c_id, 'order_id': order_id, 'amount': '22.00'})
-#        self._make_trackable_action(operator, 'chargeoff', {'customer_id': c_id, 'order_id': order_id})
-#
-#        c_id_1 = 'customer for list operations'
-#        self._make_action('add_balance', {'customer_id': c_id_1, 'active': True,
-#            'currency': self.currency.code})
-#        self._make_action('enroll_receipt', {'customer_id': c_id_1, 'amount': '16.00'})
-#        self._make_action('enroll_bonus', {'customer_id': c_id_1, 'amount': '26.00'})
-#
-#        order_id = 'lock_list_unlock_list'
-#        self._make_trackable_action(operator, 'balance_lock_list', {'locks': [
-#            {'customer_id': c_id, 'order_id': order_id, 'amount': '0.01'},
-#            {'customer_id': c_id_1, 'order_id': order_id, 'order_type': 'ot', 'amount': '0.01'},
-#        ]})
-#        self._make_trackable_action(operator, 'balance_unlock_list', {'unlocks': [
-#            {'customer_id': c_id, 'order_id': order_id},
-#            {'customer_id': c_id_1, 'order_id': order_id},
-#        ]})
-#
-#        order_id = 'lock_list_chargeoff_list'
-#        self._make_action('balance_lock_list', {'locks': [
-#            {'customer_id': c_id, 'order_id': order_id, 'amount': '0.01'},
-#            {'customer_id': c_id_1, 'order_id': order_id, 'order_type': 'ot', 'amount': '0.01'},
-#        ]})
-#        self._make_action('chargeoff_list', {'chargeoffs': [
-#            {'customer_id': c_id, 'order_id': order_id},
-#            {'customer_id': c_id_1, 'order_id': order_id},
-#        ]})
-#
-#    def test_view_action_logs(self):
-#        self.cli.add_operator(login=self.cli.login, password=self.cli.password) #IGNORE:E1101
-#        c_id_0 = 'view_action_logs_0'
-#        c_id_1 = 'view_action_logs_1'
-#        self._make_action('add_balance', {'customer_id': c_id_0, 'active': True, 'currency': self.currency.code})
-#        self._make_action('add_balance', {'customer_id': c_id_1, 'active': True, 'currency': self.currency.code})
-#        self._make_action('enroll_receipt', {'customer_id': c_id_0, 'amount': '15.00'})
-#        self._make_action('enroll_bonus', {'customer_id': c_id_1, 'amount': '25.00'})
-#        order_id_0 = '1'
-#        self._make_action('balance_lock', {'customer_id': c_id_0, 'order_id': order_id_0, 'amount': '5.00'})
-#        self._make_action('balance_lock', {'customer_id': c_id_1, 'order_id': order_id_0, 'amount': '6.00'})
-#        order_id_1 = '2'
-#        d_0 = datetime.datetime.now(pytz.utc)
-#        self._make_action('balance_lock_list', {'locks': [
-#            {'customer_id': c_id_0, 'order_id': order_id_1, 'amount': '7.00'},
-#            {'customer_id': c_id_1, 'order_id': order_id_1, 'amount': '8.00'},
-#        ]})
-#        self._make_action('balance_unlock', {'customer_id': c_id_0, 'order_id': order_id_0})
-#        self._make_action('balance_unlock_list', {'unlocks': [{'customer_id': c_id_1, 'order_id': order_id_0}]})
-#
-#        d_1 = datetime.datetime.now(pytz.utc)
-#        self._make_action('chargeoff_list', {'chargeoffs': [{'customer_id': c_id_0, 'order_id': order_id_1},
-#            {'customer_id': c_id_1, 'order_id': order_id_1},]})
-#
-#        data = {
-#            'login': self.cli.login,
-#            'password': self.cli.password,
-#            'filter_params': {},
-#            'paging_params': {},
-#        }
-#        response = self.handle_action('view_action_logs', data)
-#        self.assertEqual(11, response['total'])
-#        self.assertEqual(11, len(response['action_logs']))
-#
-#        data = {
-#            'login': self.cli.login,
-#            'password': self.cli.password,
-#            'filter_params': {'from_request_date': d_0.isoformat(), 'to_request_date': d_1.isoformat()},
-#            'paging_params': {},
-#        }
-#        response = self.handle_action('view_action_logs', data)
-#        self.assertEqual(3, len(response['action_logs']))
-#
-#        data = {
-#            'login': self.cli.login,
-#            'password': self.cli.password,
-#            'filter_params': {'action': 'balance_lock'},
-#            'paging_params': {},
-#        }
-#        response = self.handle_action('view_action_logs', data)
-#        self.assertEqual(2, len(response['action_logs']))
-#
-#        data = {
-#            'login': self.cli.login,
-#            'password': self.cli.password,
-#            'filter_params': {'customer_id': c_id_0},
-#            'paging_params': {},
-#        }
-#        response = self.handle_action('view_action_logs', data)
-#        al_info = response['action_logs']
-#        self.assertEqual(6, len(al_info))
-#        for al in al_info:
-#            self.assertTrue(c_id_0 in al['customer_ids'])
+        self.cli.login(environment_name='_%s_' % name, login=su_login, password=su_password) #IGNORE:E1101
+        # Environment is not defined so actions log by env is not changed
+        self.assertEquals(2, self.get_action_logs_num(environment))
+        class EnvImitator(object):
+            id = None
+        env_imitator = EnvImitator()
+        self.assertEquals(1, self.get_action_logs_num(env_imitator))
 
 
 if __name__ == '__main__':
