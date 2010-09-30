@@ -1,11 +1,11 @@
 from functools import partial
 
 from helixcore import mapping
+from helixcore import security
 from helixcore.actions.handler import detalize_error, AbstractHandler
 from helixcore.server.errors import RequestProcessingError
 from helixcore.server.response import response_ok
 
-from helixauth import security
 from helixauth.conf.db import transaction
 from helixauth.error import (EnvironmentNotFound,
     HelixauthObjectAlreadyExists, SessionNotFound, UserNotFound, SessionExpired,
@@ -33,8 +33,17 @@ def authentificate(method):
 
         auth.check_access(session, user, method)
         data.pop('session_id', None)
-        data.pop('custom_user_info', None)
-        return method(self, data, session, curs)
+        custom_actor_info = data.pop('custom_actor_info', None)
+
+        result = method(self, data, session, curs)
+
+        # Required for proper logging action
+        data['actor_user_id'] = session.user_id
+        data['environment_id'] = session.environment_id
+        data['custom_actor_info'] = custom_actor_info
+
+        print '### data in handler', data
+        return result
     return decroated
 
 
@@ -64,7 +73,8 @@ class Handler(AbstractHandler):
     @detalize_error(UserNotFound,
         RequestProcessingError.Category.auth, 'login')
     def login(self, data, curs=None):
-        enc_data = security.encrypt_passwords(data)
+        a = Authentifier()
+        enc_data = security.encrypt_passwords(data, a.encrypt_password)
         f = EnvironmentFilter(enc_data, {}, {})
         env = f.filter_one_obj(curs)
 
@@ -78,6 +88,11 @@ class Handler(AbstractHandler):
         # creating session
         auth = Authentifier()
         session = auth.create_session(curs, env, user)
+
+        # Required for proper logging action
+        data['actor_user_id'] = session.user_id
+        data['environment_id'] = session.environment_id
+
         return response_ok(session_id=session.session_id)
 
     @transaction()
@@ -97,14 +112,19 @@ class Handler(AbstractHandler):
         mapping.save(curs, env)
 
         # creating user
+        a = Authentifier()
         u_data = {'environment_id': env.id, 'login': data.get('su_login'),
-            'password': security.encrypt_password(data.get('su_password')),
+            'password': a.encrypt_password(data.get('su_password')),
             'role': User.ROLE_SUPER}
         user = User(**u_data)
         mapping.save(curs, user)
 
         auth = Authentifier()
         session = auth.create_session(curs, env, user)
+
+        # Required for proper logging action
+        data['actor_user_id'] = session.user_id
+        data['environment_id'] = session.environment_id
 
         return response_ok(session_id=session.session_id)
 

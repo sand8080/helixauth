@@ -21,6 +21,7 @@ class EnvironmentTestCase(ServiceTestCase):
         self.add_environment(name, su_login, su_password)
         self.assertRaises(RequestProcessingError, self.add_environment,
             name, 'a', 'b', 'c')
+
     def test_modify_environment(self):
         name = 'env_0'
         su_login = 'su_env_login'

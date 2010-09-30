@@ -6,12 +6,12 @@ from helixcore.server.api import Api
 
 # must be imported first in helixauth set
 from helixauth.test.db_based_test import DbBasedTestCase
-from helixauth import security
-from helixauth.db.filters import EnvironmentFilter, UserFilter, SessionFilter
-from helixauth.conf.db import transaction
-from helixauth.logic import actions
-from helixauth.wsgi.protocol import protocol
+
 from helixauth.conf import settings
+from helixauth.conf.db import transaction
+from helixauth.db.filters import EnvironmentFilter, UserFilter, SessionFilter
+from helixauth.logic import actions, auth
+from helixauth.wsgi.protocol import protocol
 
 
 class ServiceTestCase(DbBasedTestCase):
@@ -30,8 +30,9 @@ class ServiceTestCase(DbBasedTestCase):
 
     @transaction()
     def get_auth_user(self, environment, login, password, curs=None):
+        a = auth.Authentifier()
         filter_params = {'environment_id': environment.id,
-            'login': login, 'password': security.encrypt_password(password)}
+            'login': login, 'password': a.encrypt_password(password)}
         f = UserFilter(environment, filter_params, {}, {})
         return f.filter_one_obj(curs)
 
