@@ -10,7 +10,7 @@ REQUEST_PAGING_PARAMS = {
 
 AUTHORIZED_REQUEST_AUTH_INFO = {
     Optional('session_id'): Text(),
-    Optional('custom_user_info'): NullableText(),
+    Optional('custom_actor_info'): NullableText(),
 }
 
 RESPONSE_STATUS_OK = {'status': 'ok'}
@@ -57,7 +57,7 @@ LOGIN_REQUEST = {
     'login': Text(),
     'password': Text(),
     'environment_name': Text(),
-    Optional('custom_user_info'): NullableText(),
+    Optional('custom_actor_info'): NullableText(),
 }
 
 LOGIN_RESPONSE = AUTHORIZED_RESPONSE_STATUS_ONLY
@@ -66,7 +66,7 @@ ADD_ENVIRONMENT_REQUEST = {
     'name': Text(),
     'su_login': Text(),
     'su_password': Text(),
-    Optional('custom_user_info'): NullableText(),
+    Optional('custom_actor_info'): NullableText(),
 }
 
 ADD_ENVIRONMENT_RESPONSE = AUTHORIZED_RESPONSE_STATUS_ONLY
