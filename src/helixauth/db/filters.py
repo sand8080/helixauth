@@ -1,4 +1,4 @@
-from helixcore.db.sql import And, Eq, Like, MoreEq, LessEq
+from helixcore.db.sql import And, Eq, MoreEq, LessEq
 from helixcore.db.wrapper import SelectedMoreThanOneRow, ObjectNotFound
 from helixcore.db.filters import ObjectsFilter as OFImpl
 
@@ -7,13 +7,13 @@ from helixauth.error import UserNotFound, EnvironmentNotFound, SessionNotFound
 
 
 class EnvironmentObjectsFilter(OFImpl):
-    def __init__(self, environment, filter_params, paging_params, ordering_params, obj_class):
+    def __init__(self, environment_id, filter_params, paging_params, ordering_params, obj_class):
         super(EnvironmentObjectsFilter, self).__init__(filter_params, paging_params, ordering_params, obj_class)
-        self.environment = environment
+        self.environment_id = environment_id
 
     def _cond_by_filter_params(self):
         cond = super(EnvironmentObjectsFilter, self)._cond_by_filter_params()
-        cond = And(cond, Eq('environment_id', self.environment.id))
+        cond = And(cond, Eq('environment_id', self.environment_id))
         return cond
 
 class InSessionFilter(OFImpl):
@@ -31,7 +31,6 @@ class SessionFilter(OFImpl):
     cond_map = [
         ('session_id', 'session_id', Eq),
         ('to_update_date', 'update_date', MoreEq),
-#        ('envirionment_id', 'envirionment_id', Eq),
     ]
 
     def __init__(self, filter_params, paging_params, ordering_params):
@@ -64,9 +63,7 @@ class EnvironmentFilter(OFImpl):
 
 class UserFilter(InSessionFilter):
     cond_map = [
-        ('id', 'id', Eq),
         ('login', 'login', Eq),
-        ('login_like', 'login', Like),
         ('password', 'password', Eq),
     ]
 
@@ -81,6 +78,24 @@ class UserFilter(InSessionFilter):
             raise UserNotFound(**self.filter_params)
 
 
+class SubjectUserFilter(EnvironmentObjectsFilter):
+    cond_map = [
+        ('login', 'login', Eq),
+        ('password', 'password', Eq),
+    ]
+
+    def __init__(self, environment_id, filter_params, paging_params,ordering_params):
+        super(SubjectUserFilter, self).__init__(environment_id,
+            filter_params, paging_params, ordering_params, User)
+
+    def filter_one_obj(self, curs, for_update=False):
+        try:
+            return super(SubjectUserFilter, self).filter_one_obj(curs,
+                for_update=for_update)
+        except (ObjectNotFound, SelectedMoreThanOneRow):
+            raise UserNotFound(**self.filter_params)
+
+
 class ActionLogFilter(EnvironmentObjectsFilter):
     cond_map = [
         ('action', 'action', Eq),
@@ -89,6 +104,6 @@ class ActionLogFilter(EnvironmentObjectsFilter):
         ('to_request_date', 'request_date', LessEq),
     ]
 
-    def __init__(self, environment, filter_params, paging_params, ordering_params):
-        super(ActionLogFilter, self).__init__(environment, filter_params,
-            paging_params, ordering_params, ActionLog)
+    def __init__(self, environment_id, filter_params, paging_params, ordering_params):
+        super(ActionLogFilter, self).__init__(environment_id,
+            filter_params, paging_params, ordering_params, ActionLog)

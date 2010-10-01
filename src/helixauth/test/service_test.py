@@ -9,7 +9,8 @@ from helixauth.test.db_based_test import DbBasedTestCase
 
 from helixauth.conf import settings
 from helixauth.conf.db import transaction
-from helixauth.db.filters import EnvironmentFilter, UserFilter, SessionFilter
+from helixauth.db.filters import EnvironmentFilter, UserFilter, SessionFilter,\
+    SubjectUserFilter
 from helixauth.logic import actions, auth
 from helixauth.wsgi.protocol import protocol
 
@@ -29,11 +30,11 @@ class ServiceTestCase(DbBasedTestCase):
         return f.filter_one_obj(curs)
 
     @transaction()
-    def get_auth_user(self, environment, login, password, curs=None):
+    def get_subj_user(self, environment_id, login, password, curs=None):
         a = auth.Authentifier()
-        filter_params = {'environment_id': environment.id,
+        filter_params = {'environment_id': environment_id,
             'login': login, 'password': a.encrypt_password(password)}
-        f = UserFilter(environment, filter_params, {}, {})
+        f = SubjectUserFilter(environment_id, filter_params, {}, {})
         return f.filter_one_obj(curs)
 
     def add_environment(self, **kwargs):
@@ -42,10 +43,10 @@ class ServiceTestCase(DbBasedTestCase):
         env = self.get_environment_by_name(name)
         self.assertEqual(name, env.name)
 
-        session = self.get_session(response['session_id'])
+        self.assertNotEqual(None, response.get('session_id'))
         login = kwargs['su_login']
         password = kwargs['su_password']
-        user = self.get_auth_user(session, login, password)
+        user = self.get_subj_user(env.id, login, password)
 
         self.assertEqual(login, user.login)
         self.assertEqual(env.id, user.environment_id)
@@ -81,3 +82,7 @@ class ServiceTestCase(DbBasedTestCase):
     def check_response_ok(self, response):
         self.assertEqual('ok', response['status'])
 
+    @transaction()
+    def inactivate_user(self, user, curs=None):
+        user.is_active = False
+        mapping.save(curs, user)

@@ -23,15 +23,25 @@ class LoginTestCase(ServiceTestCase):
         self.get_session(response['session_id'])
 
     def test_login_failed(self):
+        # Wrong environment
         self.assertRaises(RequestProcessingError,
-            self.login, environment_name='%s ' % self.env_name,
+            self.login, environment_name='_%s_' % self.env_name,
             login=self.su_login, password=self.su_password)
+        # Wrong login
         self.assertRaises(RequestProcessingError,
             self.login, environment_name=self.env_name,
-            login='%s ' % self.su_login, password=self.su_password)
+            login='_%s_' % self.su_login, password=self.su_password)
+        # Wrong password
         self.assertRaises(RequestProcessingError,
             self.login, environment_name=self.env_name,
-            login=self.su_login, password='%s ' % self.su_password)
+            login=self.su_login, password='_%s_' % self.su_password)
+        # User is inactive
+        env = self.get_environment_by_name(self.env_name)
+        user = self.get_subj_user(env.id, self.su_login, self.su_password)
+        self.inactivate_user(user)
+        self.assertRaises(RequestProcessingError,
+            self.login, environment_name=self.env_name,
+            login=self.su_login, password=self.su_password)
 
 
 if __name__ == '__main__':

@@ -9,7 +9,7 @@ from helixcore.server.response import response_ok
 from helixauth.conf.db import transaction
 from helixauth.error import (EnvironmentNotFound,
     HelixauthObjectAlreadyExists, SessionNotFound, UserNotFound, SessionExpired,
-    HelixauthError)
+    HelixauthError, UserInactive)
 from helixauth.db.filters import EnvironmentFilter, UserFilter
 from helixauth.db.dataobject import Environment, User
 from helixauth.logic.auth import Authentifier
@@ -30,6 +30,8 @@ def authentificate(method):
 
         if user.environment_id != session.environment_id:
             raise HelixauthError('User and session from different environments')
+        if not user.is_active:
+            raise UserInactive()
 
         auth.check_access(session, user, method)
         data.pop('session_id', None)
@@ -71,6 +73,8 @@ class Handler(AbstractHandler):
         RequestProcessingError.Category.auth, 'login')
     @detalize_error(UserNotFound,
         RequestProcessingError.Category.auth, 'login')
+    @detalize_error(UserInactive,
+        RequestProcessingError.Category.auth, 'login')
     def login(self, data, curs=None):
         a = Authentifier()
         enc_data = security.encrypt_passwords(data, a.encrypt_password)
@@ -86,6 +90,8 @@ class Handler(AbstractHandler):
 
         f = UserFilter(SessionImitator(), enc_data, {}, {})
         user = f.filter_one_obj(curs)
+        if not user.is_active:
+            raise UserInactive()
 
         # Required for proper logging action
         data['actor_user_id'] = user.id
