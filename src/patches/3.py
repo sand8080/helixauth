@@ -8,6 +8,7 @@ def apply(curs):
             FOREIGN KEY (environment_id) REFERENCES environment(id),
             login varchar NOT NULL,
             password varchar NOT NULL,
+            is_active boolean NOT NULL DEFAULT True,
             role varchar NOT NULL CHECK(role in ('super', 'user')),
             PRIMARY KEY(id),
             UNIQUE(environment_id, login)
