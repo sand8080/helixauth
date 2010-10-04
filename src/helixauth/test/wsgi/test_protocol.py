@@ -84,6 +84,14 @@ class ProtocolTestCase(RootTestCase):
             'new_name': 'n'})
         self.validate_status_response(a_name)
 
+    def test_add_user(self):
+        a_name = 'add_user'
+        self.api.validate_request(a_name, {'session_id': 'i',
+            'login': 'l', 'password': 'p', 'role': 'user'})
+        self.api.validate_request(a_name, {'session_id': 'i',
+            'login': 'l', 'password': 'p', 'role': 'super', 'is_active': False})
+        self.validate_status_response(a_name)
+
 
 if __name__ == '__main__':
     unittest.main()

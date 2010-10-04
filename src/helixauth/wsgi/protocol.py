@@ -2,6 +2,8 @@ from helixcore.server.api import ApiCall
 from helixcore.json_validator import (Optional, AnyOf, NonNegative,
     Scheme, Text, ArbitraryDict, NullableText)
 
+from helixauth.db import dataobject
+
 
 REQUEST_PAGING_PARAMS = {
     Optional('limit'): NonNegative(int),
@@ -80,6 +82,17 @@ MODIFY_ENVIRONMENT_REQUEST = dict(
 
 MODIFY_ENVIRONMENT_RESPONSE = RESPONSE_STATUS_ONLY
 
+ADD_USER_REQUEST = dict(
+    {
+        'login': Text(),
+        'password': Text(),
+        'role': AnyOf(dataobject.User.ROLE_SUPER, dataobject.User.ROLE_USER),
+        Optional('is_active'): bool,
+    },
+    **AUTHORIZED_REQUEST_AUTH_INFO
+)
+
+ADD_USER_RESPONSE = RESPONSE_STATUS_ONLY
 
 protocol = [
 
@@ -102,5 +115,9 @@ protocol = [
 
     ApiCall('modify_environment_request', Scheme(MODIFY_ENVIRONMENT_REQUEST)),
     ApiCall('modify_environment_response', Scheme(MODIFY_ENVIRONMENT_RESPONSE)),
+
+    # user
+    ApiCall('add_user_request', Scheme(ADD_USER_REQUEST)),
+    ApiCall('add_user_response', Scheme(ADD_USER_RESPONSE)),
 
 ]
