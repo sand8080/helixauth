@@ -9,7 +9,7 @@ from helixauth.test.db_based_test import DbBasedTestCase
 
 from helixauth.conf import settings
 from helixauth.conf.db import transaction
-from helixauth.db.filters import EnvironmentFilter, UserFilter, SessionFilter,\
+from helixauth.db.filters import EnvironmentFilter, SessionFilter,\
     SubjectUserFilter
 from helixauth.logic import actions, auth
 from helixauth.wsgi.protocol import protocol
@@ -86,3 +86,7 @@ class ServiceTestCase(DbBasedTestCase):
     def inactivate_user(self, user, curs=None):
         user.is_active = False
         mapping.save(curs, user)
+
+    def add_user(self, **kwargs):
+        response = self.handle_action('add_user', kwargs)
+        return response

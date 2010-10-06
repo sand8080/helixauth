@@ -145,3 +145,17 @@ class Handler(AbstractHandler):
         self.update_obj(curs, data, loader)
         return response_ok()
 
+    @transaction()
+    @authentificate
+    @detalize_error(HelixauthObjectAlreadyExists,
+        RequestProcessingError.Category.data_integrity, 'login')
+    def add_user(self, data, session, curs=None):
+        a = Authentifier()
+        u_data = {'environment_id': session.environment_id,
+            'login': data.get('login'), 'role': data.get('role'),
+            'password': a.encrypt_password(data.get('password')),
+            'is_active': data.get('is_active', True),
+        }
+        user = User(**u_data)
+        mapping.save(curs, user)
+        return response_ok()

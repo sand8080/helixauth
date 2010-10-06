@@ -23,10 +23,15 @@ class EnvironmentTestCase(ServiceTestCase):
     def test_modify_environment(self):
         req = {'name': 'env_0', 'su_login': 'su_env_login', 'su_password': 'qweasdzxc',
             'custom_actor_info': 'environment created from tests'}
-        response = self.add_environment(**req)
-        session_id = response['session_id']
-        response = self.modify_environment(**{'session_id': session_id,
-            'new_name': 'modified_name'})
+        resp = self.add_environment(**req)
+        self.check_response_ok(resp)
+        session_id = resp['session_id']
+        resp = self.modify_environment(**{'session_id': session_id,
+            'new_name': 'modified_name_0'})
+        self.check_response_ok(resp)
+        resp = self.modify_environment(**{'session_id': session_id,
+            'new_name': 'modified_name_1'})
+        self.check_response_ok(resp)
 
     @transaction()
     def test_modify_failure(self, curs=None):
