@@ -92,6 +92,16 @@ class ProtocolTestCase(RootTestCase):
             'login': 'l', 'password': 'p', 'role': 'super', 'is_active': False})
         self.validate_status_response(a_name)
 
+    def test_add_service(self):
+        a_name = 'add_service'
+        self.api.validate_request(a_name, {'session_id': 'i',
+            'name': 'n', 'properties': []})
+        self.api.validate_request(a_name, {'session_id': 'i',
+            'name': 'n', 'properties': ['a', 'b', 'c']})
+        self.api.validate_request(a_name, {'session_id': 'i',
+            'name': 'n', 'properties': ['a', 'b', 'c'],'is_active': False})
+        self.validate_status_response(a_name)
+
 
 if __name__ == '__main__':
     unittest.main()

@@ -94,6 +94,17 @@ ADD_USER_REQUEST = dict(
 
 ADD_USER_RESPONSE = RESPONSE_STATUS_ONLY
 
+ADD_SERVICE_REQUEST = dict(
+    {
+        'name': Text(),
+        'properties': [Text()],
+        Optional('is_active'): bool,
+    },
+    **AUTHORIZED_REQUEST_AUTH_INFO
+)
+
+ADD_SERVICE_RESPONSE = RESPONSE_STATUS_ONLY
+
 protocol = [
 
     ApiCall('ping_request', Scheme(PING_REQUEST)),
@@ -119,5 +130,9 @@ protocol = [
     # user
     ApiCall('add_user_request', Scheme(ADD_USER_REQUEST)),
     ApiCall('add_user_response', Scheme(ADD_USER_RESPONSE)),
+
+    # service
+    ApiCall('add_service_request', Scheme(ADD_SERVICE_REQUEST)),
+    ApiCall('add_service_response', Scheme(ADD_SERVICE_RESPONSE)),
 
 ]
