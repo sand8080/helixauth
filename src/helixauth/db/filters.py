@@ -2,7 +2,8 @@ from helixcore.db.sql import And, Eq, MoreEq, LessEq
 from helixcore.db.wrapper import SelectedMoreThanOneRow, ObjectNotFound
 from helixcore.db.filters import ObjectsFilter as OFImpl
 
-from helixauth.db.dataobject import User, Environment, ActionLog, Session
+from helixauth.db.dataobject import User, Environment, ActionLog, Session,\
+    Service
 from helixauth.error import UserNotFound, EnvironmentNotFound, SessionNotFound
 
 
@@ -108,3 +109,14 @@ class ActionLogFilter(EnvironmentObjectsFilter):
     def __init__(self, environment_id, filter_params, paging_params, ordering_params):
         super(ActionLogFilter, self).__init__(environment_id,
             filter_params, paging_params, ordering_params, ActionLog)
+
+
+class ServiceFilter(EnvironmentObjectsFilter):
+    cond_map = [
+        ('id', 'id', Eq),
+        ('name', 'name', Eq),
+    ]
+
+    def __init__(self, environment_id, filter_params, paging_params, ordering_params):
+        super(ServiceFilter, self).__init__(environment_id,
+            filter_params, paging_params, ordering_params, Service)
