@@ -91,6 +91,18 @@ class ActionLogTestCase(ActorLogicTestCase):
         a_logs = f.filter_objs(curs)
         a_l = a_logs[0]
         self.assertEqual([subj_user.id], a_l.subject_user_ids)
+    @transaction()
+    def test_add_service(self, curs=None):
+        resp = self.login_actor()
+        self.check_response_ok(resp)
+        session_id = resp['session_id']
+        req = {'session_id': session_id, 'name': u'сервис',
+            'properties': list('qazwsx'), 'is_active': False}
+        resp = self.cli.add_service(**req)
+        self.check_response_ok(resp)
+
+        env = self.get_environment_by_name(self.actor_env_name)
+        self._check_action_tracked(env, 'add_service', None)
 
 
 if __name__ == '__main__':

@@ -8,7 +8,8 @@ from helixauth.db.dataobject import ActionLog
 class HelixauthApplication(Application):
     def __init__(self, h, p, l):
         self.unauthorized_trackable = ['add_environment']
-        tracking_api_calls = ('add_environment', 'login', 'add_user')
+        tracking_api_calls = ('add_environment', 'login', 'add_user',
+            'add_service')
         super(HelixauthApplication, self).__init__(h, p, l, tracking_api_calls)
 
     @transaction()

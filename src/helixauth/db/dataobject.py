@@ -28,3 +28,9 @@ class Session(Mapped):
     __slots__ = ['id', 'session_id', 'environment_id', 'user_id',
         'serialized_data', 'start_date', 'update_date']
     table = 'session'
+
+
+class Service(Mapped):
+    __slots__ = ['id', 'environment_id', 'name', 'properties',
+        'is_active', 'is_unstoppable']
+    table = 'service'
