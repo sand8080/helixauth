@@ -10,7 +10,7 @@ def apply(curs):
             custom_actor_user_info varchar,
             actor_user_id integer,
             FOREIGN KEY (actor_user_id) REFERENCES user_data(id),
-            subject_user_ids varchar[],
+            subject_user_ids integer[],
             action varchar NOT NULL,
             request_date timestamp with time zone NOT NULL DEFAULT now(),
             remote_addr text NOT NULL,

@@ -24,7 +24,7 @@ def make_api_call(f_name):
 
 
 methods = list(Client.unauthorized_commands +
-    ('login', ))
+    ('login', 'add_user'))
 
 for method_name in methods:
     setattr(Client, method_name, make_api_call(method_name))

@@ -17,11 +17,10 @@ class HelixauthApplication(Application):
         super(HelixauthApplication, self).track_api_call(remote_addr, s_req, s_resp,
             action_name, processed_data)
 
-
         actor_user_id = processed_data.get('actor_user_id')
         custom_actor_info = processed_data.get('custom_actor_user_info')
         environment_id = processed_data.get('environment_id')
-        user_ids = []
+        user_ids = processed_data.get('subject_user_ids', [])
 
         data = {
             'environment_id': environment_id,

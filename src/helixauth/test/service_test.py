@@ -63,8 +63,7 @@ class ServiceTestCase(DbBasedTestCase):
         return response
 
     def login(self, **kwargs):
-        response = self.handle_action('login', kwargs)
-        return response
+        return self.handle_action('login', kwargs)
 
     @transaction()
     def get_session(self, session_id, for_update=False, curs=None):
@@ -79,8 +78,8 @@ class ServiceTestCase(DbBasedTestCase):
         session.update_date = session.update_date - td
         mapping.save(curs, session)
 
-    def check_response_ok(self, response):
-        self.assertEqual('ok', response['status'])
+    def check_response_ok(self, resp):
+        self.assertEqual('ok', resp['status'])
 
     @transaction()
     def inactivate_user(self, user, curs=None):

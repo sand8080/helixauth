@@ -158,4 +158,6 @@ class Handler(AbstractHandler):
         }
         user = User(**u_data)
         mapping.save(curs, user)
+        # For correct action logging
+        data['subject_user_ids'] = [user.id]
         return response_ok()
