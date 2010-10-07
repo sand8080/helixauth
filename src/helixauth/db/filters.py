@@ -120,3 +120,7 @@ class ServiceFilter(EnvironmentObjectsFilter):
     def __init__(self, environment_id, filter_params, paging_params, ordering_params):
         super(ServiceFilter, self).__init__(environment_id,
             filter_params, paging_params, ordering_params, Service)
+
+    def indexed_by_id(self, curs):
+        ss = self.filter_objs(curs)
+        return dict([(s.id, s) for s in ss])
