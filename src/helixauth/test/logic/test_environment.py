@@ -2,11 +2,11 @@ import unittest
 
 from helixcore.server.errors import RequestProcessingError
 
-from helixauth.test.service_test import ServiceTestCase
+from helixauth.test.logic.logic_test import LogicTestCase
 from helixauth.conf.db import transaction
 
 
-class EnvironmentTestCase(ServiceTestCase):
+class EnvironmentTestCase(LogicTestCase):
     def test_add_environment(self):
         req = {'name': 'env_0', 'su_login': 'su_env_login', 'su_password': 'qweasdzxc',
             'custom_actor_info': 'environment created from tests'}

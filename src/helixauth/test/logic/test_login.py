@@ -1,10 +1,10 @@
 import unittest
 
-from helixauth.test.service_test import ServiceTestCase
+from helixauth.test.logic.logic_test import LogicTestCase
 from helixcore.server.errors import RequestProcessingError
 
 
-class LoginTestCase(ServiceTestCase):
+class LoginTestCase(LogicTestCase):
     env_name = 'LoginTestCase'
     su_login = 'login_test_login'
     su_password = 'qweasdzxc'

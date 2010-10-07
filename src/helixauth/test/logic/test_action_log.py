@@ -1,7 +1,7 @@
 # coding=utf-8
 import unittest
 
-from helixauth.test.actor_service_test import ActorServiceTest
+from helixauth.test.logic.actor_logic_test import ActorLogicTestCase
 
 from helixauth.db.filters import ActionLogFilter
 from helixauth.db.dataobject import User
@@ -9,7 +9,7 @@ from helixauth.conf.db import transaction
 from helixauth.test.wsgi.client import Client
 
 
-class ActionLogTestCase(ActorServiceTest):
+class ActionLogTestCase(ActorLogicTestCase):
     def setUp(self):
         super(ActionLogTestCase, self).setUp()
         self.cli = Client()

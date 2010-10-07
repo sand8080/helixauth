@@ -15,7 +15,7 @@ from helixauth.logic import actions, auth
 from helixauth.wsgi.protocol import protocol
 
 
-class ServiceTestCase(DbBasedTestCase):
+class LogicTestCase(DbBasedTestCase):
     def handle_action(self, action, data):
         api = Api(protocol)
         request = dict(data, action=action)
@@ -89,3 +89,7 @@ class ServiceTestCase(DbBasedTestCase):
     def add_user(self, **kwargs):
         response = self.handle_action('add_user', kwargs)
         return response
+
+    def add_service(self, **kwargs):
+        resp = self.handle_action('add_service', kwargs)
+        return resp

@@ -1,10 +1,10 @@
 import unittest
 
-from helixauth.test.service_test import ServiceTestCase
+from helixauth.test.logic.logic_test import LogicTestCase
 from helixauth.db.dataobject import User
 
 
-class UserTestCase(ServiceTestCase):
+class UserTestCase(LogicTestCase):
     env_name = 'UserTestCase'
     su_login = 'su_test'
     su_password = 'qweasdzxc'
