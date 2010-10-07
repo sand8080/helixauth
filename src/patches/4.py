@@ -27,31 +27,6 @@ def apply(curs):
     '''
         CREATE INDEX session_session_id_update_date_idx ON session(session_id, update_date);
     ''')
-#
-#    print 'Creating index session_environment_id_idx on session'
-#    curs.execute(
-#    '''
-#        CREATE INDEX session_environment_id_idx ON session(environment_id);
-#    ''')
-#
-#    print 'Creating index session_user_id_idx on session'
-#    curs.execute(
-#    '''
-#        CREATE INDEX session_user_id_idx ON session(user_id);
-#    ''')
-#
-#    print 'Creating index session_session_id_environment_id_idx on session'
-#    curs.execute(
-#    '''
-#        CREATE INDEX session_session_id_environment_id_idx ON session(session_id, environment_id);
-#    ''')
-#
-#    print 'Creating index session_session_id_environment_id_idx on session'
-#    curs.execute(
-#    '''
-#        CREATE INDEX session_session_id_environment_id_idx ON session(session_id, environment_id);
-#    ''')
-
 
 
 def revert(curs):
