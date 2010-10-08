@@ -133,7 +133,8 @@ class Handler(AbstractHandler):
         data['actor_user_id'] = session.user_id
         data['environment_id'] = session.environment_id
 
-        return response_ok(session_id=session.session_id)
+        return response_ok(session_id=session.session_id,
+            environment_id=env.id)
 
     @transaction()
     @authentificate
@@ -160,7 +161,7 @@ class Handler(AbstractHandler):
         mapping.save(curs, user)
         # For correct action logging
         data['subject_user_ids'] = [user.id]
-        return response_ok()
+        return response_ok(user_id=user.id)
 
     @transaction()
     @authentificate
@@ -174,4 +175,4 @@ class Handler(AbstractHandler):
         }
         s = Service(**d)
         mapping.save(curs, s)
-        return response_ok()
+        return response_ok(service_id=s.id)
