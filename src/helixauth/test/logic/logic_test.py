@@ -93,3 +93,7 @@ class LogicTestCase(DbBasedTestCase):
     def add_service(self, **kwargs):
         resp = self.handle_action('add_service', kwargs)
         return resp
+
+    def get_services(self, **kwargs):
+        resp = self.handle_action('get_services', kwargs)
+        return resp

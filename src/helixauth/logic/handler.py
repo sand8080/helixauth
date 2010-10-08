@@ -10,7 +10,7 @@ from helixauth.conf.db import transaction
 from helixauth.error import (EnvironmentNotFound,
     HelixauthObjectAlreadyExists, SessionNotFound, UserNotFound, SessionExpired,
     HelixauthError, UserInactive)
-from helixauth.db.filters import EnvironmentFilter, UserFilter
+from helixauth.db.filters import EnvironmentFilter, UserFilter, ServiceFilter
 from helixauth.db.dataobject import Environment, User, Service
 from helixauth.logic.auth import Authentifier
 from helixauth.wsgi.protocol import protocol
@@ -176,3 +176,17 @@ class Handler(AbstractHandler):
         s = Service(**d)
         mapping.save(curs, s)
         return response_ok(service_id=s.id)
+
+    @transaction()
+    @authentificate
+    def get_services(self, data, session, curs=None):
+        f = ServiceFilter(session.environment_id, data['filter_params'],
+            data['paging_params'], data.get('ordering_params'))
+        ss, total = f.filter_counted(curs)
+        def viewer(obj):
+            result = obj.to_dict()
+            result.pop('environment_id', None)
+            return result
+        return response_ok(services=self.objects_info(ss, viewer),
+            total=total)
+

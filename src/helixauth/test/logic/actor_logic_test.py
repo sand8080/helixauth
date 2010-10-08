@@ -12,7 +12,9 @@ class ActorLogicTestCase(LogicTestCase):
     def login_actor(self):
         req = {'environment_name': self.actor_env_name,
             'login': self.actor_login, 'password': self.actor_password}
-        return self.login(**req)
+        resp = self.login(**req)
+        self.check_response_ok(resp)
+        return resp['session_id']
 
     def create_actor_env(self):
         super(ActorLogicTestCase, self).setUp()
