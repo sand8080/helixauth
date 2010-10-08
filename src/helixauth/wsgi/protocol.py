@@ -109,20 +109,51 @@ ADD_SERVICE_REQUEST = dict(
     **AUTHORIZED_REQUEST_AUTH_INFO
 )
 
-ADD_SERVICE_RESPONSE = RESPONSE_STATUS_ONLY
-
-ADD_USER_RIGHTS_REQUEST = dict(
-    {
-        'subject_user_id': Text(),
-        'rights': [{'service_id': int, 'properties': [Text()]}],
-    },
-    **AUTHORIZED_REQUEST_AUTH_INFO
-)
-
 ADD_SERVICE_RESPONSE = AnyOf(
     dict({'service_id': int,}, **RESPONSE_STATUS_OK),
     RESPONSE_STATUS_ERROR
 )
+
+SERVICE_INFO = {
+    'id': int,
+    'name': Text(),
+    'properties': [Text()],
+    'is_active': bool,
+    'is_possible_deactiate': bool,
+}
+
+GET_SERVICES_REQUEST = dict(
+    {
+        'filter_params': {
+            Optional('service_ids'): [int],
+            Optional('is_active'): bool
+        },
+        'paging_params': REQUEST_PAGING_PARAMS,
+        Optional('ordering_params'): [AnyOf('name', '-name', 'id', '-id')]
+    },
+    **AUTHORIZED_REQUEST_AUTH_INFO
+)
+
+GET_SERVICES_RESPONSE = AnyOf(
+    dict(
+        RESPONSE_STATUS_OK,
+        **{
+            'services': [SERVICE_INFO],
+            'total': NonNegative(int),
+        }
+    ),
+    RESPONSE_STATUS_ERROR
+)
+
+#SET_USER_RIGHTS_REQUEST = dict(
+#    {
+#        'subject_user_id': Text(),
+#        'rights': [{'service_id': int, 'properties': [Text()]}],
+#    },
+#    **AUTHORIZED_REQUEST_AUTH_INFO
+#)
+#
+#SET_USER_RESPONSE = RESPONSE_STATUS_ONLY
 
 protocol = [
 
@@ -153,6 +184,9 @@ protocol = [
     # service
     ApiCall('add_service_request', Scheme(ADD_SERVICE_REQUEST)),
     ApiCall('add_service_response', Scheme(ADD_SERVICE_RESPONSE)),
+
+    ApiCall('get_services_request', Scheme(GET_SERVICES_REQUEST)),
+    ApiCall('get_services_response', Scheme(GET_SERVICES_RESPONSE)),
 
     # user rights
 ]

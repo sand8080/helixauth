@@ -1,3 +1,4 @@
+# coding=utf-8
 import unittest
 
 from helixcore.server.api import Api
@@ -111,6 +112,47 @@ class ProtocolTestCase(RootTestCase):
             {'status': 'ok', 'service_id': 1})
         self.validate_error_response(a_name)
 
+    def test_get_services(self):
+        a_name = 'get_services'
+        self.api.validate_request(a_name, {'session_id': 's',
+            'filter_params': {}, 'paging_params': {},})
+        self.api.validate_request(a_name, {'session_id': 's',
+            'filter_params': {}, 'paging_params': {'limit': 0,},})
+        self.api.validate_request(a_name, {'session_id': 's',
+            'filter_params': {}, 'paging_params': {'limit': 0, 'offset': 0,},})
+        self.api.validate_request(a_name, {'session_id': 's',
+            'filter_params': {'service_ids': []},
+            'paging_params': {'limit': 0, 'offset': 0,},})
+        self.api.validate_request(a_name, {'session_id': 's',
+            'filter_params': {'service_ids': [1, 2, 3]},
+            'paging_params': {'limit': 0, 'offset': 0,},})
+        self.api.validate_request(a_name, {'session_id': 's',
+            'filter_params': {'service_ids': [1, 2, 3]},
+            'paging_params': {'limit': 0, 'offset': 0,},
+            'ordering_params': ['name', '-id']})
+
+        self.api.validate_response(a_name, {'status': 'ok', 'total': 2,
+            'services': [
+        ]})
+        self.api.validate_response(a_name, {'status': 'ok', 'total': 4,
+            'services': [
+            {
+                'id': 42, 'is_active': True, 'is_possible_deactiate': True,
+                'properties': [], 'name': u'сервис0'
+            },
+        ]})
+        self.api.validate_response(a_name, {'status': 'ok', 'total': 4,
+            'services': [
+            {
+                'id': 42, 'is_active': True, 'is_possible_deactiate': True,
+                'properties': [], 'name': u'сервис0'
+            },
+            {
+                'id': 43, 'is_active': True, 'is_possible_deactiate': True,
+                'properties': ['a', 'b', u'омега'], 'name': u'сервис0'
+            },
+        ]})
+        self.validate_error_response(a_name)
 
 if __name__ == '__main__':
     unittest.main()
