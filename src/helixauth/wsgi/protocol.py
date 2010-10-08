@@ -71,7 +71,10 @@ ADD_ENVIRONMENT_REQUEST = {
     Optional('custom_actor_info'): NullableText(),
 }
 
-ADD_ENVIRONMENT_RESPONSE = AUTHORIZED_RESPONSE_STATUS_ONLY
+ADD_ENVIRONMENT_RESPONSE = AnyOf(
+    dict({'environment_id': int,}, **AUTHORIZED_RESPONSE_STATUS_OK),
+    AUTHORIZED_RESPONSE_STATUS_ERROR
+)
 
 MODIFY_ENVIRONMENT_REQUEST = dict(
     {
@@ -92,7 +95,10 @@ ADD_USER_REQUEST = dict(
     **AUTHORIZED_REQUEST_AUTH_INFO
 )
 
-ADD_USER_RESPONSE = RESPONSE_STATUS_ONLY
+ADD_USER_RESPONSE = AnyOf(
+    dict({'user_id': int,}, **RESPONSE_STATUS_OK),
+    RESPONSE_STATUS_ERROR
+)
 
 ADD_SERVICE_REQUEST = dict(
     {
@@ -104,6 +110,19 @@ ADD_SERVICE_REQUEST = dict(
 )
 
 ADD_SERVICE_RESPONSE = RESPONSE_STATUS_ONLY
+
+ADD_USER_RIGHTS_REQUEST = dict(
+    {
+        'subject_user_id': Text(),
+        'rights': [{'service_id': int, 'properties': [Text()]}],
+    },
+    **AUTHORIZED_REQUEST_AUTH_INFO
+)
+
+ADD_SERVICE_RESPONSE = AnyOf(
+    dict({'service_id': int,}, **RESPONSE_STATUS_OK),
+    RESPONSE_STATUS_ERROR
+)
 
 protocol = [
 
@@ -135,4 +154,5 @@ protocol = [
     ApiCall('add_service_request', Scheme(ADD_SERVICE_REQUEST)),
     ApiCall('add_service_response', Scheme(ADD_SERVICE_RESPONSE)),
 
+    # user rights
 ]

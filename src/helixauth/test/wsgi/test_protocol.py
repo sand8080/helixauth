@@ -74,7 +74,10 @@ class ProtocolTestCase(RootTestCase):
             'su_password': 'p', 'custom_actor_info': 'i'})
         self.api.validate_request(a_name, {'name': 'n', 'su_login': 'l',
             'su_password': 'p', 'custom_actor_info': None})
-        self.validate_authorized_status_response(a_name)
+
+        self.api.validate_response(a_name,
+            {'status': 'ok', 'session_id': 'i', 'environment_id': 1})
+        self.validate_authorized_error_response(a_name)
 
     def test_modify_environment(self):
         a_name = 'modify_environment'
@@ -90,7 +93,10 @@ class ProtocolTestCase(RootTestCase):
             'login': 'l', 'password': 'p', 'role': 'user'})
         self.api.validate_request(a_name, {'session_id': 'i',
             'login': 'l', 'password': 'p', 'role': 'super', 'is_active': False})
-        self.validate_status_response(a_name)
+
+        self.api.validate_response(a_name,
+            {'status': 'ok', 'user_id': 1})
+        self.validate_error_response(a_name)
 
     def test_add_service(self):
         a_name = 'add_service'
@@ -100,7 +106,10 @@ class ProtocolTestCase(RootTestCase):
             'name': 'n', 'properties': ['a', 'b', 'c']})
         self.api.validate_request(a_name, {'session_id': 'i',
             'name': 'n', 'properties': ['a', 'b', 'c'],'is_active': False})
-        self.validate_status_response(a_name)
+
+        self.api.validate_response(a_name,
+            {'status': 'ok', 'service_id': 1})
+        self.validate_error_response(a_name)
 
 
 if __name__ == '__main__':
