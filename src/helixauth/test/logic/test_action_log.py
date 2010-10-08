@@ -86,7 +86,7 @@ class ActionLogTestCase(ActorLogicTestCase):
         f = ActionLogFilter(env.id, filter_params, {}, ordering_params)
         a_logs = f.filter_objs(curs)
         a_l = a_logs[0]
-        self.assertEqual([subj_user.id], a_l.subject_user_ids)
+        self.assertEqual([subj_user.id], a_l.subject_users_ids)
 
     @transaction()
     def test_add_service(self, curs=None):

@@ -10,7 +10,7 @@ def apply(curs):
             custom_actor_user_info varchar,
             actor_user_id integer,
             FOREIGN KEY (actor_user_id) REFERENCES user_data(id),
-            subject_user_ids integer[],
+            subject_users_ids integer[],
             action varchar NOT NULL,
             request_date timestamp with time zone NOT NULL DEFAULT now(),
             remote_addr text NOT NULL,
@@ -31,16 +31,16 @@ def apply(curs):
         CREATE INDEX action_log_environment_id_action_idx ON action_log(environment_id, action);
     ''')
 
-    print 'Creating index action_log_environment_id_subject_user_ids_idx on action_log'
+    print 'Creating index action_log_environment_id_subject_users_ids_idx on action_log'
     curs.execute(
     '''
-        CREATE INDEX action_log_environment_id_subject_user_ids_idx ON action_log(environment_id, subject_user_ids);
+        CREATE INDEX action_log_environment_id_subject_users_ids_idx ON action_log(environment_id, subject_users_ids);
     ''')
 
 
 def revert(curs):
-    print 'Dropping index action_log_environment_id_subject_user_ids_idx on action_log'
-    curs.execute('DROP INDEX IF EXISTS action_log_environment_id_subject_user_ids_idx')
+    print 'Dropping index action_log_environment_id_subject_users_ids_idx on action_log'
+    curs.execute('DROP INDEX IF EXISTS action_log_environment_id_subject_users_ids_idx')
 
     print 'Dropping index action_log_environment_id_action_idx on action_log'
     curs.execute('DROP INDEX IF EXISTS action_log_environment_id_action_idx')

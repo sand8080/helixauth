@@ -21,13 +21,13 @@ class HelixauthApplication(Application):
         actor_user_id = processed_data.get('actor_user_id')
         custom_actor_info = processed_data.get('custom_actor_user_info')
         environment_id = processed_data.get('environment_id')
-        user_ids = processed_data.get('subject_user_ids', [])
+        users_ids = processed_data.get('subject_users_ids', [])
 
         data = {
             'environment_id': environment_id,
             'custom_actor_user_info': custom_actor_info,
             'actor_user_id': actor_user_id,
-            'subject_user_ids': user_ids,
+            'subject_users_ids': users_ids,
             'action': action_name,
             'remote_addr': remote_addr,
             'request': s_req,

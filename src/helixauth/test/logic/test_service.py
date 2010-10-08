@@ -42,7 +42,7 @@ class ServiceTestCase(ActorLogicTestCase):
         l_num = 2
         s_ids = [1, 2, 3, 4]
         req = {'session_id': session_id, 'paging_params': {'limit': l_num},
-            'filter_params': {'service_ids': s_ids},
+            'filter_params': {'services_ids': s_ids},
             'ordering_params': ['name']}
         resp = self.get_services(**req)
         self.check_response_ok(resp)

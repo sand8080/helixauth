@@ -115,7 +115,7 @@ class ServiceFilter(EnvironmentObjectsFilter):
     cond_map = [
         ('id', 'id', Eq),
         ('name', 'name', Eq),
-        ('service_ids', 'id', In),
+        ('services_ids', 'id', In),
     ]
 
     def __init__(self, environment_id, filter_params, paging_params, ordering_params):
