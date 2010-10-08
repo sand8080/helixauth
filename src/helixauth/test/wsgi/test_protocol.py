@@ -121,13 +121,13 @@ class ProtocolTestCase(RootTestCase):
         self.api.validate_request(a_name, {'session_id': 's',
             'filter_params': {}, 'paging_params': {'limit': 0, 'offset': 0,},})
         self.api.validate_request(a_name, {'session_id': 's',
-            'filter_params': {'service_ids': []},
+            'filter_params': {'services_ids': []},
             'paging_params': {'limit': 0, 'offset': 0,},})
         self.api.validate_request(a_name, {'session_id': 's',
-            'filter_params': {'service_ids': [1, 2, 3]},
+            'filter_params': {'services_ids': [1, 2, 3]},
             'paging_params': {'limit': 0, 'offset': 0,},})
         self.api.validate_request(a_name, {'session_id': 's',
-            'filter_params': {'service_ids': [1, 2, 3]},
+            'filter_params': {'services_ids': [1, 2, 3]},
             'paging_params': {'limit': 0, 'offset': 0,},
             'ordering_params': ['name', '-id']})
 
@@ -153,6 +153,15 @@ class ProtocolTestCase(RootTestCase):
             },
         ]})
         self.validate_error_response(a_name)
+
+    def test_modify_users_rights(self):
+        a_name = 'modify_users_rights'
+        self.api.validate_request(a_name, {'session_id': 's',
+            'subject_users_ids': [],
+            'rights':[{'service_id': 1, 'properties': ['a', u'я']}]})
+
+        self.validate_status_response(a_name)
+
 
 if __name__ == '__main__':
     unittest.main()

@@ -125,7 +125,7 @@ SERVICE_INFO = {
 GET_SERVICES_REQUEST = dict(
     {
         'filter_params': {
-            Optional('service_ids'): [int],
+            Optional('services_ids'): [int],
             Optional('is_active'): bool
         },
         'paging_params': REQUEST_PAGING_PARAMS,
@@ -145,15 +145,15 @@ GET_SERVICES_RESPONSE = AnyOf(
     RESPONSE_STATUS_ERROR
 )
 
-#SET_USER_RIGHTS_REQUEST = dict(
-#    {
-#        'subject_user_id': Text(),
-#        'rights': [{'service_id': int, 'properties': [Text()]}],
-#    },
-#    **AUTHORIZED_REQUEST_AUTH_INFO
-#)
-#
-#SET_USER_RESPONSE = RESPONSE_STATUS_ONLY
+MODIFY_USERS_RIGHTS_REQUEST = dict(
+    {
+        'subject_users_ids': [int],
+        'rights': [{'service_id': int, 'properties': [Text()]}],
+    },
+    **AUTHORIZED_REQUEST_AUTH_INFO
+)
+
+MODIFY_USER_RIGHTS_RESPONSE = RESPONSE_STATUS_ONLY
 
 protocol = [
 
@@ -189,4 +189,7 @@ protocol = [
     ApiCall('get_services_response', Scheme(GET_SERVICES_RESPONSE)),
 
     # user rights
+    ApiCall('modify_users_rights_request', Scheme(MODIFY_USERS_RIGHTS_REQUEST)),
+    ApiCall('modify_users_rights_response', Scheme(MODIFY_USER_RIGHTS_RESPONSE)),
+
 ]
