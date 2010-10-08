@@ -44,12 +44,10 @@ class ActionLogTestCase(ActorLogicTestCase):
         return f.filter_objs_count(curs)
 
     def test_unauthorized_tracking_action(self):
-        login = 'oper-action_log_test'
-        name = 'action_logged'
-        action = 'add_environment'
-        self.cli.add_environment(name=name, su_login=login, su_password='qaz') #IGNORE:E1101
-        environment = self.get_environment_by_name(name)
-        self._check_action_tracked(environment, action, None)
+        self.cli.add_environment(name=self.actor_env_name,
+            su_login='a', su_password='b') #IGNORE:E1101
+        environment = self.get_environment_by_name(self.actor_env_name)
+        self._check_action_tracked(environment, 'add_environment', None)
 
     def test_tracking_error_action(self):
         environment = self.get_environment_by_name(self.actor_env_name)
@@ -73,9 +71,7 @@ class ActionLogTestCase(ActorLogicTestCase):
 
     @transaction()
     def test_add_user(self, curs=None):
-        resp = self.login_actor()
-        self.check_response_ok(resp)
-        session_id = resp['session_id']
+        session_id = self.login_actor()
         req = {'session_id': session_id, 'login': 'u0',
             'password': 'qazwsx', 'role': User.ROLE_SUPER}
         resp = self.cli.add_user(**req)
@@ -91,11 +87,10 @@ class ActionLogTestCase(ActorLogicTestCase):
         a_logs = f.filter_objs(curs)
         a_l = a_logs[0]
         self.assertEqual([subj_user.id], a_l.subject_user_ids)
+
     @transaction()
     def test_add_service(self, curs=None):
-        resp = self.login_actor()
-        self.check_response_ok(resp)
-        session_id = resp['session_id']
+        session_id = self.login_actor()
         req = {'session_id': session_id, 'name': u'сервис',
             'properties': list('qazwsx'), 'is_active': False}
         resp = self.cli.add_service(**req)
