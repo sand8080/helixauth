@@ -9,7 +9,7 @@ def apply(curs):
             name varchar NOT NULL,
             properties varchar[],
             is_active boolean NOT NULL DEFAULT True,
-            is_unstoppable boolean NOT NULL DEFAULT False
+            is_possible_deactiate boolean NOT NULL DEFAULT True
         )
     ''')
 

@@ -169,7 +169,7 @@ class Handler(AbstractHandler):
         RequestProcessingError.Category.data_integrity, 'name')
     def add_service(self, data, session, curs=None):
         d = {'environment_id': session.environment_id,
-            'name': data.get('name'), 'is_unstoppable': False,
+            'name': data.get('name'), 'is_possible_deactiate': True,
             'is_active': data.get('is_active', True),
             'properties': data.get('properties')
         }

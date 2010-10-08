@@ -32,5 +32,5 @@ class Session(Mapped):
 
 class Service(Mapped):
     __slots__ = ['id', 'environment_id', 'name', 'properties',
-        'is_active', 'is_unstoppable']
+        'is_active', 'is_possible_deactiate']
     table = 'service'
