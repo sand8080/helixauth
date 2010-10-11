@@ -34,3 +34,9 @@ class Service(Mapped):
     __slots__ = ['id', 'environment_id', 'name', 'properties',
         'is_active', 'is_possible_deactiate']
     table = 'service'
+
+
+class UserRights(Mapped):
+    __slots__ = ['id', 'environment_id', 'user_id', 'serialized_rights']
+    table = 'user_rights'
+

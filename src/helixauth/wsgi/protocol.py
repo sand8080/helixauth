@@ -89,7 +89,7 @@ ADD_USER_REQUEST = dict(
     {
         'login': Text(),
         'password': Text(),
-        'role': AnyOf(dataobject.User.ROLE_SUPER, dataobject.User.ROLE_USER),
+        Optional('role'): AnyOf(dataobject.User.ROLE_SUPER, dataobject.User.ROLE_USER),
         Optional('is_active'): bool,
     },
     **AUTHORIZED_REQUEST_AUTH_INFO

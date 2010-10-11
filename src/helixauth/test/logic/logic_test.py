@@ -97,3 +97,7 @@ class LogicTestCase(DbBasedTestCase):
     def get_services(self, **kwargs):
         resp = self.handle_action('get_services', kwargs)
         return resp
+
+    def modify_users_rights(self, **kwargs):
+        resp = self.handle_action('modify_users_rights', kwargs)
+        return resp

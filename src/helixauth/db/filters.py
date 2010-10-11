@@ -3,7 +3,7 @@ from helixcore.db.wrapper import SelectedMoreThanOneRow, ObjectNotFound
 from helixcore.db.filters import ObjectsFilter as OFImpl
 
 from helixauth.db.dataobject import User, Environment, ActionLog, Session,\
-    Service
+    Service, UserRights
 from helixauth.error import UserNotFound, EnvironmentNotFound, SessionNotFound
 
 
@@ -31,6 +31,8 @@ class InSessionFilter(OFImpl):
 class SessionFilter(OFImpl):
     cond_map = [
         ('session_id', 'session_id', Eq),
+        ('environment_id', 'environment_id', Eq),
+        ('subject_users_ids', 'user_id', In),
         ('to_update_date', 'update_date', MoreEq),
     ]
 
@@ -125,3 +127,16 @@ class ServiceFilter(EnvironmentObjectsFilter):
     def indexed_by_id(self, curs):
         ss = self.filter_objs(curs)
         return dict([(s.id, s) for s in ss])
+
+
+class UserRightsFilter(EnvironmentObjectsFilter):
+    cond_map = [
+        ('id', 'id', Eq),
+        ('user_id', 'user_id', Eq),
+        ('services_ids', 'user_id', In),
+    ]
+
+    def __init__(self, environment_id, filter_params, paging_params, ordering_params):
+        super(UserRightsFilter, self).__init__(environment_id,
+            filter_params, paging_params, ordering_params, UserRights)
+
