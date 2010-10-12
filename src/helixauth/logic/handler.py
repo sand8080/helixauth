@@ -16,6 +16,7 @@ from helixauth.db.dataobject import Environment, User, Service, UserRights
 from helixauth.logic.auth import Authentifier
 from helixauth.wsgi.protocol import protocol
 import cjson
+from helixcore.db.wrapper import ObjectCreationError
 
 
 def authentificate(method):
@@ -167,14 +168,12 @@ class Handler(AbstractHandler):
 
     @transaction()
     @authentificate
-    @detalize_error(HelixauthObjectAlreadyExists,
+    @detalize_error(ObjectCreationError,
         RequestProcessingError.Category.data_integrity, 'name')
     def add_service(self, data, session, curs=None):
-        d = {'environment_id': session.environment_id,
-            'name': data.get('name'), 'is_possible_deactiate': True,
-            'is_active': data.get('is_active', True),
-            'properties': data.get('properties')
-        }
+        d = dict(data)
+        d['environment_id'] = session.environment_id
+        d['is_possible_deactiate'] = True
         s = Service(**d)
         mapping.save(curs, s)
         return response_ok(service_id=s.id)

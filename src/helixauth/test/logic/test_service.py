@@ -2,6 +2,7 @@
 import unittest
 
 from helixauth.test.logic.actor_logic_test import ActorLogicTestCase
+from helixcore.server.errors import RequestProcessingError
 
 
 class ServiceTestCase(ActorLogicTestCase):
@@ -11,10 +12,30 @@ class ServiceTestCase(ActorLogicTestCase):
 
     def test_add_service(self):
         session_id = self.login_actor()
+        req_srv = {'session_id': session_id, 'name': u'сервис0',
+            'properties': ['alpha', u'бетта']}
+        resp = self.add_service(**req_srv)
+        self.check_response_ok(resp)
+
+        # same named service in another environment
+        req = {'name': 'zero', 'su_login': self.actor_login,
+            'su_password': self.actor_password}
+        self.add_environment(**req)
+        req = {'environment_name': 'zero',
+            'login': self.actor_login, 'password': self.actor_password}
+        resp = self.login(**req)
+        self.check_response_ok(resp)
+        req_srv['session_id'] = resp['session_id']
+        resp = self.add_service(**req_srv)
+        self.check_response_ok(resp)
+
+    def test_add_duplicate_services(self):
+        session_id = self.login_actor()
         req = {'session_id': session_id, 'name': u'сервис0',
             'properties': ['alpha', u'бетта']}
         resp = self.add_service(**req)
         self.check_response_ok(resp)
+        self.assertRaises(RequestProcessingError, self.add_service, **req)
 
     def test_get_services(self):
         session_id = self.login_actor()

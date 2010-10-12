@@ -10,7 +10,12 @@ class EnvironmentTestCase(LogicTestCase):
     def test_add_environment(self):
         req = {'name': 'env_0', 'su_login': 'su_env_login', 'su_password': 'qweasdzxc',
             'custom_actor_info': 'environment created from tests'}
+        resp = self.add_environment(**req)
+        self.check_response_ok(resp)
+
+        req['name'] = 'env_1'
         self.add_environment(**req)
+        self.check_response_ok(resp)
 
     def test_add_environment_duplicate(self):
         req = {'name': 'env_0', 'su_login': 'su_env_login', 'su_password': 'qweasdzxc',
