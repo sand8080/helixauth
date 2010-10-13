@@ -41,7 +41,7 @@ class ServiceTestCase(ActorLogicTestCase):
         session_id = self.login_actor()
         req = {'session_id': session_id, 'properties': ['alpha', u'бетта']}
         s_num = 10
-        for i in xrange(s_num):
+        for i in xrange(s_num - 1): # one service already exists
             req['name'] = u'сервис_%d' % i
             self.add_service(**req)
 
