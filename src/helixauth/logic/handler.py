@@ -14,7 +14,7 @@ from helixauth.db.filters import EnvironmentFilter, UserFilter, ServiceFilter,\
     UserRightsFilter, SessionFilter
 from helixauth.db.dataobject import Environment, User, Service, UserRights
 from helixauth.logic.auth import Authentifier
-from helixauth.wsgi.protocol import protocol
+from helixauth.wsgi.protocol import protocol, unauthorized_actions
 import cjson
 from helixcore.db.wrapper import ObjectCreationError
 
@@ -50,7 +50,6 @@ def authentificate(method):
         return result
     return decroated
 
-
 class Handler(AbstractHandler):
     '''
     Handles all API actions. Method names are called like actions.
@@ -66,10 +65,10 @@ class Handler(AbstractHandler):
         return response_ok(actions=actions)
 
     def get_authorized_api_actions(self, data):
-        actions = self.get_api_actions(data)
-        unauthorized_api_actions = ('ping', 'get_api_actions', 'get_authorized_api_actions')
-        actions = filter(lambda x: x not in unauthorized_api_actions, actions)
-        return response_ok(actions=actions)
+        resp = self.get_api_actions(data)
+        a = resp['actions']
+        auth_a = filter(lambda x: x not in unauthorized_actions, a)
+        return response_ok(actions=auth_a)
 
     @transaction()
     @detalize_error(EnvironmentNotFound,

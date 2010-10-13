@@ -3,12 +3,29 @@ import unittest
 
 from helixauth.test.logic.actor_logic_test import ActorLogicTestCase
 from helixcore.server.errors import RequestProcessingError
+from helixauth.db.filters import ServiceFilter
+from helixauth.conf.db import transaction
 
 
 class ServiceTestCase(ActorLogicTestCase):
     def setUp(self):
         super(ServiceTestCase, self).setUp()
         self.create_actor_env()
+
+    @transaction()
+    def test_default_service_created(self, curs=None):
+        env = self.get_environment_by_name(self.actor_env_name)
+        f = ServiceFilter(env.id, {}, {}, None)
+        s = f.filter_one_obj(curs)
+        self.assertEqual('Auth', s.name)
+        self.assertEqual(env.id, s.environment_id)
+        self.assertEqual(True, s.is_active)
+        self.assertEqual(False, s.is_possible_deactiate)
+
+        resp = self.get_authorized_api_actions()
+        self.check_response_ok(resp)
+        auth_a = resp['actions']
+        self.assertEqual(auth_a, s.properties)
 
     def test_add_service(self):
         session_id = self.login_actor()

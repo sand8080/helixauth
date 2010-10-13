@@ -155,6 +155,11 @@ MODIFY_USERS_RIGHTS_REQUEST = dict(
 
 MODIFY_USER_RIGHTS_RESPONSE = RESPONSE_STATUS_ONLY
 
+
+unauthorized_actions = ('ping', 'get_api_actions', 'add_environment',
+    'get_authorized_api_actions', 'login')
+
+
 protocol = [
 
     ApiCall('ping_request', Scheme(PING_REQUEST)),

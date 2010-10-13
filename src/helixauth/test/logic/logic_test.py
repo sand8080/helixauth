@@ -101,3 +101,6 @@ class LogicTestCase(DbBasedTestCase):
     def modify_users_rights(self, **kwargs):
         resp = self.handle_action('modify_users_rights', kwargs)
         return resp
+
+    def get_authorized_api_actions(self):
+        return self.handle_action('get_authorized_api_actions', {})
