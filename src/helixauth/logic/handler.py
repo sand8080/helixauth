@@ -132,16 +132,15 @@ class Handler(AbstractHandler):
         auth = Authentifier()
         session = auth.create_session(curs, env, user)
 
-        # Adding default service auth
+        # adding default service auth
         a_data = self.get_authorized_api_actions({})
         actions = a_data['actions']
-        d = {'environment_id': session.environment_id, 'name': 'auth',
+        d = {'environment_id': session.environment_id, 'name': 'Auth',
             'is_active': True, 'is_possible_deactiate': False,
             'properties': actions}
         s = Service(**d)
         mapping.save(curs, s)
 
-        # TODO manual logging of add_environment and add_service
         # Required for proper logging action
         data['actor_user_id'] = session.user_id
         data['environment_id'] = session.environment_id
