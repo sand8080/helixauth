@@ -35,6 +35,11 @@ class EnvironmentNotFound(HelixauthObjectNotFound):
 class UserAuthError(HelixauthError):
     pass
 
+class UserAccessDenied(HelixauthError):
+    def __init__(self, login, property):
+       raise UserAuthError("User %s access denied to %s" %
+            (login, property))
+
 
 class UserInactive(HelixauthError):
     def __init__(self):

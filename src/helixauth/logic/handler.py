@@ -11,15 +11,17 @@ from helixauth.error import (EnvironmentNotFound,
     HelixauthObjectAlreadyExists, SessionNotFound, UserNotFound, SessionExpired,
     HelixauthError, UserInactive)
 from helixauth.db.filters import EnvironmentFilter, UserFilter, ServiceFilter,\
-    UserRightsFilter, SessionFilter
+    UserRightsFilter, SessionFilter, SubjectUserFilter
 from helixauth.db.dataobject import Environment, User, Service, UserRights
 from helixauth.logic.auth import Authentifier
 from helixauth.wsgi.protocol import protocol, unauthorized_actions
 import cjson
 from helixcore.db.wrapper import ObjectCreationError
+from functools import wraps
 
 
 def authentificate(method):
+    @wraps(method)
     @detalize_error(SessionNotFound, RequestProcessingError.Category.auth, 'session_id')
     @detalize_error(SessionExpired, RequestProcessingError.Category.auth, 'session_id')
     @detalize_error(HelixauthError, RequestProcessingError.Category.auth, 'session_id')
@@ -36,7 +38,7 @@ def authentificate(method):
         if not user.is_active:
             raise UserInactive()
 
-        auth.check_access(session, user, method)
+        auth.check_access(session, user, method.__name__)
         data.pop('session_id', None)
         custom_actor_info = data.pop('custom_actor_info', None)
 
@@ -83,24 +85,18 @@ class Handler(AbstractHandler):
         f = EnvironmentFilter(enc_data, {}, {})
         env = f.filter_one_obj(curs)
 
-        # Required for proper logging action
-        data['environment_id'] = env.id
-
-        class SessionImitator(object):
-            def __init__(self):
-                self.environment_id = env.id
-
-        f = UserFilter(SessionImitator(), enc_data, {}, {})
+        f = SubjectUserFilter(env.id, enc_data, {}, {})
         user = f.filter_one_obj(curs)
         if not user.is_active:
             raise UserInactive()
 
-        # Required for proper logging action
-        data['actor_user_id'] = user.id
-
         # creating session
         auth = Authentifier()
         session = auth.create_session(curs, env, user)
+
+        # Required for proper logging action
+        data['environment_id'] = env.id
+        data['actor_user_id'] = user.id
 
         return response_ok(session_id=session.session_id)
 

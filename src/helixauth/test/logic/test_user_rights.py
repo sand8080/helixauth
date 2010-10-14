@@ -2,6 +2,9 @@
 import unittest
 
 from helixauth.test.logic.actor_logic_test import ActorLogicTestCase
+from helixauth.db.filters import ServiceFilter
+from helixauth.conf.db import transaction
+from helixcore.server.errors import RequestProcessingError
 
 
 class UserRightsTestCase(ActorLogicTestCase):
@@ -39,6 +42,35 @@ class UserRightsTestCase(ActorLogicTestCase):
             'rights': [{'service_id': s_id, 'properties': ps_1}]}
         resp = self.modify_users_rights(**req)
         self.check_response_ok(resp)
+
+    @transaction()
+    def test_check_access_auth_srv(self, curs=None):
+        session_id = self.login_actor()
+        req = {'session_id': session_id, 'login': 'u0', 'password': 'p0'}
+        resp = self.add_user(**req)
+        self.check_response_ok(resp)
+
+        u_id = resp['user_id']
+        granted = ['add_user']
+        env = self.get_environment_by_name(self.actor_env_name)
+        f = ServiceFilter(env.id, {'name': 'Auth'}, {}, None)
+        srv = f.filter_one_obj(curs)
+
+        req = {'session_id': session_id, 'subject_users_ids': [u_id],
+            'rights': [{'service_id': srv.id, 'properties': granted}]}
+        self.modify_users_rights(**req)
+
+        req = {'environment_name': env.name, 'login': 'u0', 'password': 'p0'}
+        resp = self.login(**req)
+        self.check_response_ok(resp)
+        u_sess_id = resp['session_id']
+
+        req = {'session_id': u_sess_id, 'login': 'u0-1', 'password': 'p0-1'}
+        resp = self.add_user(**req)
+        self.check_response_ok(resp)
+
+        req = {'session_id': u_sess_id, 'new_name': 'new env'}
+        self.assertRaises(RequestProcessingError, self.modify_environment, **req)
 
 
 if __name__ == '__main__':
