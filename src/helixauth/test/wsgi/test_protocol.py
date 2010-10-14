@@ -154,6 +154,19 @@ class ProtocolTestCase(RootTestCase):
         ]})
         self.validate_error_response(a_name)
 
+    def test_modify_service(self):
+        a_name = 'modify_service'
+        self.api.validate_request(a_name, {'session_id': 'i', 'service_id': 1})
+        self.api.validate_request(a_name, {'session_id': 'i', 'service_id': 1,
+            'new_name': 'n'})
+        self.api.validate_request(a_name, {'session_id': 'i', 'service_id': 1,
+            'new_name': 'n', 'new_properties': ['a', 'b']})
+        self.api.validate_request(a_name, {'session_id': 'i', 'service_id': 1,
+            'new_name': 'n', 'new_properties': ['a', 'b'],
+            'new_is_active': False})
+
+        self.validate_status_response(a_name)
+
     def test_modify_users_rights(self):
         a_name = 'modify_users_rights'
         self.api.validate_request(a_name, {'session_id': 's',

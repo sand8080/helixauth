@@ -145,6 +145,18 @@ GET_SERVICES_RESPONSE = AnyOf(
     RESPONSE_STATUS_ERROR
 )
 
+MODIFY_SERVICE_REQUEST = dict(
+    {
+        'service_id': int,
+        Optional('new_name'): Text(),
+        Optional('new_properties'): [Text()],
+        Optional('new_is_active'): bool,
+    },
+    **AUTHORIZED_REQUEST_AUTH_INFO
+)
+
+MODIFY_SERVICE_RESPONSE = RESPONSE_STATUS_ONLY
+
 MODIFY_USERS_RIGHTS_REQUEST = dict(
     {
         'subject_users_ids': [int],
@@ -189,6 +201,9 @@ protocol = [
     # service
     ApiCall('add_service_request', Scheme(ADD_SERVICE_REQUEST)),
     ApiCall('add_service_response', Scheme(ADD_SERVICE_RESPONSE)),
+
+    ApiCall('modify_service_request', Scheme(MODIFY_SERVICE_REQUEST)),
+    ApiCall('modify_service_response', Scheme(MODIFY_SERVICE_RESPONSE)),
 
     ApiCall('get_services_request', Scheme(GET_SERVICES_REQUEST)),
     ApiCall('get_services_response', Scheme(GET_SERVICES_RESPONSE)),
