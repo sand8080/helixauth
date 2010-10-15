@@ -9,7 +9,8 @@ def apply(curs):
             name varchar NOT NULL,
             properties varchar[],
             is_active boolean NOT NULL DEFAULT True,
-            is_possible_deactiate boolean NOT NULL DEFAULT True
+            is_possible_deactiate boolean NOT NULL DEFAULT True,
+            UNIQUE(environment_id, name)
         )
     ''')
 
