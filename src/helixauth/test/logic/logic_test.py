@@ -10,7 +10,7 @@ from helixauth.test.db_based_test import DbBasedTestCase
 from helixauth.conf import settings
 from helixauth.conf.db import transaction
 from helixauth.db.filters import EnvironmentFilter, SessionFilter,\
-    SubjectUserFilter
+    SubjectUserFilter, ServiceFilter
 from helixauth.logic import actions, auth
 from helixauth.wsgi.protocol import protocol
 
@@ -56,11 +56,7 @@ class LogicTestCase(DbBasedTestCase):
         return response
 
     def modify_environment(self, **kwargs):
-        response = self.handle_action('modify_environment', kwargs)
-        self.check_response_ok(response)
-        env_new = self.get_environment_by_name(kwargs['new_name'])
-        self.assertEqual(kwargs['new_name'], env_new.name)
-        return response
+        return self.handle_action('modify_environment', kwargs)
 
     def login(self, **kwargs):
         return self.handle_action('login', kwargs)
@@ -87,20 +83,29 @@ class LogicTestCase(DbBasedTestCase):
         mapping.save(curs, user)
 
     def add_user(self, **kwargs):
-        response = self.handle_action('add_user', kwargs)
-        return response
+        return self.handle_action('add_user', kwargs)
 
     def add_service(self, **kwargs):
-        resp = self.handle_action('add_service', kwargs)
-        return resp
+        return self.handle_action('add_service', kwargs)
 
     def get_services(self, **kwargs):
-        resp = self.handle_action('get_services', kwargs)
-        return resp
+        return self.handle_action('get_services', kwargs)
+
+    def modify_service(self, **kwargs):
+        return self.handle_action('modify_service', kwargs)
 
     def modify_users_rights(self, **kwargs):
-        resp = self.handle_action('modify_users_rights', kwargs)
-        return resp
+        return self.handle_action('modify_users_rights', kwargs)
 
     def get_authorized_api_actions(self):
         return self.handle_action('get_authorized_api_actions', {})
+
+    @transaction()
+    def load_auth_service(self, env_id, curs=None):
+        f = ServiceFilter(env_id, {}, {'limit': 1}, ['id'])
+        return f.filter_one_obj(curs)
+
+    @transaction()
+    def load_service(self, env_id, name, curs=None):
+        f = ServiceFilter(env_id, {'name': name}, {}, None)
+        return f.filter_one_obj(curs)

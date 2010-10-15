@@ -85,6 +85,5 @@ class Authentifier(object):
             rights = data['rights']
             int_srvs_ids = map(int, rights.keys())
             auth_srv_id = str(min(int_srvs_ids))
-            print 'property ', auth_srv_id, property, rights
             if property not in rights[auth_srv_id]:
                 raise UserAccessDenied(user.login, property)

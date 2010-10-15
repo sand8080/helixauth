@@ -87,6 +87,47 @@ class ServiceTestCase(ActorLogicTestCase):
         self.assertEqual(len(s_ids), resp['total'])
         self.assertEqual(min(len(s_ids), l_num), len(resp['services']))
 
+    def test_modify_service(self, curs=None):
+        session_id = self.login_actor()
+        env = self.get_environment_by_name(self.actor_env_name)
+        srv = self.load_auth_service(env.id)
+
+        n_name = 'NEW Auth'
+        req = {'session_id': session_id, 'service_id': srv.id,
+            'new_name': n_name}
+        resp = self.modify_service(**req)
+        self.check_response_ok(resp)
+        n_srv = self.load_auth_service(env.id)
+        self.assertEqual(n_name, n_srv.name)
+
+        n_properties = ['a', 'b', 'c']
+        req = {'session_id': session_id, 'service_id': srv.id,
+            'new_properties': n_properties}
+        resp = self.modify_service(**req)
+        self.check_response_ok(resp)
+        n_srv = self.load_auth_service(env.id)
+        self.assertEqual(n_properties, n_srv.properties)
+
+        req = {'session_id': session_id, 'service_id': srv.id,
+            'new_is_active': False}
+        self.assertRaises(RequestProcessingError, self.modify_service, **req)
+
+    def test_modify_service_name_to_existed(self):
+        session_id = self.login_actor()
+        env = self.get_environment_by_name(self.actor_env_name)
+        srv = self.load_auth_service(env.id)
+
+        name_another = 'another %s' % srv.name
+        req = {'session_id': session_id, 'name': name_another,
+            'properties': []}
+        resp = self.add_service(**req)
+        self.check_response_ok(resp)
+        srv_another = self.load_service(env.id, name_another)
+
+        req = {'session_id': session_id, 'service_id': srv_another.id,
+            'new_name': srv.name}
+        self.assertRaises(RequestProcessingError, self.modify_service, **req)
+
 
 if __name__ == '__main__':
     unittest.main()

@@ -22,6 +22,12 @@ class UserNotFound(HelixauthObjectNotFound):
         super(UserNotFound, self).__init__('User', **kwargs)
 
 
+class ServiceDeactivationError(HelixauthError):
+    def __init__(self, service_name):
+        super(ServiceDeactivationError, self).__init__(
+            'Service %s can\'t be deactivated' % service_name)
+
+
 class SessionNotFound(HelixauthObjectNotFound):
     def __init__(self, **kwargs):
         super(SessionNotFound, self).__init__('Session', **kwargs)
@@ -35,9 +41,10 @@ class EnvironmentNotFound(HelixauthObjectNotFound):
 class UserAuthError(HelixauthError):
     pass
 
+
 class UserAccessDenied(HelixauthError):
     def __init__(self, login, property):
-       raise UserAuthError("User %s access denied to %s" %
+        raise UserAuthError("User %s access denied to %s" %
             (login, property))
 
 

@@ -49,6 +49,7 @@ class SessionFilter(OFImpl):
 
 class EnvironmentFilter(OFImpl):
     cond_map = [
+        ('id', 'id', Eq),
         ('name', 'name', Eq),
         ('environment_name', 'name', Eq),
         ('environment_id', 'id', Eq),

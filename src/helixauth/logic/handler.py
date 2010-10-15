@@ -3,13 +3,13 @@ from functools import partial
 from helixcore import mapping
 from helixcore import security
 from helixcore.actions.handler import detalize_error, AbstractHandler
-from helixcore.server.errors import RequestProcessingError
+from helixcore.server.errors import RequestProcessingError, DataIntegrityError
 from helixcore.server.response import response_ok
 
 from helixauth.conf.db import transaction
 from helixauth.error import (EnvironmentNotFound,
     HelixauthObjectAlreadyExists, SessionNotFound, UserNotFound, SessionExpired,
-    HelixauthError, UserInactive)
+    HelixauthError, UserInactive, ServiceDeactivationError)
 from helixauth.db.filters import EnvironmentFilter, UserFilter, ServiceFilter,\
     UserRightsFilter, SessionFilter, SubjectUserFilter
 from helixauth.db.dataobject import Environment, User, Service, UserRights
@@ -104,17 +104,12 @@ class Handler(AbstractHandler):
     @detalize_error(HelixauthObjectAlreadyExists,
         RequestProcessingError.Category.data_integrity, 'name')
     def add_environment(self, data, curs=None):
-        # creating environment
-        try:
-            f = EnvironmentFilter(data, {}, {})
-            env = f.filter_one_obj(curs)
-            raise HelixauthObjectAlreadyExists('Environment "%s" already exists' % env.name)
-        except EnvironmentNotFound, _:
-            pass
-
         env_data = {'name': data.get('name')}
         env = Environment(**env_data)
-        mapping.save(curs, env)
+        try:
+            mapping.save(curs, env)
+        except ObjectCreationError:
+            raise HelixauthObjectAlreadyExists('Environment %s already exists' % env.name)
 
         # creating user
         a = Authentifier()
@@ -148,9 +143,13 @@ class Handler(AbstractHandler):
     @detalize_error(HelixauthObjectAlreadyExists,
         RequestProcessingError.Category.data_integrity, 'new_name')
     def modify_environment(self, data, session, curs=None):
-        f = EnvironmentFilter({'id': session.environment_id}, {}, {})
+        f = EnvironmentFilter({'id': session.environment_id}, {}, None)
         loader = partial(f.filter_one_obj, curs, for_update=True)
-        self.update_obj(curs, data, loader)
+        try:
+            self.update_obj(curs, data, loader)
+        except DataIntegrityError:
+            raise HelixauthObjectAlreadyExists('Environment %s already exists' %
+                data.get('new_name'))
         return response_ok()
 
     @transaction()
@@ -194,6 +193,29 @@ class Handler(AbstractHandler):
             return result
         return response_ok(services=self.objects_info(ss, viewer),
             total=total)
+
+    @transaction()
+    @authentificate
+    @detalize_error(HelixauthObjectAlreadyExists,
+        RequestProcessingError.Category.data_integrity, 'new_name')
+    @detalize_error(ServiceDeactivationError,
+        RequestProcessingError.Category.data_integrity, 'new_is_active')
+    def modify_service(self, data, session, curs=None):
+        f = ServiceFilter(session.environment_id, {'id': data['service_id']},
+            {}, None)
+
+        # checking service deactivation is possible
+        srv = f.filter_one_obj(curs)
+        if not data.get('new_is_active', True) and not srv.is_possible_deactiate:
+            raise ServiceDeactivationError(srv.name)
+
+        loader = partial(f.filter_one_obj, curs, for_update=True)
+        try:
+            self.update_obj(curs, data, loader)
+        except DataIntegrityError:
+            raise HelixauthObjectAlreadyExists('Service %s already exists' %
+                data.get('new_name'))
+        return response_ok()
 
     @transaction()
     @authentificate

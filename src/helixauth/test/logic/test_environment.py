@@ -3,7 +3,6 @@ import unittest
 from helixcore.server.errors import RequestProcessingError
 
 from helixauth.test.logic.logic_test import LogicTestCase
-from helixauth.conf.db import transaction
 
 
 class EnvironmentTestCase(LogicTestCase):
@@ -38,17 +37,20 @@ class EnvironmentTestCase(LogicTestCase):
             'new_name': 'modified_name_1'})
         self.check_response_ok(resp)
 
-    @transaction()
-    def test_modify_failure(self, curs=None):
-        req = {'name': 'env_0', 'su_login': 'su_env_login', 'su_password': 'qweasdzxc',
-            'custom_actor_info': 'environment created from tests'}
-        response = self.add_environment(**req)
-        session_id = response['session_id']
-        self.assertRaises(RequestProcessingError, self.modify_environment,
-            session_id='%s_modified' % session_id, new_name='nn_0')
-        self.make_session_expired(session_id)
-        self.assertRaises(RequestProcessingError, self.modify_environment,
-            session_id=session_id, new_name='nn_1')
+    def test_name_duplication(self):
+        name_0 = 'env_0'
+        req = {'name': name_0, 'su_login': 'l', 'su_password': 'p'}
+        resp = self.add_environment(**req)
+        self.check_response_ok(resp)
+
+        name_1 = 'env_1'
+        req = {'name': name_1, 'su_login': 'l', 'su_password': 'p'}
+        resp = self.add_environment(**req)
+        self.check_response_ok(resp)
+
+        session_id = resp['session_id']
+        req = {'session_id': session_id, 'new_name': name_0}
+        self.assertRaises(RequestProcessingError, self.modify_environment, **req)
 
 
 if __name__ == '__main__':
