@@ -91,7 +91,7 @@ class ActionLogTestCase(ActorLogicTestCase):
     @transaction()
     def test_add_service(self, curs=None):
         session_id = self.login_actor()
-        req = {'session_id': session_id, 'name': u'сервис',
+        req = {'session_id': session_id, 'name': u'сервис', 'type': 'type',
             'properties': list('qazwsx'), 'is_active': False}
         resp = self.cli.add_service(**req)
         self.check_response_ok(resp)

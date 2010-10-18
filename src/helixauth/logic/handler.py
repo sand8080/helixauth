@@ -126,8 +126,8 @@ class Handler(AbstractHandler):
         a_data = self.get_authorized_api_actions({})
         actions = a_data['actions']
         d = {'environment_id': session.environment_id, 'name': 'Auth',
-            'is_active': True, 'is_possible_deactiate': False,
-            'properties': actions}
+            'type': Service.TYPE_AUTH, 'is_active': True,
+            'is_possible_deactiate': False, 'properties': actions}
         s = Service(**d)
         mapping.save(curs, s)
 

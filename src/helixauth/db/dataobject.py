@@ -31,7 +31,10 @@ class Session(Mapped):
 
 
 class Service(Mapped):
-    __slots__ = ['id', 'environment_id', 'name', 'properties',
+    TYPE_AUTH = 'auth'
+    TYPE_BILLING = 'billing'
+    TYPE_TARIFF = 'tariff'
+    __slots__ = ['id', 'environment_id', 'name', 'properties', 'type',
         'is_active', 'is_possible_deactiate']
     table = 'service'
 

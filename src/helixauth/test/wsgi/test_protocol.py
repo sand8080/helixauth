@@ -102,11 +102,12 @@ class ProtocolTestCase(RootTestCase):
     def test_add_service(self):
         a_name = 'add_service'
         self.api.validate_request(a_name, {'session_id': 'i',
-            'name': 'n', 'properties': []})
+            'name': 'n', 'type': 't', 'properties': []})
         self.api.validate_request(a_name, {'session_id': 'i',
-            'name': 'n', 'properties': ['a', 'b', 'c']})
+            'name': 'n', 'type': 't', 'properties': ['a', 'b', 'c']})
         self.api.validate_request(a_name, {'session_id': 'i',
-            'name': 'n', 'properties': ['a', 'b', 'c'],'is_active': False})
+            'name': 'n', 'type': 't', 'properties': ['a', 'b', 'c'],
+            'is_active': False})
 
         self.api.validate_response(a_name,
             {'status': 'ok', 'service_id': 1})
@@ -138,18 +139,19 @@ class ProtocolTestCase(RootTestCase):
             'services': [
             {
                 'id': 42, 'is_active': True, 'is_possible_deactiate': True,
-                'properties': [], 'name': u'сервис0'
+                'properties': [], 'name': u'сервис0', 'type': 't',
             },
         ]})
         self.api.validate_response(a_name, {'status': 'ok', 'total': 4,
             'services': [
             {
                 'id': 42, 'is_active': True, 'is_possible_deactiate': True,
-                'properties': [], 'name': u'сервис0'
+                'properties': [], 'name': u'сервис0', 'type': 't',
             },
             {
                 'id': 43, 'is_active': True, 'is_possible_deactiate': True,
-                'properties': ['a', 'b', u'омега'], 'name': u'сервис0'
+                'properties': ['a', 'b', u'омега'], 'name': u'сервис0',
+                'type': 't',
             },
         ]})
         self.validate_error_response(a_name)

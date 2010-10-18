@@ -57,7 +57,7 @@ class Authentifier(object):
             return {}
         else:
             d = {}
-            d['services_name_id_idx'] = self._get_services_name_id_idx(curs, env)
+            d['services_type_id_idx'] = self._get_services_type_id_idx(curs, env)
             d['rights'] = self._get_user_rights(curs, env, user)
             return d
 
@@ -72,12 +72,12 @@ class Authentifier(object):
         else:
             return {}
 
-    def _get_services_name_id_idx(self, curs, env):
+    def _get_services_type_id_idx(self, curs, env):
         f = ServiceFilter(env.id, {}, {}, None)
         srvs = f.filter_objs(curs)
         # cjson can't encode dicts with non string keys
-        srvs_name_id_idx = dict([(s.name, str(s.id)) for s in srvs])
-        return srvs_name_id_idx
+        srvs_type_id_idx = dict([(s.type, str(s.id)) for s in srvs])
+        return srvs_type_id_idx
 
     def check_access(self, session, user, property):
         if user.role != User.ROLE_SUPER:

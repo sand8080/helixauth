@@ -103,6 +103,7 @@ ADD_USER_RESPONSE = AnyOf(
 ADD_SERVICE_REQUEST = dict(
     {
         'name': Text(),
+        'type': Text(),
         'properties': [Text()],
         Optional('is_active'): bool,
     },
@@ -117,6 +118,7 @@ ADD_SERVICE_RESPONSE = AnyOf(
 SERVICE_INFO = {
     'id': int,
     'name': Text(),
+    'type': Text(),
     'properties': [Text()],
     'is_active': bool,
     'is_possible_deactiate': bool,
@@ -126,6 +128,7 @@ GET_SERVICES_REQUEST = dict(
     {
         'filter_params': {
             Optional('services_ids'): [int],
+            Optional('services_types'): [Text()],
             Optional('is_active'): bool
         },
         'paging_params': REQUEST_PAGING_PARAMS,

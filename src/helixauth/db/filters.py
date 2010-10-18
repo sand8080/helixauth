@@ -120,6 +120,7 @@ class ServiceFilter(EnvironmentObjectsFilter):
         ('id', 'id', Eq),
         ('name', 'name', Eq),
         ('services_ids', 'id', In),
+        ('services_types', 'type', In),
     ]
 
     def __init__(self, environment_id, filter_params, paging_params, ordering_params):

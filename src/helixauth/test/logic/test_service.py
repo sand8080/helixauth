@@ -5,6 +5,7 @@ from helixauth.test.logic.actor_logic_test import ActorLogicTestCase
 from helixcore.server.errors import RequestProcessingError
 from helixauth.db.filters import ServiceFilter
 from helixauth.conf.db import transaction
+from helixauth.db.dataobject import Service
 
 
 class ServiceTestCase(ActorLogicTestCase):
@@ -30,11 +31,11 @@ class ServiceTestCase(ActorLogicTestCase):
     def test_add_service(self):
         session_id = self.login_actor()
         req_srv = {'session_id': session_id, 'name': u'сервис0',
-            'properties': ['alpha', u'бетта']}
+            'type': Service.TYPE_BILLING, 'properties': ['alpha', u'бетта']}
         resp = self.add_service(**req_srv)
         self.check_response_ok(resp)
 
-        # same named service in another environment
+        # same type service in another environment
         req = {'name': 'zero', 'su_login': self.actor_login,
             'su_password': self.actor_password}
         self.add_environment(**req)
@@ -49,7 +50,7 @@ class ServiceTestCase(ActorLogicTestCase):
     def test_add_duplicate_services(self):
         session_id = self.login_actor()
         req = {'session_id': session_id, 'name': u'сервис0',
-            'properties': ['alpha', u'бетта']}
+            'type': Service.TYPE_BILLING, 'properties': ['alpha', u'бетта']}
         resp = self.add_service(**req)
         self.check_response_ok(resp)
         self.assertRaises(RequestProcessingError, self.add_service, **req)
@@ -60,6 +61,7 @@ class ServiceTestCase(ActorLogicTestCase):
         s_num = 10
         for i in xrange(s_num - 1): # one service already exists
             req['name'] = u'сервис_%d' % i
+            req['type'] = u'тип_%d' % i
             self.add_service(**req)
 
         req = {'session_id': session_id, 'filter_params': {},
@@ -87,11 +89,22 @@ class ServiceTestCase(ActorLogicTestCase):
         self.assertEqual(len(s_ids), resp['total'])
         self.assertEqual(min(len(s_ids), l_num), len(resp['services']))
 
+        l_num = 3
+        s_types = [u'тип_0', u'тип_3', u'тип_1000']
+        req = {'session_id': session_id, 'paging_params': {'limit': l_num},
+            'filter_params': {'services_types': s_types},
+            'ordering_params': ['name']}
+        resp = self.get_services(**req)
+        self.check_response_ok(resp)
+        self.assertEqual(len(s_types) - 1, resp['total'])
+        self.assertEqual(min(len(s_types) - 1, l_num), len(resp['services']))
+
     def test_modify_service(self, curs=None):
         session_id = self.login_actor()
         env = self.get_environment_by_name(self.actor_env_name)
         srv = self.load_auth_service(env.id)
 
+        # changing service name
         n_name = 'NEW Auth'
         req = {'session_id': session_id, 'service_id': srv.id,
             'new_name': n_name}
@@ -100,6 +113,7 @@ class ServiceTestCase(ActorLogicTestCase):
         n_srv = self.load_auth_service(env.id)
         self.assertEqual(n_name, n_srv.name)
 
+        # changing service properties
         n_properties = ['a', 'b', 'c']
         req = {'session_id': session_id, 'service_id': srv.id,
             'new_properties': n_properties}
@@ -119,14 +133,15 @@ class ServiceTestCase(ActorLogicTestCase):
 
         name_another = 'another %s' % srv.name
         req = {'session_id': session_id, 'name': name_another,
-            'properties': []}
+            'properties': [], 'type': Service.TYPE_BILLING}
         resp = self.add_service(**req)
         self.check_response_ok(resp)
         srv_another = self.load_service(env.id, name_another)
 
         req = {'session_id': session_id, 'service_id': srv_another.id,
             'new_name': srv.name}
-        self.assertRaises(RequestProcessingError, self.modify_service, **req)
+        resp = self.modify_service(**req)
+        self.check_response_ok(resp)
 
 
 if __name__ == '__main__':
