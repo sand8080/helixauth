@@ -1,6 +1,6 @@
 import cjson
 from helixcore.mapping import insert
-from helixbilling.domain.objects import ActionLog
+from helixauth.db.dataobject import ActionLog
 
 def logged(func):
     def decorated(obj, data, curs):

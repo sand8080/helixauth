@@ -15,7 +15,7 @@ class Server(object):
 
     @staticmethod
     def run():
-        sock = socket.socket()
+        sock = socket.socket() #@UndefinedVariable
         sock.bind((settings.server_host, settings.server_port))
         sock.listen(settings.server_connections)
         wsgi.server(
