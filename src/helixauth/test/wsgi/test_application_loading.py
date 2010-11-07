@@ -1,10 +1,9 @@
-import datetime
 import unittest
 import eventlet
 
 from helixcore.test.util import profile
 
-from helixauth.test.service_test import ServiceTestCase
+from helixauth.test.logic.logic_test import LogicTestCase
 from helixauth.test.wsgi.client import Client
 from helixauth.wsgi.server import Server
 
@@ -13,7 +12,7 @@ eventlet.patcher.monkey_patch(all=False, socket=True)
 eventlet.spawn(Server.run)
 
 
-class ApplicationTestCase(ServiceTestCase):
+class ApplicationTestCase(LogicTestCase):
     def setUp(self):
         super(ApplicationTestCase, self).setUp()
         self.cli = Client()
