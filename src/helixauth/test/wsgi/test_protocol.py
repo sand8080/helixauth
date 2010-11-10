@@ -13,28 +13,28 @@ class ProtocolTestCase(RootTestCase):
 
     def validate_error_response(self, action_name):
         self.api.validate_response(action_name, {'status': 'error', 'category': 't',
-            'message': 'h', 'details': [{'f': 'v'}]})
+            'code': 'c', 'message': 'h', 'details': [{'f': 'v'}]})
         self.api.validate_response(action_name, {'status': 'error', 'category': 't',
-            'message': 'h', 'details': [{}]})
+            'code': 'c', 'message': 'h', 'details': [{}]})
         self.assertRaises(ValidationError, self.api.validate_response, action_name,
-            {'status': 'error', 'category': 'test'})
+            {'status': 'error', 'code': 'c', 'category': 'test'})
         self.assertRaises(ValidationError, self.api.validate_response, action_name,
-            {'status': 'error', 'category': 'test', 'message': 'm'})
+            {'status': 'error', 'code': 'c', 'category': 'test', 'message': 'm'})
 
     def validate_authorized_error_response(self, action_name):
         self.api.validate_response(action_name, {'session_id': 'i',
-            'status': 'error', 'category': 't',
+            'status': 'error', 'category': 't', 'code': 'c',
             'message': 'h', 'details': [{'f': 'v'}]})
         self.api.validate_response(action_name, {'session_id': 'i',
-            'status': 'error', 'category': 't',
+            'status': 'error', 'category': 't', 'code': 'c',
             'message': 'h', 'details': [{}]})
         self.assertRaises(ValidationError, self.api.validate_response, action_name,
-            {'status': 'error', 'category': 't',
+            {'status': 'error', 'category': 't', 'code': 'c',
             'message': 'h', 'details': [{'f': 'v'}]})
         self.assertRaises(ValidationError, self.api.validate_response, action_name,
-            {'status': 'error', 'category': 'test'})
+            {'status': 'error', 'category': 'test', 'code': 'c'})
         self.assertRaises(ValidationError, self.api.validate_response, action_name,
-            {'status': 'error', 'category': 'test', 'message': 'm'})
+            {'status': 'error', 'category': 'test', 'code': 'c', 'message': 'm'})
 
     def validate_status_response(self, action_name):
         self.api.validate_response(action_name, {'status': 'ok'})

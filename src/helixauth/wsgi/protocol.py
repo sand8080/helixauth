@@ -19,6 +19,7 @@ RESPONSE_STATUS_OK = {'status': 'ok'}
 
 RESPONSE_STATUS_ERROR = {
     'status': 'error',
+    'code': Text(),
     'category': Text(),
     'message': Text(),
     'details': [ArbitraryDict()],
