@@ -2,7 +2,7 @@
 import unittest
 
 from helixcore.server.api import Api
-from helixcore.server.errors import ValidationError
+from helixcore.error import ValidationError
 
 from helixauth.test.root_test import RootTestCase
 from helixauth.wsgi.protocol import protocol

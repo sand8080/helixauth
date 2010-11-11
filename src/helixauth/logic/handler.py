@@ -3,7 +3,7 @@ from functools import partial
 from helixcore import mapping
 from helixcore import security
 from helixcore.actions.handler import detalize_error, AbstractHandler
-from helixcore.server.errors import RequestProcessingError, DataIntegrityError
+from helixcore.error import DataIntegrityError
 from helixcore.server.response import response_ok
 
 from helixauth.conf.db import transaction
@@ -22,9 +22,9 @@ from functools import wraps
 
 def authentificate(method):
     @wraps(method)
-    @detalize_error(SessionNotFound, RequestProcessingError.Category.auth, 'session_id')
-    @detalize_error(SessionExpired, RequestProcessingError.Category.auth, 'session_id')
-    @detalize_error(HelixauthError, RequestProcessingError.Category.auth, 'session_id')
+    @detalize_error(SessionNotFound, 'session_id')
+    @detalize_error(SessionExpired, 'session_id')
+    @detalize_error(HelixauthError, 'session_id')
     def decroated(self, data, curs):
         auth = Authentifier()
         session_id = data.get('session_id')
@@ -52,6 +52,7 @@ def authentificate(method):
         return result
     return decroated
 
+
 class Handler(AbstractHandler):
     '''
     Handles all API actions. Method names are called like actions.
@@ -73,12 +74,9 @@ class Handler(AbstractHandler):
         return response_ok(actions=auth_a)
 
     @transaction()
-    @detalize_error(EnvironmentNotFound,
-        RequestProcessingError.Category.auth, 'login')
-    @detalize_error(UserNotFound,
-        RequestProcessingError.Category.auth, 'login')
-    @detalize_error(UserInactive,
-        RequestProcessingError.Category.auth, 'login')
+    @detalize_error(EnvironmentNotFound, 'login')
+    @detalize_error(UserNotFound, 'login')
+    @detalize_error(UserInactive, 'login')
     def login(self, data, curs=None):
         a = Authentifier()
         enc_data = security.encrypt_passwords(data, a.encrypt_password)
@@ -101,8 +99,7 @@ class Handler(AbstractHandler):
         return response_ok(session_id=session.session_id)
 
     @transaction()
-    @detalize_error(HelixauthObjectAlreadyExists,
-        RequestProcessingError.Category.data_integrity, 'name')
+    @detalize_error(HelixauthObjectAlreadyExists, ['name', 'su_login', 'su_password'])
     def add_environment(self, data, curs=None):
         env_data = {'name': data.get('name')}
         env = Environment(**env_data)
@@ -140,8 +137,7 @@ class Handler(AbstractHandler):
 
     @transaction()
     @authentificate
-    @detalize_error(HelixauthObjectAlreadyExists,
-        RequestProcessingError.Category.data_integrity, 'new_name')
+    @detalize_error(HelixauthObjectAlreadyExists, 'new_name')
     def modify_environment(self, data, session, curs=None):
         f = EnvironmentFilter({'id': session.environment_id}, {}, None)
         loader = partial(f.filter_one_obj, curs, for_update=True)
@@ -154,8 +150,7 @@ class Handler(AbstractHandler):
 
     @transaction()
     @authentificate
-    @detalize_error(HelixauthObjectAlreadyExists,
-        RequestProcessingError.Category.data_integrity, 'login')
+    @detalize_error(HelixauthObjectAlreadyExists, 'login')
     def add_user(self, data, session, curs=None):
         a = Authentifier()
         u_data = {'environment_id': session.environment_id,
@@ -171,8 +166,7 @@ class Handler(AbstractHandler):
 
     @transaction()
     @authentificate
-    @detalize_error(ObjectCreationError,
-        RequestProcessingError.Category.data_integrity, 'name')
+    @detalize_error(ObjectCreationError, 'name')
     def add_service(self, data, session, curs=None):
         d = dict(data)
         d['environment_id'] = session.environment_id
@@ -196,10 +190,8 @@ class Handler(AbstractHandler):
 
     @transaction()
     @authentificate
-    @detalize_error(HelixauthObjectAlreadyExists,
-        RequestProcessingError.Category.data_integrity, 'new_name')
-    @detalize_error(ServiceDeactivationError,
-        RequestProcessingError.Category.data_integrity, 'new_is_active')
+    @detalize_error(HelixauthObjectAlreadyExists, 'new_name')
+    @detalize_error(ServiceDeactivationError, 'new_is_active')
     def modify_service(self, data, session, curs=None):
         f = ServiceFilter(session.environment_id, {'id': data['service_id']},
             {}, None)

@@ -34,7 +34,7 @@ class ApplicationTestCase(LogicTestCase):
         self.cli.ping()
         self.check_status_ok(self.cli.ping()) #IGNORE:E1101
         self.ping_loading(repeats=1)
-        self.ping_loading(repeats=500)
+        self.ping_loading(repeats=100)
 
     @profile
     def get_api_actions_loading(self, repeats=1): #IGNORE:W0613
@@ -43,19 +43,16 @@ class ApplicationTestCase(LogicTestCase):
     def test_get_api_actions(self):
         self.cli.get_api_actions()
         self.get_api_actions_loading(repeats=1)
-        self.get_api_actions_loading(repeats=1000)
+        self.get_api_actions_loading(repeats=100)
 
     @profile
     def get_authorized_api_actions_loading(self, repeats=1): #IGNORE:W0613
         self.cli.get_authorized_api_actions() #IGNORE:E1101
 
     def test_get_authorized_api_actions(self):
-        actions = self.cli.get_authorized_api_actions()
-        for unauthorized in self.cli.unauthorized_commands:
-            self.assertFalse(unauthorized in actions)
         self.get_authorized_api_actions_loading(repeats=1)
-        self.get_authorized_api_actions_loading(repeats=1000)
-
+        self.get_authorized_api_actions_loading(repeats=100)
+#
     @profile
     def login_loading(self, data, repeats=1): #IGNORE:W0613
         self.cli.login(**data) #IGNORE:E1101

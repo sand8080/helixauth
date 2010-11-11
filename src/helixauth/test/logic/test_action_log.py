@@ -69,6 +69,16 @@ class ActionLogTestCase(ActorLogicTestCase):
         env_imitator = EnvImitator()
         self.assertEquals(1, self.get_action_logs_num(env_imitator))
 
+    def test_tracking_duplicate_environment(self):
+        environment = self.get_environment_by_name(self.actor_env_name)
+        self.assertEquals(1, self.get_action_logs_num(environment))
+        req = {'name': self.actor_env_name, 'su_login': 'l',
+            'su_password': 'p'}
+        self.cli.add_environment(**req)
+        class EnvEmulator(object):
+            id = None
+        self.assertEquals(1, self.get_action_logs_num(EnvEmulator()))
+
     @transaction()
     def test_add_user(self, curs=None):
         session_id = self.login_actor()

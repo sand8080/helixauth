@@ -1,7 +1,8 @@
 from psycopg2 import IntegrityError
 
 from helixauth.logic.handler import Handler
-from helixcore.server.errors import UnknownActionError, DataIntegrityError
+from helixcore.error import UnknownActionError, DataIntegrityError
+
 
 def handle_action(action_name, data):
     '''

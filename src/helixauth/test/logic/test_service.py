@@ -2,7 +2,7 @@
 import unittest
 
 from helixauth.test.logic.actor_logic_test import ActorLogicTestCase
-from helixcore.server.errors import RequestProcessingError
+from helixcore.error import RequestProcessingError
 from helixauth.db.filters import ServiceFilter
 from helixauth.conf.db import transaction
 from helixauth.db.dataobject import Service

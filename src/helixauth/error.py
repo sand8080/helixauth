@@ -1,9 +1,11 @@
 from helixcore import security
 from helixcore.db.wrapper import ObjectNotFound, ObjectCreationError
 
+from helixauth import error_code
+
 
 class HelixauthError(Exception):
-    pass
+    code = error_code.HELIXAUTH_ERROR_CODE
 
 
 class HelixauthObjectNotFound(HelixauthError, ObjectNotFound):
@@ -11,15 +13,19 @@ class HelixauthObjectNotFound(HelixauthError, ObjectNotFound):
         sanitized_kwargs = security.sanitize_credentials(kwargs)
         super(HelixauthObjectNotFound, self).__init__('%s not found by params: %s' %
             (class_name, sanitized_kwargs))
+        self.code = error_code.HELIXAUTH_OBJECT_NOT_FOUND
 
 
 class HelixauthObjectAlreadyExists(HelixauthError, ObjectCreationError):
-    pass
+    def __init__(self, *args, **kwargs):
+        super(HelixauthObjectAlreadyExists, self).__init__(*args, **kwargs)
+        self.code = error_code.HELIXAUTH_OBJECT_ALREADY_EXISTS
 
 
 class UserNotFound(HelixauthObjectNotFound):
     def __init__(self, **kwargs):
         super(UserNotFound, self).__init__('User', **kwargs)
+#        self.code =
 
 
 class ServiceDeactivationError(HelixauthError):
