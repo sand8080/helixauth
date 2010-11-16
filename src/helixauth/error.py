@@ -5,7 +5,7 @@ from helixauth import error_code
 
 
 class HelixauthError(Exception):
-    code = error_code.HELIXAUTH_ERROR_CODE
+    code = error_code.HELIXAUTH_ERROR
 
 
 class HelixauthObjectNotFound(HelixauthError, ObjectNotFound):
