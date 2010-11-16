@@ -25,7 +25,7 @@ class HelixauthObjectAlreadyExists(HelixauthError, ObjectCreationError):
 class UserNotFound(HelixauthObjectNotFound):
     def __init__(self, **kwargs):
         super(UserNotFound, self).__init__('User', **kwargs)
-#        self.code =
+#        self.code = error_code.H
 
 
 class ServiceDeactivationError(HelixauthError):
@@ -42,10 +42,13 @@ class SessionNotFound(HelixauthObjectNotFound):
 class EnvironmentNotFound(HelixauthObjectNotFound):
     def __init__(self, **kwargs):
         super(EnvironmentNotFound, self).__init__('Environment', **kwargs)
+        self.code = error_code.HELIXAUTH_ENVIRONMENT_NOT_FOUND
 
 
 class UserAuthError(HelixauthError):
-    pass
+    def __init__(self, *args, **kwargs):
+        super(UserAuthError, self).__init__(*args, **kwargs)
+        self.code = error_code.HELIXAUTH_USER_AUTH_ERROR
 
 
 class UserAccessDenied(HelixauthError):
@@ -57,6 +60,7 @@ class UserAccessDenied(HelixauthError):
 class UserInactive(HelixauthError):
     def __init__(self):
         super(UserInactive, self).__init__('User is inactive')
+        self.code = error_code.HELIXAUTH_USER_INACTIVE
 
 
 class SessionExpired(HelixauthError):

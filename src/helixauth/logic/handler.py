@@ -9,7 +9,7 @@ from helixcore.server.response import response_ok
 from helixauth.conf.db import transaction
 from helixauth.error import (EnvironmentNotFound,
     HelixauthObjectAlreadyExists, SessionNotFound, UserNotFound, SessionExpired,
-    HelixauthError, UserInactive, ServiceDeactivationError)
+    HelixauthError, UserInactive, ServiceDeactivationError, UserAuthError)
 from helixauth.db.filters import EnvironmentFilter, UserFilter, ServiceFilter,\
     UserRightsFilter, SessionFilter, SubjectUserFilter
 from helixauth.db.dataobject import Environment, User, Service, UserRights
@@ -74,9 +74,9 @@ class Handler(AbstractHandler):
         return response_ok(actions=auth_a)
 
     @transaction()
-    @detalize_error(EnvironmentNotFound, 'login')
-    @detalize_error(UserNotFound, 'login')
-    @detalize_error(UserInactive, 'login')
+    @detalize_error(EnvironmentNotFound, 'environment_name')
+    @detalize_error(UserAuthError, ['login', 'password'])
+    @detalize_error(UserInactive, ['login', 'password'])
     def login(self, data, curs=None):
         a = Authentifier()
         enc_data = security.encrypt_passwords(data, a.encrypt_password)
@@ -84,7 +84,10 @@ class Handler(AbstractHandler):
         env = f.filter_one_obj(curs)
 
         f = SubjectUserFilter(env.id, enc_data, {}, {})
-        user = f.filter_one_obj(curs)
+        try:
+            user = f.filter_one_obj(curs)
+        except UserNotFound:
+            raise UserAuthError
         if not user.is_active:
             raise UserInactive()
 
