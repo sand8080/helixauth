@@ -62,9 +62,8 @@ class Handler(AbstractHandler):
         return response_ok()
 
     def get_api_actions(self, data):
-        marker = '_request'
-        actions = [c.name for c in protocol if c.name.endswith(marker)]
-        actions = map(lambda x: x.replace(marker, ''), actions)
+        a = Authentifier()
+        actions = a.get_auth_api_actions()
         return response_ok(actions=actions)
 
     def get_authorized_api_actions(self, data):

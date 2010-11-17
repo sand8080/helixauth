@@ -8,9 +8,10 @@ from helixcore import mapping
 
 from helixauth.conf import settings
 from helixauth.conf.db import transaction
-from helixauth.db.dataobject import Session, User
+from helixauth.db.dataobject import Session, User, Service
 from helixauth.db.filters import SessionFilter, ServiceFilter, UserRightsFilter
 from helixauth.error import SessionExpired, UserAccessDenied
+from helixauth.wsgi.protocol import protocol
 
 
 class Authentifier(object):
@@ -52,25 +53,33 @@ class Authentifier(object):
         mapping.save(curs, session)
         return session
 
+    def get_auth_api_actions(self):
+        marker = '_request'
+        actions = [c.name for c in protocol if c.name.endswith(marker)]
+        actions = map(lambda x: x.replace(marker, ''), actions)
+        return actions
+
     def _get_session_data(self, curs, env, user):
-        if user.role == User.ROLE_SUPER:
-            return {}
-        else:
-            d = {}
-            d['services_type_id_idx'] = self._get_services_type_id_idx(curs, env)
-            d['rights'] = self._get_user_rights(curs, env, user)
-            return d
+        d = {}
+        d['services_type_id_idx'] = self._get_services_type_id_idx(curs, env)
+        d['rights'] = self._get_user_rights(curs, env, user)
+        return d
 
     def _get_user_rights(self, curs, env, user):
-        f = UserRightsFilter(env.id, {'user_id': user.id}, {}, None)
-        user_rights = f.filter_one_obj(curs)
-        if user_rights:
-            rights_l = cjson.decode(user_rights.serialized_rights)
-            # cjson can't encode dicts with non string keys
-            rights = dict([(str(el['service_id']), el['properties']) for el in rights_l])
-            return rights
+        if user.role == User.ROLE_SUPER:
+            actions = self.get_auth_api_actions()
+            auth_rights = dict([(a, True) for a in actions])
+            return {Service.TYPE_AUTH: auth_rights}
         else:
-            return {}
+            f = UserRightsFilter(env.id, {'user_id': user.id}, {}, None)
+            user_rights = f.filter_one_obj(curs)
+            if user_rights:
+                rights_l = cjson.decode(user_rights.serialized_rights)
+                # cjson can't encode dicts with non string keys
+                rights = dict([(str(el['service_id']), el['properties']) for el in rights_l])
+                return rights
+            else:
+                return {}
 
     def _get_services_type_id_idx(self, curs, env):
         f = ServiceFilter(env.id, {}, {}, None)
@@ -82,8 +91,11 @@ class Authentifier(object):
     def check_access(self, session, user, property):
         if user.role != User.ROLE_SUPER:
             data = cjson.decode(session.serialized_data)
+            srv_type_id_idx = data['services_type_id_idx']
             rights = data['rights']
-            int_srvs_ids = map(int, rights.keys())
-            auth_srv_id = str(min(int_srvs_ids))
-            if property not in rights[auth_srv_id]:
+#            print '####', data
+#            int_srvs_ids = map(int, rights.keys())
+            auth_srv_id = srv_type_id_idx[Service.TYPE_AUTH]
+            granted = rights[auth_srv_id].get(property, False)
+            if granted != True:
                 raise UserAccessDenied(user.login, property)

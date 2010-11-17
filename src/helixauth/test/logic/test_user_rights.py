@@ -17,16 +17,16 @@ class UserRightsTestCase(ActorLogicTestCase):
         self.check_response_ok(resp)
         u_id_0 = resp['user_id']
 
-        ps = ['a', 'b', 'c', u'э', u'ю', u'я']
+        ps = {'a': True, 'b': True, 'c': True, u'э': True, u'ю': True,
+            u'я': True}
         req = {'session_id': session_id, 'name': 's0', 'type': 't',
-            'properties': ps}
+            'properties': ps.keys()}
         resp = self.add_service(**req)
         s_id = resp['service_id']
         self.check_response_ok(resp)
 
-        ps_0 = ps[2:]
         req = {'session_id': session_id, 'subject_users_ids': [u_id_0],
-            'rights': [{'service_id': s_id, 'properties': ps_0}]}
+            'rights': [{'service_id': s_id, 'properties': ps}]}
         resp = self.modify_users_rights(**req)
         self.check_response_ok(resp)
 
@@ -35,7 +35,9 @@ class UserRightsTestCase(ActorLogicTestCase):
         self.check_response_ok(resp)
         u_id_1 = resp['user_id']
 
-        ps_1 = ps[3:]
+        ps_1 = dict(ps)
+        ps_1.pop('a')
+        ps_1.pop('b')
         req = {'session_id': session_id, 'subject_users_ids': [u_id_0, u_id_1],
             'rights': [{'service_id': s_id, 'properties': ps_1}]}
         resp = self.modify_users_rights(**req)
@@ -49,7 +51,7 @@ class UserRightsTestCase(ActorLogicTestCase):
 
         # adding limited user
         u_id = resp['user_id']
-        granted = ['add_user']
+        granted = {'add_user': True}
         env = self.get_environment_by_name(self.actor_env_name)
         srv = self.load_auth_service(env.id)
         req = {'session_id': session_id, 'subject_users_ids': [u_id],
