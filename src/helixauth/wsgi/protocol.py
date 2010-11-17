@@ -164,7 +164,7 @@ MODIFY_SERVICE_RESPONSE = RESPONSE_STATUS_ONLY
 MODIFY_USERS_RIGHTS_REQUEST = dict(
     {
         'subject_users_ids': [int],
-        'rights': [{'service_id': int, 'properties': [Text()]}],
+        'rights': [{'service_id': int, 'properties': ArbitraryDict()}],# {Text(): bool}}],
     },
     **AUTHORIZED_REQUEST_AUTH_INFO
 )
