@@ -45,11 +45,11 @@ class UserRightsTestCase(ActorLogicTestCase):
 
     def test_check_access_auth_srv(self):
         session_id = self.login_actor()
+
+        # adding limited user
         req = {'session_id': session_id, 'login': 'u0', 'password': 'p0'}
         resp = self.add_user(**req)
         self.check_response_ok(resp)
-
-        # adding limited user
         u_id = resp['user_id']
         granted = {'add_user': True}
         env = self.get_environment_by_name(self.actor_env_name)

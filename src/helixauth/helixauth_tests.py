@@ -7,6 +7,7 @@ from helixauth.test.logic.test_environment import EnvironmentTestCase #IGNORE:W0
 from helixauth.test.logic.test_user import UserTestCase #IGNORE:W0611 @UnusedImport
 from helixauth.test.logic.test_service import ServiceTestCase #IGNORE:W0611 @UnusedImport
 from helixauth.test.logic.test_user_rights import UserRightsTestCase #IGNORE:W0611 @UnusedImport
+from helixauth.test.logic.test_access import AccessTestCase #IGNORE:W0611 @UnusedImport
 
 from helixauth.test.logic.test_action_log import ActionLogTestCase #IGNORE:W0611 @UnusedImport
 

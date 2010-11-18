@@ -100,6 +100,9 @@ class LogicTestCase(DbBasedTestCase):
     def get_authorized_api_actions(self):
         return self.handle_action('get_authorized_api_actions', {})
 
+    def check_access(self, **kwargs):
+        return self.handle_action('check_access', kwargs)
+
     @transaction()
     def load_auth_service(self, env_id, curs=None):
         f = ServiceFilter(env_id, {}, {'limit': 1}, ['id'])

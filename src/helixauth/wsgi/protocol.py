@@ -172,6 +172,18 @@ MODIFY_USERS_RIGHTS_REQUEST = dict(
 MODIFY_USER_RIGHTS_RESPONSE = RESPONSE_STATUS_ONLY
 
 
+CHECK_ACCESS_REQUEST = dict(
+    {
+        Optional('service_id'): int,
+        'service_type': Text(),
+        'property': Text(),
+    },
+    **AUTHORIZED_REQUEST_AUTH_INFO
+)
+
+CHECK_ACCESS_RESPONSE = RESPONSE_STATUS_ONLY
+
+
 unauthorized_actions = ('ping', 'get_api_actions', 'add_environment',
     'get_authorized_api_actions', 'login')
 
@@ -216,4 +228,7 @@ protocol = [
     ApiCall('modify_users_rights_request', Scheme(MODIFY_USERS_RIGHTS_REQUEST)),
     ApiCall('modify_users_rights_response', Scheme(MODIFY_USER_RIGHTS_RESPONSE)),
 
+    # check access
+    ApiCall('check_access_request', Scheme(CHECK_ACCESS_REQUEST)),
+    ApiCall('check_access_response', Scheme(CHECK_ACCESS_RESPONSE)),
 ]

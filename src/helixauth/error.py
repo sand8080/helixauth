@@ -52,9 +52,8 @@ class UserAuthError(HelixauthError):
 
 
 class UserAccessDenied(HelixauthError):
-    def __init__(self, login, property):
-        raise UserAuthError("User %s access denied to %s" %
-            (login, property))
+    def __init__(self, property):
+        raise UserAuthError('Access denied to %s' % property)
 
 
 class UserInactive(HelixauthError):

@@ -9,7 +9,8 @@ from helixcore.server.response import response_ok
 from helixauth.conf.db import transaction
 from helixauth.error import (EnvironmentNotFound,
     HelixauthObjectAlreadyExists, SessionNotFound, UserNotFound, SessionExpired,
-    HelixauthError, UserInactive, ServiceDeactivationError, UserAuthError)
+    HelixauthError, UserInactive, ServiceDeactivationError, UserAuthError,
+    UserAccessDenied)
 from helixauth.db.filters import EnvironmentFilter, UserFilter, ServiceFilter,\
     UserRightsFilter, SessionFilter, SubjectUserFilter
 from helixauth.db.dataobject import Environment, User, Service, UserRights
@@ -38,7 +39,7 @@ def authentificate(method):
         if not user.is_active:
             raise UserInactive()
 
-        auth.check_access(session, user, method.__name__)
+        auth.check_access(session, Service.TYPE_AUTH, method.__name__)
         data.pop('session_id', None)
         custom_actor_info = data.pop('custom_actor_info', None)
 
@@ -118,17 +119,18 @@ class Handler(AbstractHandler):
         user = User(**u_data)
         mapping.save(curs, user)
 
-        auth = Authentifier()
-        session = auth.create_session(curs, env, user)
 
         # adding default service auth
         a_data = self.get_authorized_api_actions({})
         actions = a_data['actions']
-        d = {'environment_id': session.environment_id, 'name': 'Auth',
+        d = {'environment_id': env.id, 'name': 'Auth',
             'type': Service.TYPE_AUTH, 'is_active': True,
             'is_possible_deactiate': False, 'properties': actions}
         s = Service(**d)
         mapping.save(curs, s)
+
+        auth = Authentifier()
+        session = auth.create_session(curs, env, user)
 
         # Required for proper logging action
         data['actor_user_id'] = session.user_id
@@ -240,4 +242,13 @@ class Handler(AbstractHandler):
         sess = f.filter_objs(curs, for_update=True)
         mapping.delete_objects(curs, sess)
 
+        return response_ok()
+
+    @transaction()
+    @detalize_error(UserAuthError, [])
+    def check_access(self, data, session, curs=None):
+        a = Authentifier()
+        srv_type = data.get('service_type', None)
+        p = data.get('property', None)
+        a.check_access(session, srv_type, p)
         return response_ok()

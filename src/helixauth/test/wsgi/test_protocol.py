@@ -183,6 +183,15 @@ class ProtocolTestCase(RootTestCase):
 
         self.validate_status_response(a_name)
 
+    def test_check_access(self):
+        a_name = 'check_access'
+        self.api.validate_request(a_name, {'session_id': 's',
+            'service_type': 't', 'property': 'p'})
+        self.api.validate_request(a_name, {'session_id': 's', 'service_id': 1,
+            'service_type': 't', 'property': 'p'})
+
+        self.validate_status_response(a_name)
+
 
 if __name__ == '__main__':
     unittest.main()
