@@ -6,13 +6,13 @@ from helixcore.error import RequestProcessingError
 
 
 class AccessTestCase(ActorLogicTestCase):
-#    def test_check_access_super_user(self):
-#        self.create_actor_env()
-#        sess_id = self.login_actor()
-#        resp = self.check_access(**{
-#            'session_id': sess_id, 'property': 'check_access',
-#            'service_type': Service.TYPE_AUTH})
-#        self.check_response_ok(resp)
+    def test_check_access_super_user(self):
+        self.create_actor_env()
+        sess_id = self.login_actor()
+        resp = self.check_access(**{
+            'session_id': sess_id, 'property': 'check_access',
+            'service_type': Service.TYPE_AUTH})
+        self.check_response_ok(resp)
 
     def test_access_limited_user(self):
         self.create_actor_env()
