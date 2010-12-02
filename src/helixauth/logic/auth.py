@@ -81,10 +81,9 @@ class Authentifier(object):
         for srv in srvs:
             res = {}
             if user.role == User.ROLE_SUPER:
-                actions = srv.properties
-                r = dict([('%s' % a, True) for a in actions])
+                r = srv.properties
             else:
-                r = rights.get(str(srv.id), {}) # String key id for json.encode
+                r = rights.get(str(srv.id), []) # String key id for json.encode
             res[srv.type] = r
         return res
 
@@ -102,7 +101,7 @@ class Authentifier(object):
     def has_access(self, session, service_type, property):
         data = cjson.decode(session.serialized_data)
         rights = data['rights']
-        granted = False
         if service_type in rights:
-            granted = rights[service_type].get(property, False)
-        return granted
+            return property in rights[service_type]
+        else:
+            return False

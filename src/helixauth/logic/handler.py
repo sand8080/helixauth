@@ -244,6 +244,7 @@ class Handler(AbstractHandler):
         return response_ok()
 
     @transaction()
+    @authentificate
     @detalize_error(UserAuthError, [])
     def check_access(self, data, session, curs=None):
         a = Authentifier()
