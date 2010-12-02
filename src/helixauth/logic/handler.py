@@ -9,13 +9,12 @@ from helixcore.server.response import response_ok
 from helixauth.conf.db import transaction
 from helixauth.error import (EnvironmentNotFound,
     HelixauthObjectAlreadyExists, SessionNotFound, UserNotFound, SessionExpired,
-    HelixauthError, UserInactive, ServiceDeactivationError, UserAuthError,
-    UserAccessDenied)
-from helixauth.db.filters import EnvironmentFilter, UserFilter, ServiceFilter,\
-    UserRightsFilter, SessionFilter, SubjectUserFilter
+    HelixauthError, UserInactive, ServiceDeactivationError, UserAuthError,)
+from helixauth.db.filters import (EnvironmentFilter, UserFilter, ServiceFilter,
+    UserRightsFilter, SessionFilter, SubjectUserFilter)
 from helixauth.db.dataobject import Environment, User, Service, UserRights
 from helixauth.logic.auth import Authentifier
-from helixauth.wsgi.protocol import protocol, unauthorized_actions
+from helixauth.wsgi.protocol import unauthorized_actions
 import cjson
 from helixcore.db.wrapper import ObjectCreationError
 from functools import wraps

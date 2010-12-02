@@ -37,6 +37,7 @@ class ServiceDeactivationError(HelixauthError):
 class SessionNotFound(HelixauthObjectNotFound):
     def __init__(self, **kwargs):
         super(SessionNotFound, self).__init__('Session', **kwargs)
+        self.code = error_code.HELIXAUTH_SESSION_NOT_FOUND
 
 
 class EnvironmentNotFound(HelixauthObjectNotFound):

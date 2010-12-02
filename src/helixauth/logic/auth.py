@@ -8,7 +8,7 @@ from helixcore import mapping
 
 from helixauth.conf import settings
 from helixauth.conf.db import transaction
-from helixauth.db.dataobject import Session, User, Service
+from helixauth.db.dataobject import Session, User
 from helixauth.db.filters import SessionFilter, ServiceFilter, UserRightsFilter
 from helixauth.error import SessionExpired, UserAccessDenied
 from helixauth.wsgi.protocol import protocol
@@ -82,7 +82,7 @@ class Authentifier(object):
             res = {}
             if user.role == User.ROLE_SUPER:
                 actions = srv.properties
-                r = dict([(u'%s' % a, True) for a in actions])
+                r = dict([('%s' % a, True) for a in actions])
             else:
                 r = rights.get(str(srv.id), {}) # String key id for json.encode
             res[srv.type] = r
