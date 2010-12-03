@@ -66,3 +66,4 @@ class UserInactive(HelixauthError):
 class SessionExpired(HelixauthError):
     def __init__(self):
         super(SessionExpired, self).__init__('Session expired')
+        self.code = error_code.HELIXAUTH_SESSION_EXPIRED
