@@ -169,13 +169,16 @@ class Handler(AbstractHandler):
 
     @transaction()
     @authentificate
-    @detalize_error(ObjectCreationError, 'name')
+    @detalize_error(ObjectCreationError, 'type')
     def add_service(self, data, session, curs=None):
         d = dict(data)
         d['environment_id'] = session.environment_id
         d['is_possible_deactiate'] = True
         s = Service(**d)
-        mapping.save(curs, s)
+        try:
+            mapping.save(curs, s)
+        except ObjectCreationError:
+            raise HelixauthObjectAlreadyExists
         return response_ok(service_id=s.id)
 
     @transaction()
