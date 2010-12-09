@@ -18,6 +18,12 @@ class AccessTestCase(ActorLogicTestCase):
         self.create_actor_env()
         session_id = self.login_actor()
 
+        # creating another service
+        req = {'session_id': session_id, 'name': 's1', 'type': 'ts1',
+            'properties': ['a', 'b']}
+        resp = self.add_service(**req)
+        self.check_response_ok(resp)
+
         # adding limited user
         req = {'session_id': session_id, 'login': 'u0', 'password': 'p0'}
         resp = self.add_user(**req)

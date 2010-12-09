@@ -78,8 +78,8 @@ class Authentifier(object):
             else:
                 rights = {}
 
+        res = {}
         for srv in srvs:
-            res = {}
             if user.role == User.ROLE_SUPER:
                 r = srv.properties
             else:
