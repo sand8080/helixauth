@@ -131,6 +131,10 @@ class ProtocolTestCase(RootTestCase):
             'filter_params': {'services_ids': [1, 2, 3]},
             'paging_params': {'limit': 0, 'offset': 0,},
             'ordering_params': ['name', '-id']})
+        self.api.validate_request(a_name, {'session_id': 's',
+            'filter_params': {'type': 't'},
+            'paging_params': {'limit': 0, 'offset': 0,},
+            'ordering_params': ['name', '-id']})
 
         self.api.validate_response(a_name, {'status': 'ok', 'total': 2,
             'services': [

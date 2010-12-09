@@ -1,4 +1,4 @@
-from helixcore.db.sql import And, Eq, MoreEq, LessEq, In
+from helixcore.db.sql import And, Eq, MoreEq, LessEq, In, Like
 from helixcore.db.wrapper import SelectedMoreThanOneRow, ObjectNotFound
 from helixcore.db.filters import ObjectsFilter as OFImpl
 
@@ -121,6 +121,8 @@ class ServiceFilter(EnvironmentObjectsFilter):
         ('name', 'name', Eq),
         ('services_ids', 'id', In),
         ('services_types', 'type', In),
+        ('is_active', 'is_active', Eq),
+        ('type', 'type', Like),
     ]
 
     def __init__(self, environment_id, filter_params, paging_params, ordering_params):

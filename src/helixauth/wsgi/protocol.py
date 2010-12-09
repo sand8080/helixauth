@@ -130,6 +130,7 @@ GET_SERVICES_REQUEST = dict(
         'filter_params': {
             Optional('services_ids'): [int],
             Optional('services_types'): [Text()],
+            Optional('type'): Text(),
             Optional('is_active'): bool
         },
         'paging_params': REQUEST_PAGING_PARAMS,
