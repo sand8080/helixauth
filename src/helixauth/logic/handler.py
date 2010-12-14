@@ -249,6 +249,21 @@ class Handler(AbstractHandler):
     @transaction()
     @authentificate
     @detalize_error(UserAuthError, [])
+    def get_user_rights(self, data, session, curs=None):
+        s_data = cjson.decode(session.serialized_data)
+        s_rights = s_data['rights']
+        srvs_id_type_idx = s_data['services_id_type_idx']
+        rights = []
+        for srv_id in srvs_id_type_idx.keys():
+            srv_type = srvs_id_type_idx[srv_id]
+            props = s_rights[srv_type]
+            rights.append({'service_id': int(srv_id),
+                'service_type': srv_type, 'properties': props})
+        return response_ok(rights=rights)
+
+    @transaction()
+    @authentificate
+    @detalize_error(UserAuthError, [])
     def check_access(self, data, session, curs=None):
         a = Authentifier()
         srv_type = data.get('service_type', None)

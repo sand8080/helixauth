@@ -17,10 +17,9 @@ class UserRightsTestCase(ActorLogicTestCase):
         self.check_response_ok(resp)
         u_id_0 = resp['user_id']
 
-        ps = {'a': True, 'b': True, 'c': True, u'э': True, u'ю': True,
-            u'я': True}
+        ps = ['a', 'b', 'c', u'э', u'ю', u'я']
         req = {'session_id': session_id, 'name': 's0', 'type': 't',
-            'properties': ps.keys()}
+            'properties': ps}
         resp = self.add_service(**req)
         s_id = resp['service_id']
         self.check_response_ok(resp)
@@ -35,9 +34,7 @@ class UserRightsTestCase(ActorLogicTestCase):
         self.check_response_ok(resp)
         u_id_1 = resp['user_id']
 
-        ps_1 = dict(ps)
-        ps_1.pop('a')
-        ps_1.pop('b')
+        ps_1 = ps[2:]
         req = {'session_id': session_id, 'subject_users_ids': [u_id_0, u_id_1],
             'rights': [{'service_id': s_id, 'properties': ps_1}]}
         resp = self.modify_users_rights(**req)
@@ -51,7 +48,7 @@ class UserRightsTestCase(ActorLogicTestCase):
         resp = self.add_user(**req)
         self.check_response_ok(resp)
         u_id = resp['user_id']
-        granted = {'add_user': True}
+        granted = ['add_user']
         env = self.get_environment_by_name(self.actor_env_name)
         srv = self.load_auth_service(env.id)
         req = {'session_id': session_id, 'subject_users_ids': [u_id],
@@ -82,6 +79,38 @@ class UserRightsTestCase(ActorLogicTestCase):
         req = {'session_id': u_sess_id, 'login': 'u0-2', 'password': 'p0-2'}
         resp = self.add_user(**req)
         self.check_response_ok(resp)
+
+    def test_get_user_rights(self):
+        s_id = self.login_actor()
+        req = {'session_id': s_id}
+        resp = self.get_user_rights(**req)
+        self.check_response_ok(resp)
+
+        # adding limited user
+        req = {'session_id': s_id, 'login': 'u0', 'password': 'p0'}
+        resp = self.add_user(**req)
+        self.check_response_ok(resp)
+        u_id = resp['user_id']
+        granted = ['add_user', 'get_user_rights']
+        env = self.get_environment_by_name(self.actor_env_name)
+        srv = self.load_auth_service(env.id)
+        req = {'session_id': s_id, 'subject_users_ids': [u_id],
+            'rights': [{'service_id': srv.id, 'properties': granted}]}
+        self.modify_users_rights(**req)
+
+        # login limited user
+        req = {'environment_name': self.actor_env_name,
+            'login': 'u0', 'password': 'p0'}
+        resp = self.login(**req)
+        self.check_response_ok(resp)
+        s0_id = resp['session_id']
+        req = {'session_id': s0_id}
+        resp = self.get_user_rights(**req)
+        self.check_response_ok(resp)
+        expected = {'status': 'ok', 'rights': [
+            {'service_type': 'auth', 'service_id': 1,
+            'properties': ['add_user', 'get_user_rights']}]}
+        self.assertEquals(expected, resp)
 
 
 if __name__ == '__main__':

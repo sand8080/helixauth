@@ -45,8 +45,9 @@ class ProtocolTestCase(RootTestCase):
         self.validate_authorized_error_response(action_name)
 
     def test_ping(self):
-        self.api.validate_request('ping', {})
-        self.validate_status_response('ping')
+        a_name = 'ping'
+        self.api.validate_request(a_name, {})
+        self.validate_status_response(a_name)
 
     def test_get_api_actions(self):
         a_name = 'get_api_actions'
@@ -177,15 +178,30 @@ class ProtocolTestCase(RootTestCase):
         a_name = 'modify_users_rights'
         self.api.validate_request(a_name, {'session_id': 's',
             'subject_users_ids': [],
-            'rights':[{'service_id': 1, 'properties': {}}]})
+            'rights':[{'service_id': 1, 'properties': []}]})
         self.api.validate_request(a_name, {'session_id': 's',
             'subject_users_ids': [],
-            'rights':[{'service_id': 1, 'properties': {'a': True,u'я': False}}]})
+            'rights':[{'service_id': 1, 'properties': ['a', u'я']}]})
         self.api.validate_request(a_name, {'session_id': 's',
             'subject_users_ids': [],
-            'rights':[{'service_id': 1, 'properties': {'b': False}}]})
+            'rights':[{'service_id': 1, 'properties': ['b']}]})
 
         self.validate_status_response(a_name)
+
+    def test_get_user_rights(self):
+        a_name = 'get_user_rights'
+        self.api.validate_request(a_name, {'session_id': 's'})
+
+        self.api.validate_response(a_name, {'status': 'ok',
+            'rights':[{'service_id': 1, 'service_type': 't',
+            'properties': []}]})
+        self.api.validate_response(a_name, {'status': 'ok',
+            'rights':[{'service_id': 1, 'service_type': 't',
+            'properties': ['a']}]})
+        self.api.validate_response(a_name, {'status': 'ok',
+            'rights':[{'service_id': 1, 'service_type': 't',
+            'properties': ['a', u'я']}]})
+        self.validate_error_response(a_name)
 
     def test_check_access(self):
         a_name = 'check_access'
@@ -193,7 +209,6 @@ class ProtocolTestCase(RootTestCase):
             'service_type': 't', 'property': 'p'})
         self.api.validate_request(a_name, {'session_id': 's', 'service_id': 1,
             'service_type': 't', 'property': 'p'})
-
         self.validate_status_response(a_name)
 
 

@@ -165,13 +165,25 @@ MODIFY_SERVICE_RESPONSE = RESPONSE_STATUS_ONLY
 MODIFY_USERS_RIGHTS_REQUEST = dict(
     {
         'subject_users_ids': [int],
-        'rights': [{'service_id': int, 'properties': ArbitraryDict()}],# {Text(): bool}}],
+        'rights': [{'service_id': int, 'properties': [Text()]}],
     },
     **AUTHORIZED_REQUEST_AUTH_INFO
 )
 
-MODIFY_USER_RIGHTS_RESPONSE = RESPONSE_STATUS_ONLY
+MODIFY_USERS_RIGHTS_RESPONSE = RESPONSE_STATUS_ONLY
 
+GET_USER_RIGHTS_REQUEST = AUTHORIZED_REQUEST_AUTH_INFO
+
+GET_USER_RIGHTS_RESPONSE = AnyOf(
+    dict(
+        RESPONSE_STATUS_OK,
+        **{
+            'rights': [{'service_id': int, 'service_type': Text(),
+                'properties': [Text()]}],
+        }
+    ),
+    RESPONSE_STATUS_ERROR
+)
 
 CHECK_ACCESS_REQUEST = dict(
     {
@@ -227,7 +239,10 @@ protocol = [
 
     # user rights
     ApiCall('modify_users_rights_request', Scheme(MODIFY_USERS_RIGHTS_REQUEST)),
-    ApiCall('modify_users_rights_response', Scheme(MODIFY_USER_RIGHTS_RESPONSE)),
+    ApiCall('modify_users_rights_response', Scheme(MODIFY_USERS_RIGHTS_RESPONSE)),
+
+    ApiCall('get_user_rights_request', Scheme(GET_USER_RIGHTS_REQUEST)),
+    ApiCall('get_user_rights_response', Scheme(GET_USER_RIGHTS_RESPONSE)),
 
     # check access
     ApiCall('check_access_request', Scheme(CHECK_ACCESS_REQUEST)),
