@@ -32,6 +32,7 @@ class ServiceDeactivationError(HelixauthError):
     def __init__(self, service_name):
         super(ServiceDeactivationError, self).__init__(
             'Service %s can\'t be deactivated' % service_name)
+        self.code = error_code.HELIXAUTH_SERVICE_DEACTIVATION_ERROR
 
 
 class SessionNotFound(HelixauthObjectNotFound):
