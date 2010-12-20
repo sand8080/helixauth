@@ -99,6 +99,34 @@ MODIFY_ENVIRONMENT_REQUEST = dict(
 
 MODIFY_ENVIRONMENT_RESPONSE = RESPONSE_STATUS_ONLY
 
+RIGHTS_SCHEME = [{'service_id': int, 'properties': [Text()]}]
+
+ADD_GROUP_REQUEST = dict(
+    {
+        'name': Text(),
+        Optional('is_active'): bool,
+        'rights': RIGHTS_SCHEME,
+    },
+    **AUTHORIZED_REQUEST_AUTH_INFO
+)
+
+ADD_GROUP_RESPONSE = RESPONSE_STATUS_ONLY
+
+MODIFY_USERS_RIGHTS_REQUEST = dict(
+    {
+        'subject_users_ids': [int],
+        'rights': RIGHTS_SCHEME,
+    },
+    **AUTHORIZED_REQUEST_AUTH_INFO
+)
+
+MODIFY_USERS_RIGHTS_RESPONSE = RESPONSE_STATUS_ONLY
+
+ADD_USER_RESPONSE = AnyOf(
+    dict({'user_id': int,}, **RESPONSE_STATUS_OK),
+    RESPONSE_STATUS_ERROR
+)
+
 ADD_USER_REQUEST = dict(
     {
         'login': Text(),
@@ -239,10 +267,6 @@ protocol = [
     ApiCall('modify_environment_request', Scheme(MODIFY_ENVIRONMENT_REQUEST)),
     ApiCall('modify_environment_response', Scheme(MODIFY_ENVIRONMENT_RESPONSE)),
 
-    # user
-    ApiCall('add_user_request', Scheme(ADD_USER_REQUEST)),
-    ApiCall('add_user_response', Scheme(ADD_USER_RESPONSE)),
-
     # service
     ApiCall('add_service_request', Scheme(ADD_SERVICE_REQUEST)),
     ApiCall('add_service_response', Scheme(ADD_SERVICE_RESPONSE)),
@@ -252,6 +276,14 @@ protocol = [
 
     ApiCall('get_services_request', Scheme(GET_SERVICES_REQUEST)),
     ApiCall('get_services_response', Scheme(GET_SERVICES_RESPONSE)),
+
+    # group
+    ApiCall('add_group_request', Scheme(ADD_GROUP_REQUEST)),
+    ApiCall('add_group_response', Scheme(ADD_GROUP_RESPONSE)),
+
+    # user
+    ApiCall('add_user_request', Scheme(ADD_USER_REQUEST)),
+    ApiCall('add_user_response', Scheme(ADD_USER_RESPONSE)),
 
     # user rights
     ApiCall('modify_users_rights_request', Scheme(MODIFY_USERS_RIGHTS_REQUEST)),

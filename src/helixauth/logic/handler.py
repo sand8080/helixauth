@@ -9,10 +9,12 @@ from helixcore.server.response import response_ok
 from helixauth.conf.db import transaction
 from helixauth.error import (EnvironmentNotFound,
     HelixauthObjectAlreadyExists, SessionNotFound, UserNotFound, SessionExpired,
-    HelixauthError, UserInactive, ServiceDeactivationError, UserAuthError,)
+    HelixauthError, UserInactive, ServiceDeactivationError, UserAuthError,
+    GroupAlreadyExists)
 from helixauth.db.filters import (EnvironmentFilter, UserFilter, ServiceFilter,
     UserRightsFilter, SessionFilter, SubjectUserFilter)
-from helixauth.db.dataobject import Environment, User, Service, UserRights
+from helixauth.db.dataobject import (Environment, User, Service, UserRights,
+    Group)
 from helixauth.logic.auth import Authentifier
 from helixauth.wsgi.protocol import unauthorized_actions
 import cjson
@@ -220,6 +222,17 @@ class Handler(AbstractHandler):
         except DataIntegrityError:
             raise HelixauthObjectAlreadyExists('Service %s already exists' %
                 data.get('new_name'))
+        return response_ok()
+
+    @transaction()
+    @authentificate
+    @detalize_error(GroupAlreadyExists, 'name')
+    def add_group(self, data, session, curs=None):
+        group = Group(**data)
+        try:
+            mapping.save(curs, group)
+        except ObjectCreationError:
+            raise GroupAlreadyExists('Group %s already exists' % group.name)
         return response_ok()
 
     @transaction()

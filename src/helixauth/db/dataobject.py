@@ -1,4 +1,13 @@
 from helixcore.mapping.objects import Mapped
+import cjson
+
+
+def serialize_rights(d):
+    res = dict(d)
+    r = res.pop('rights', '')
+    if isinstance(r, list):
+        res['serialized_rights'] = cjson.encode(r)
+    return res
 
 
 class ActionLog(Mapped):
@@ -24,6 +33,20 @@ class User(Mapped):
         return super(User, self).__repr__(except_attrs=except_attrs + ('password',))
 
 
+class UserRights(Mapped):
+    __slots__ = ['id', 'environment_id', 'user_id', 'serialized_rights']
+    table = 'user_rights'
+
+
+class Group(Mapped):
+    __slots__ = ['id', 'environment_id', 'name', 'is_active', 'serialized_rights']
+    table = 'group_data'
+
+    def __init__(self, **kwargs):
+        d = serialize_rights(kwargs)
+        super(Group, self).__init__(**d)
+
+
 class Session(Mapped):
     __slots__ = ['id', 'session_id', 'environment_id', 'user_id',
         'serialized_data', 'start_date', 'update_date']
@@ -38,8 +61,4 @@ class Service(Mapped):
         'is_active', 'is_possible_deactiate']
     table = 'service'
 
-
-class UserRights(Mapped):
-    __slots__ = ['id', 'environment_id', 'user_id', 'serialized_rights']
-    table = 'user_rights'
 

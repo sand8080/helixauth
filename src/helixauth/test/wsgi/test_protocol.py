@@ -182,6 +182,19 @@ class ProtocolTestCase(RootTestCase):
 
         self.validate_status_response(a_name)
 
+    def test_add_group(self):
+        a_name = 'add_group'
+        self.api.validate_request(a_name, {'session_id': 'i', 'name': 'n',
+            'rights':[{'service_id': 1, 'properties': []}]})
+        self.api.validate_request(a_name, {'session_id': 'i', 'name': 'n',
+            'rights':[{'service_id': 1, 'properties': ['c']}],
+            'is_active': True})
+        self.api.validate_request(a_name, {'session_id': 'i', 'name': 'n',
+            'rights':[{'service_id': 1, 'properties': ['a', 'b']}],
+            'is_active': False})
+
+        self.validate_status_response(a_name)
+
     def test_modify_users_rights(self):
         a_name = 'modify_users_rights'
         self.api.validate_request(a_name, {'session_id': 's',
