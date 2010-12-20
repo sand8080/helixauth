@@ -55,6 +55,9 @@ class LogicTestCase(DbBasedTestCase):
         self.assertNotEqual(None, session_id)
         return response
 
+    def get_environment(self, **kwargs):
+        return self.handle_action('get_environment', kwargs)
+
     def modify_environment(self, **kwargs):
         return self.handle_action('modify_environment', kwargs)
 

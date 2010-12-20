@@ -77,6 +77,19 @@ ADD_ENVIRONMENT_RESPONSE = AnyOf(
     AUTHORIZED_RESPONSE_STATUS_ERROR
 )
 
+GET_ENVIRONMENT_REQUEST = AUTHORIZED_REQUEST_AUTH_INFO
+
+GET_ENVIRONMENT_RESPONSE = AnyOf(
+    dict(
+        RESPONSE_STATUS_OK,
+        **{'environment': {
+            'id': int,
+            'name': Text(),
+        }}
+    ),
+    RESPONSE_STATUS_ERROR
+)
+
 MODIFY_ENVIRONMENT_REQUEST = dict(
     {
         'new_name': Text(),
@@ -219,6 +232,9 @@ protocol = [
     # environment
     ApiCall('add_environment_request', Scheme(ADD_ENVIRONMENT_REQUEST)),
     ApiCall('add_environment_response', Scheme(ADD_ENVIRONMENT_RESPONSE)),
+
+    ApiCall('get_environment_request', Scheme(GET_ENVIRONMENT_REQUEST)),
+    ApiCall('get_environment_response', Scheme(GET_ENVIRONMENT_RESPONSE)),
 
     ApiCall('modify_environment_request', Scheme(MODIFY_ENVIRONMENT_REQUEST)),
     ApiCall('modify_environment_response', Scheme(MODIFY_ENVIRONMENT_RESPONSE)),

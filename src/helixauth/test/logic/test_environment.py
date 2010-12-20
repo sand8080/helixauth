@@ -24,6 +24,17 @@ class EnvironmentTestCase(LogicTestCase):
         self.assertRaises(RequestProcessingError, self.add_environment,
             **req)
 
+    def test_get_environment(self):
+        name_0 = 'env_0'
+        req = {'name': name_0, 'su_login': 'l', 'su_password': 'p'}
+        resp = self.add_environment(**req)
+        self.check_response_ok(resp)
+        session_id = resp['session_id']
+
+        resp = self.get_environment(**{'session_id': session_id})
+        self.check_response_ok(resp)
+        self.assertEquals({'id': 1, 'name': name_0}, resp['environment'])
+
     def test_modify_environment(self):
         req = {'name': 'env_0', 'su_login': 'su_env_login', 'su_password': 'qweasdzxc',
             'custom_actor_info': 'environment created from tests'}

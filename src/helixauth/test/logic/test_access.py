@@ -29,7 +29,7 @@ class AccessTestCase(ActorLogicTestCase):
         resp = self.add_user(**req)
         self.check_response_ok(resp)
         u_id = resp['user_id']
-        granted = {'check_access': True}
+        granted = ['check_access']
         env = self.get_environment_by_name(self.actor_env_name)
         srv = self.load_auth_service(env.id)
         req = {'session_id': session_id, 'subject_users_ids': [u_id],

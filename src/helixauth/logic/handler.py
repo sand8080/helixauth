@@ -140,6 +140,13 @@ class Handler(AbstractHandler):
 
     @transaction()
     @authentificate
+    def get_environment(self, data, session, curs=None):
+        f = EnvironmentFilter({'id': session.environment_id}, {}, None)
+        env = f.filter_one_obj(curs)
+        return response_ok(environment=env.to_dict())
+
+    @transaction()
+    @authentificate
     @detalize_error(HelixauthObjectAlreadyExists, 'new_name')
     def modify_environment(self, data, session, curs=None):
         f = EnvironmentFilter({'id': session.environment_id}, {}, None)

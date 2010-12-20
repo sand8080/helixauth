@@ -81,6 +81,14 @@ class ProtocolTestCase(RootTestCase):
             {'status': 'ok', 'session_id': 'i', 'environment_id': 1})
         self.validate_authorized_error_response(a_name)
 
+    def test_get_environment(self):
+        a_name = 'get_environment'
+        self.api.validate_request(a_name, {'session_id': 'i'})
+
+        self.api.validate_response(a_name, {'status': 'ok', 'environment': {
+            'id': 4,'name': 'n'}})
+        self.validate_error_response(a_name)
+
     def test_modify_environment(self):
         a_name = 'modify_environment'
         self.api.validate_request(a_name, {'session_id': 'i',
