@@ -74,3 +74,9 @@ class GroupAlreadyExists(HelixauthObjectAlreadyExists):
     def __init__(self, *args, **kwargs):
         super(GroupAlreadyExists, self).__init__(*args, **kwargs)
         self.code = error_code.HELIXAUTH_GROUP_ALREADY_EXISTS
+
+
+class GroupNotFound(HelixauthObjectNotFound):
+    def __init__(self, **kwargs):
+        super(GroupNotFound, self).__init__('Group', **kwargs)
+        self.code = error_code.HELIXAUTH_GROUP_NOT_FOUND

@@ -2,9 +2,10 @@ from helixcore.db.sql import And, Eq, MoreEq, LessEq, In, Like
 from helixcore.db.wrapper import SelectedMoreThanOneRow, ObjectNotFound
 from helixcore.db.filters import ObjectsFilter as OFImpl
 
-from helixauth.db.dataobject import User, Environment, ActionLog, Session,\
-    Service, UserRights
-from helixauth.error import UserNotFound, EnvironmentNotFound, SessionNotFound
+from helixauth.db.dataobject import (Environment, ActionLog, Session,
+    Service, User, UserRights, Group)
+from helixauth.error import UserNotFound, EnvironmentNotFound, SessionNotFound,\
+    GroupNotFound
 
 
 class EnvironmentObjectsFilter(OFImpl):
@@ -16,6 +17,7 @@ class EnvironmentObjectsFilter(OFImpl):
         cond = super(EnvironmentObjectsFilter, self)._cond_by_filter_params()
         cond = And(cond, Eq('environment_id', self.environment_id))
         return cond
+
 
 class InSessionFilter(OFImpl):
     def __init__(self, session, filter_params, paging_params, ordering_params, obj_class):
@@ -102,6 +104,24 @@ class SubjectUserFilter(EnvironmentObjectsFilter):
             raise UserNotFound(**self.filter_params)
 
 
+class GroupFilter(InSessionFilter):
+    cond_map = [
+        ('id', 'id', Eq),
+        ('name', 'name', Like),
+    ]
+
+    def __init__(self, session, filter_params, paging_params, ordering_params):
+        super(GroupFilter, self).__init__(session, filter_params, paging_params,
+            ordering_params, Group)
+
+    def filter_one_obj(self, curs, for_update=False):
+        try:
+            return super(GroupFilter, self).filter_one_obj(curs, for_update=for_update)
+        except (ObjectNotFound, SelectedMoreThanOneRow):
+            raise GroupNotFound(**self.filter_params)
+
+
+
 class ActionLogFilter(EnvironmentObjectsFilter):
     cond_map = [
         ('action', 'action', Eq),
@@ -144,4 +164,3 @@ class UserRightsFilter(EnvironmentObjectsFilter):
     def __init__(self, environment_id, filter_params, paging_params, ordering_params):
         super(UserRightsFilter, self).__init__(environment_id,
             filter_params, paging_params, ordering_params, UserRights)
-

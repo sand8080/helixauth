@@ -229,6 +229,7 @@ class Handler(AbstractHandler):
     @detalize_error(GroupAlreadyExists, 'name')
     def add_group(self, data, session, curs=None):
         group = Group(**data)
+        group.environment_id = session.environment_id
         try:
             mapping.save(curs, group)
         except ObjectCreationError:
