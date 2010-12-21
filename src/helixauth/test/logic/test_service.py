@@ -82,7 +82,7 @@ class ServiceTestCase(ActorLogicTestCase):
         l_num = 2
         s_ids = [1, 2, 3, 4]
         req = {'session_id': session_id, 'paging_params': {'limit': l_num},
-            'filter_params': {'services_ids': s_ids},
+            'filter_params': {'ids': s_ids},
             'ordering_params': ['name']}
         resp = self.get_services(**req)
         self.check_response_ok(resp)
@@ -92,7 +92,7 @@ class ServiceTestCase(ActorLogicTestCase):
         l_num = 3
         s_types = [u'тип_0', u'тип_3', u'тип_1000']
         req = {'session_id': session_id, 'paging_params': {'limit': l_num},
-            'filter_params': {'services_types': s_types},
+            'filter_params': {'types': s_types},
             'ordering_params': ['name']}
         resp = self.get_services(**req)
         self.check_response_ok(resp)
@@ -106,7 +106,7 @@ class ServiceTestCase(ActorLogicTestCase):
 
         # changing service name
         n_name = 'NEW Auth'
-        req = {'session_id': session_id, 'service_id': srv.id,
+        req = {'session_id': session_id, 'id': srv.id,
             'new_name': n_name}
         resp = self.modify_service(**req)
         self.check_response_ok(resp)
@@ -115,14 +115,14 @@ class ServiceTestCase(ActorLogicTestCase):
 
         # changing service properties
         n_properties = ['a', 'b', 'c']
-        req = {'session_id': session_id, 'service_id': srv.id,
+        req = {'session_id': session_id, 'id': srv.id,
             'new_properties': n_properties}
         resp = self.modify_service(**req)
         self.check_response_ok(resp)
         n_srv = self.load_auth_service(env.id)
         self.assertEqual(n_properties, n_srv.properties)
 
-        req = {'session_id': session_id, 'service_id': srv.id,
+        req = {'session_id': session_id, 'id': srv.id,
             'new_is_active': False}
         self.assertRaises(RequestProcessingError, self.modify_service, **req)
 
@@ -138,7 +138,7 @@ class ServiceTestCase(ActorLogicTestCase):
         self.check_response_ok(resp)
         srv_another = self.load_service(env.id, name_another)
 
-        req = {'session_id': session_id, 'service_id': srv_another.id,
+        req = {'session_id': session_id, 'id': srv_another.id,
             'new_name': srv.name}
         resp = self.modify_service(**req)
         self.check_response_ok(resp)

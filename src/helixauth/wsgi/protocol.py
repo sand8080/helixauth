@@ -203,7 +203,7 @@ ADD_SERVICE_REQUEST = dict(
 )
 
 ADD_SERVICE_RESPONSE = AnyOf(
-    dict({'service_id': int,}, **RESPONSE_STATUS_OK),
+    dict({'id': int}, **RESPONSE_STATUS_OK),
     RESPONSE_STATUS_ERROR
 )
 
@@ -219,8 +219,8 @@ SERVICE_INFO = {
 GET_SERVICES_REQUEST = dict(
     {
         'filter_params': {
-            Optional('services_ids'): [int],
-            Optional('services_types'): [Text()],
+            Optional('ids'): [int],
+            Optional('types'): [Text()],
             Optional('type'): Text(),
             Optional('is_active'): bool
         },
@@ -243,7 +243,7 @@ GET_SERVICES_RESPONSE = AnyOf(
 
 MODIFY_SERVICE_REQUEST = dict(
     {
-        'service_id': int,
+        'id': int,
         Optional('new_name'): Text(),
         Optional('new_properties'): [Text()],
         Optional('new_is_active'): bool,

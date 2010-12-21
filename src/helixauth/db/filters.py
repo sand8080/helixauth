@@ -139,8 +139,8 @@ class ServiceFilter(EnvironmentObjectsFilter):
     cond_map = [
         ('id', 'id', Eq),
         ('name', 'name', Eq),
-        ('services_ids', 'id', In),
-        ('services_types', 'type', In),
+        ('ids', 'id', In),
+        ('types', 'type', In),
         ('is_active', 'is_active', Eq),
         ('type', 'type', Like),
     ]

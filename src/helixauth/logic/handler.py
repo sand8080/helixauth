@@ -188,7 +188,7 @@ class Handler(AbstractHandler):
             mapping.save(curs, s)
         except ObjectCreationError:
             raise HelixauthObjectAlreadyExists
-        return response_ok(service_id=s.id)
+        return response_ok(id=s.id)
 
     @transaction()
     @authentificate
@@ -208,8 +208,7 @@ class Handler(AbstractHandler):
     @detalize_error(HelixauthObjectAlreadyExists, 'new_name')
     @detalize_error(ServiceDeactivationError, 'new_is_active')
     def modify_service(self, data, session, curs=None):
-        f = ServiceFilter(session.environment_id, {'id': data['service_id']},
-            {}, None)
+        f = ServiceFilter(session.environment_id, data, {}, None)
 
         # checking service deactivation is possible
         srv = f.filter_one_obj(curs)

@@ -119,7 +119,7 @@ class ProtocolTestCase(RootTestCase):
             'is_active': False})
 
         self.api.validate_response(a_name,
-            {'status': 'ok', 'service_id': 1})
+            {'status': 'ok', 'id': 1})
         self.validate_error_response(a_name)
 
     def test_get_services(self):
@@ -131,13 +131,13 @@ class ProtocolTestCase(RootTestCase):
         self.api.validate_request(a_name, {'session_id': 's',
             'filter_params': {}, 'paging_params': {'limit': 0, 'offset': 0,},})
         self.api.validate_request(a_name, {'session_id': 's',
-            'filter_params': {'services_ids': []},
+            'filter_params': {'ids': []},
             'paging_params': {'limit': 0, 'offset': 0,},})
         self.api.validate_request(a_name, {'session_id': 's',
-            'filter_params': {'services_ids': [1, 2, 3]},
+            'filter_params': {'ids': [1, 2, 3]},
             'paging_params': {'limit': 0, 'offset': 0,},})
         self.api.validate_request(a_name, {'session_id': 's',
-            'filter_params': {'services_ids': [1, 2, 3]},
+            'filter_params': {'ids': [1, 2, 3]},
             'paging_params': {'limit': 0, 'offset': 0,},
             'ordering_params': ['name', '-id']})
         self.api.validate_request(a_name, {'session_id': 's',
@@ -171,12 +171,12 @@ class ProtocolTestCase(RootTestCase):
 
     def test_modify_service(self):
         a_name = 'modify_service'
-        self.api.validate_request(a_name, {'session_id': 'i', 'service_id': 1})
-        self.api.validate_request(a_name, {'session_id': 'i', 'service_id': 1,
+        self.api.validate_request(a_name, {'session_id': 'i', 'id': 1})
+        self.api.validate_request(a_name, {'session_id': 'i', 'id': 1,
             'new_name': 'n'})
-        self.api.validate_request(a_name, {'session_id': 'i', 'service_id': 1,
+        self.api.validate_request(a_name, {'session_id': 'i', 'id': 1,
             'new_name': 'n', 'new_properties': ['a', 'b']})
-        self.api.validate_request(a_name, {'session_id': 'i', 'service_id': 1,
+        self.api.validate_request(a_name, {'session_id': 'i', 'id': 1,
             'new_name': 'n', 'new_properties': ['a', 'b'],
             'new_is_active': False})
 
