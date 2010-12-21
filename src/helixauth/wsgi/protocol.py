@@ -172,11 +172,6 @@ MODIFY_USERS_RIGHTS_REQUEST = dict(
 
 MODIFY_USERS_RIGHTS_RESPONSE = RESPONSE_STATUS_ONLY
 
-ADD_USER_RESPONSE = AnyOf(
-    dict({'user_id': int,}, **RESPONSE_STATUS_OK),
-    RESPONSE_STATUS_ERROR
-)
-
 ADD_USER_REQUEST = dict(
     {
         'login': Text(),
@@ -188,7 +183,7 @@ ADD_USER_REQUEST = dict(
 )
 
 ADD_USER_RESPONSE = AnyOf(
-    dict({'user_id': int,}, **RESPONSE_STATUS_OK),
+    dict({'id': int,}, **RESPONSE_STATUS_OK),
     RESPONSE_STATUS_ERROR
 )
 

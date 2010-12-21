@@ -15,13 +15,13 @@ class UserRightsTestCase(ActorLogicTestCase):
         req = {'session_id': session_id, 'login': 'u0', 'password': 'p0'}
         resp = self.add_user(**req)
         self.check_response_ok(resp)
-        u_id_0 = resp['user_id']
+        u_id_0 = resp['id']
 
         ps = ['a', 'b', 'c', u'э', u'ю', u'я']
         req = {'session_id': session_id, 'name': 's0', 'type': 't',
             'properties': ps}
         resp = self.add_service(**req)
-        s_id = resp['service_id']
+        s_id = resp['id']
         self.check_response_ok(resp)
 
         req = {'session_id': session_id, 'subject_users_ids': [u_id_0],
@@ -32,7 +32,7 @@ class UserRightsTestCase(ActorLogicTestCase):
         req = {'session_id': session_id, 'login': 'u1', 'password': 'p1'}
         resp = self.add_user(**req)
         self.check_response_ok(resp)
-        u_id_1 = resp['user_id']
+        u_id_1 = resp['id']
 
         ps_1 = ps[2:]
         req = {'session_id': session_id, 'subject_users_ids': [u_id_0, u_id_1],
@@ -47,7 +47,7 @@ class UserRightsTestCase(ActorLogicTestCase):
         req = {'session_id': session_id, 'login': 'u0', 'password': 'p0'}
         resp = self.add_user(**req)
         self.check_response_ok(resp)
-        u_id = resp['user_id']
+        u_id = resp['id']
         granted = ['add_user']
         env = self.get_environment_by_name(self.actor_env_name)
         srv = self.load_auth_service(env.id)
@@ -71,7 +71,7 @@ class UserRightsTestCase(ActorLogicTestCase):
         self.assertRaises(RequestProcessingError, self.modify_environment, **req)
 
         # check access with renamed auth sevice
-        req = {'session_id': session_id, 'service_id': srv.id,
+        req = {'session_id': session_id, 'id': srv.id,
             'new_name': 'Bob'}
         resp = self.modify_service(**req)
         self.check_response_ok(resp)
@@ -90,7 +90,7 @@ class UserRightsTestCase(ActorLogicTestCase):
         req = {'session_id': s_id, 'login': 'u0', 'password': 'p0'}
         resp = self.add_user(**req)
         self.check_response_ok(resp)
-        u_id = resp['user_id']
+        u_id = resp['id']
         granted = ['add_user', 'get_user_rights']
         env = self.get_environment_by_name(self.actor_env_name)
         srv = self.load_auth_service(env.id)

@@ -28,7 +28,7 @@ class AccessTestCase(ActorLogicTestCase):
         req = {'session_id': session_id, 'login': 'u0', 'password': 'p0'}
         resp = self.add_user(**req)
         self.check_response_ok(resp)
-        u_id = resp['user_id']
+        u_id = resp['id']
         granted = ['check_access']
         env = self.get_environment_by_name(self.actor_env_name)
         srv = self.load_auth_service(env.id)

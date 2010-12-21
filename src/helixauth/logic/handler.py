@@ -174,7 +174,7 @@ class Handler(AbstractHandler):
         mapping.save(curs, user)
         # For correct action logging
         data['subject_users_ids'] = [user.id]
-        return response_ok(user_id=user.id)
+        return response_ok(id=user.id)
 
     @transaction()
     @authentificate

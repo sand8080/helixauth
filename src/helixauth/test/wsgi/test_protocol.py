@@ -105,7 +105,7 @@ class ProtocolTestCase(RootTestCase):
             'login': 'l', 'password': 'p', 'role': 'super', 'is_active': False})
 
         self.api.validate_response(a_name,
-            {'status': 'ok', 'user_id': 1})
+            {'status': 'ok', 'id': 1})
         self.validate_error_response(a_name)
 
     def test_add_service(self):
