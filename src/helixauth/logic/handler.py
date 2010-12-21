@@ -199,6 +199,7 @@ class Handler(AbstractHandler):
         def viewer(obj):
             result = obj.to_dict()
             result.pop('environment_id', None)
+            result['properties'] = [unicode(p, 'utf-8') for p in result['properties']]
             return result
         return response_ok(services=self.objects_info(ss, viewer),
             total=total)
