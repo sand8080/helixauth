@@ -112,6 +112,56 @@ ADD_GROUP_REQUEST = dict(
 
 ADD_GROUP_RESPONSE = RESPONSE_STATUS_ONLY
 
+MODIFY_GROUP_REQUEST = dict(
+    {
+        'id': int,
+        Optional('new_is_active'): bool,
+        Optional('new_name'): Text(),
+        Optional('new_rights'): RIGHTS_SCHEME,
+    },
+    **AUTHORIZED_REQUEST_AUTH_INFO
+)
+
+MODIFY_GROUP_RESPONSE = RESPONSE_STATUS_ONLY
+
+DELETE_GROUP_REQUEST = dict(
+    {'id': int},
+    **AUTHORIZED_REQUEST_AUTH_INFO
+)
+
+DELETE_GROUP_RESPONSE = RESPONSE_STATUS_ONLY
+
+GROUP_INFO = {
+    'id': int,
+    'name': Text(),
+    'is_active': bool,
+    'rights': RIGHTS_SCHEME,
+}
+
+GET_GROUPS_REQUEST = dict(
+    {
+        'filter_params': {
+            Optional('ids'): [int],
+            Optional('name'): Text(),
+            Optional('is_active'): bool
+        },
+        'paging_params': REQUEST_PAGING_PARAMS,
+        Optional('ordering_params'): [AnyOf('name', '-name', 'id', '-id')]
+    },
+    **AUTHORIZED_REQUEST_AUTH_INFO
+)
+
+GET_GROUPS_RESPONSE = AnyOf(
+    dict(
+        RESPONSE_STATUS_OK,
+        **{
+            'groups': [GROUP_INFO],
+            'total': NonNegative(int),
+        }
+    ),
+    RESPONSE_STATUS_ERROR
+)
+
 MODIFY_USERS_RIGHTS_REQUEST = dict(
     {
         'subject_users_ids': [int],
@@ -280,6 +330,15 @@ protocol = [
     # group
     ApiCall('add_group_request', Scheme(ADD_GROUP_REQUEST)),
     ApiCall('add_group_response', Scheme(ADD_GROUP_RESPONSE)),
+
+    ApiCall('modify_group_request', Scheme(MODIFY_GROUP_REQUEST)),
+    ApiCall('modify_group_response', Scheme(MODIFY_GROUP_RESPONSE)),
+
+    ApiCall('delete_group_request', Scheme(DELETE_GROUP_REQUEST)),
+    ApiCall('delete_group_response', Scheme(DELETE_GROUP_RESPONSE)),
+
+    ApiCall('get_groups_request', Scheme(GET_GROUPS_REQUEST)),
+    ApiCall('get_groups_response', Scheme(GET_GROUPS_RESPONSE)),
 
     # user
     ApiCall('add_user_request', Scheme(ADD_USER_REQUEST)),

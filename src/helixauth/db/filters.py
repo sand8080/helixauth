@@ -104,14 +104,14 @@ class SubjectUserFilter(EnvironmentObjectsFilter):
             raise UserNotFound(**self.filter_params)
 
 
-class GroupFilter(InSessionFilter):
+class GroupFilter(EnvironmentObjectsFilter):
     cond_map = [
         ('id', 'id', Eq),
         ('name', 'name', Like),
     ]
 
-    def __init__(self, session, filter_params, paging_params, ordering_params):
-        super(GroupFilter, self).__init__(session, filter_params, paging_params,
+    def __init__(self, environment_id, filter_params, paging_params, ordering_params):
+        super(GroupFilter, self).__init__(environment_id, filter_params, paging_params,
             ordering_params, Group)
 
     def filter_one_obj(self, curs, for_update=False):

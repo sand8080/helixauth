@@ -2,11 +2,11 @@ from helixcore.mapping.objects import Mapped
 import cjson
 
 
-def serialize_rights(d):
+def serialize_field(d, f_src_name, f_dst_name):
     res = dict(d)
-    r = res.pop('rights', '')
-    if isinstance(r, list):
-        res['serialized_rights'] = cjson.encode(r)
+    v = res.pop(f_src_name, '')
+    if isinstance(v, list):
+        res[f_dst_name] = cjson.encode(v)
     return res
 
 
@@ -43,7 +43,7 @@ class Group(Mapped):
     table = 'group_data'
 
     def __init__(self, **kwargs):
-        d = serialize_rights(kwargs)
+        d = serialize_field(kwargs, 'rights', 'serialized_rights')
         super(Group, self).__init__(**d)
 
 

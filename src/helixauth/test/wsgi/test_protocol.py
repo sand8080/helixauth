@@ -185,15 +185,81 @@ class ProtocolTestCase(RootTestCase):
     def test_add_group(self):
         a_name = 'add_group'
         self.api.validate_request(a_name, {'session_id': 'i', 'name': 'n',
-            'rights':[{'service_id': 1, 'properties': []}]})
+            'rights': [{'service_id': 1, 'properties': []}]})
         self.api.validate_request(a_name, {'session_id': 'i', 'name': 'n',
-            'rights':[{'service_id': 1, 'properties': ['c']}],
+            'rights': [{'service_id': 1, 'properties': ['c']}],
             'is_active': True})
         self.api.validate_request(a_name, {'session_id': 'i', 'name': 'n',
-            'rights':[{'service_id': 1, 'properties': ['a', 'b']}],
+            'rights': [{'service_id': 1, 'properties': ['a', 'b']}],
             'is_active': False})
 
         self.validate_status_response(a_name)
+
+    def test_modify_group(self):
+        a_name = 'modify_group'
+        self.api.validate_request(a_name, {'session_id': 'i', 'id': 1})
+        self.api.validate_request(a_name, {'session_id': 'i', 'id': 1,
+            'new_is_active': True})
+        self.api.validate_request(a_name, {'session_id': 'i', 'id': 1,
+            'new_is_active': False, 'new_name': 'nn', 'new_rights': []})
+        self.api.validate_request(a_name, {'session_id': 'i', 'id': 1,
+            'new_is_active': False, 'new_rights': [{'service_id': 1,
+            'properties': []}]})
+        self.api.validate_request(a_name, {'session_id': 'i', 'id': 1,
+            'new_is_active': False, 'new_rights': [{'service_id': 1,
+            'properties': ['a', 'b']}]})
+
+        self.validate_status_response(a_name)
+
+    def test_delete_group(self):
+        a_name = 'delete_group'
+        self.api.validate_request(a_name, {'session_id': 'i', 'id': 1})
+        self.validate_status_response(a_name)
+
+    def test_get_groups(self):
+        a_name = 'get_groups'
+        self.api.validate_request(a_name, {'session_id': 's',
+            'filter_params': {}, 'paging_params': {},})
+        self.api.validate_request(a_name, {'session_id': 's',
+            'filter_params': {}, 'paging_params': {'limit': 0,},})
+        self.api.validate_request(a_name, {'session_id': 's',
+            'filter_params': {}, 'paging_params': {'limit': 0, 'offset': 0,},})
+        self.api.validate_request(a_name, {'session_id': 's',
+            'filter_params': {'ids': []},
+            'paging_params': {'limit': 0, 'offset': 0,},})
+        self.api.validate_request(a_name, {'session_id': 's',
+            'filter_params': {'ids': [1, 2, 3]},
+            'paging_params': {'limit': 0, 'offset': 0,},})
+        self.api.validate_request(a_name, {'session_id': 's',
+            'filter_params': {'ids': [1, 2, 3]},
+            'paging_params': {'limit': 0, 'offset': 0,},
+            'ordering_params': ['name', '-id']})
+        self.api.validate_request(a_name, {'session_id': 's',
+            'filter_params': {'name': 't', 'is_active': True},
+            'paging_params': {'limit': 0, 'offset': 0,},
+            'ordering_params': ['name', '-id']})
+
+        self.api.validate_response(a_name, {'status': 'ok', 'total': 2,
+            'groups': []})
+        self.api.validate_response(a_name, {'status': 'ok', 'total': 4,
+            'groups': [
+            {
+                'id': 42, 'is_active': True, 'name': u'группа0',
+                'rights': [{'service_id': 1, 'properties': []}],
+            },
+        ]})
+        self.api.validate_response(a_name, {'status': 'ok', 'total': 4,
+            'groups': [
+            {
+                'id': 42, 'is_active': True, 'name': u'группа0',
+                'rights': [{'service_id': 1, 'properties': []}],
+            },
+            {
+                'id': 43, 'is_active': False, 'name': u'группа1',
+                'rights': [{'service_id': 1, 'properties': ['a', 'b']}],
+            },
+        ]})
+        self.validate_error_response(a_name)
 
     def test_modify_users_rights(self):
         a_name = 'modify_users_rights'

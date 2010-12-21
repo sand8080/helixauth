@@ -112,6 +112,15 @@ class LogicTestCase(DbBasedTestCase):
     def add_group(self, **kwargs):
         return self.handle_action('add_group', kwargs)
 
+    def modify_group(self, **kwargs):
+        return self.handle_action('modify_group', kwargs)
+
+    def delete_group(self, **kwargs):
+        return self.handle_action('delete_group', kwargs)
+
+    def get_groups(self, **kwargs):
+        return self.handle_action('get_groups', kwargs)
+
     @transaction()
     def load_auth_service(self, env_id, curs=None):
         f = ServiceFilter(env_id, {}, {'limit': 1}, ['id'])

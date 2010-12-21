@@ -71,8 +71,8 @@ class SessionExpired(HelixauthError):
 
 
 class GroupAlreadyExists(HelixauthObjectAlreadyExists):
-    def __init__(self, *args, **kwargs):
-        super(GroupAlreadyExists, self).__init__(*args, **kwargs)
+    def __init__(self, name):
+        super(GroupAlreadyExists, self).__init__('Group %s already exists' % name)
         self.code = error_code.HELIXAUTH_GROUP_ALREADY_EXISTS
 
 

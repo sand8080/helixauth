@@ -10,11 +10,11 @@ from helixauth.conf.db import transaction
 from helixauth.error import (EnvironmentNotFound,
     HelixauthObjectAlreadyExists, SessionNotFound, UserNotFound, SessionExpired,
     HelixauthError, UserInactive, ServiceDeactivationError, UserAuthError,
-    GroupAlreadyExists)
+    GroupAlreadyExists, HelixauthObjectNotFound)
 from helixauth.db.filters import (EnvironmentFilter, UserFilter, ServiceFilter,
-    UserRightsFilter, SessionFilter, SubjectUserFilter)
+    UserRightsFilter, SessionFilter, SubjectUserFilter, GroupFilter)
 from helixauth.db.dataobject import (Environment, User, Service, UserRights,
-    Group)
+    Group, serialize_field)
 from helixauth.logic.auth import Authentifier
 from helixauth.wsgi.protocol import unauthorized_actions
 import cjson
@@ -235,6 +235,42 @@ class Handler(AbstractHandler):
         except ObjectCreationError:
             raise GroupAlreadyExists('Group %s already exists' % group.name)
         return response_ok()
+
+    @transaction()
+    @authentificate
+    @detalize_error(GroupAlreadyExists, 'name')
+    def modify_group(self, data, session, curs=None):
+        f = GroupFilter(session.environment_id, {'id': data.get('id')}, {}, None)
+        loader = partial(f.filter_one_obj, curs, for_update=True)
+        try:
+            self.update_obj(curs, serialize_field(data, 'new_rights', 'new_serialized_rights'),
+                loader)
+        except DataIntegrityError:
+            raise GroupAlreadyExists(data.get('new_name'))
+        return response_ok()
+
+    @transaction()
+    @authentificate
+    @detalize_error(HelixauthObjectNotFound, 'id')
+    def delete_group(self, data, session, curs=None):
+        f = GroupFilter(session.environment_id, {'id': data.get('id')}, {}, None)
+        mapping.delete(curs, f.filter_one_obj(curs))
+        return response_ok()
+
+    @transaction()
+    @authentificate
+    def get_groups(self, data, session, curs=None):
+        f = GroupFilter(session.environment_id, data['filter_params'],
+            data['paging_params'], data.get('ordering_params'))
+        ss, total = f.filter_counted(curs)
+        def viewer(obj):
+            result = obj.to_dict()
+            result.pop('environment_id', None)
+            s_rights = result.pop('serialized_rights', '')
+            result['rights'] = cjson.decode(s_rights)
+            return result
+        return response_ok(groups=self.objects_info(ss, viewer),
+            total=total)
 
     @transaction()
     @authentificate
