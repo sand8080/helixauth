@@ -4,9 +4,17 @@ import cjson
 
 def serialize_field(d, f_src_name, f_dst_name):
     res = dict(d)
-    v = res.pop(f_src_name, '')
-    if isinstance(v, list):
+    if isinstance(res.get(f_src_name), list):
+        v = res.pop(f_src_name)
         res[f_dst_name] = cjson.encode(v)
+    return res
+
+
+def deserialize_field(d, f_src_name, f_dst_name):
+    res = dict(d)
+    if isinstance(res.get(f_src_name), (str, unicode)):
+        v = res.pop(f_src_name)
+        res[f_dst_name] = cjson.decode(v)
     return res
 
 
@@ -57,8 +65,10 @@ class Service(Mapped):
     TYPE_AUTH = 'auth'
     TYPE_BILLING = 'billing'
     TYPE_TARIFF = 'tariff'
-    __slots__ = ['id', 'environment_id', 'name', 'properties', 'type',
-        'is_active', 'is_possible_deactiate']
+    __slots__ = ['id', 'environment_id', 'name', 'serialized_properties',
+        'type', 'is_active', 'is_possible_deactiate']
     table = 'service'
 
-
+    def __init__(self, **kwargs):
+        d = serialize_field(kwargs, 'properties', 'serialized_properties')
+        super(Service, self).__init__(**d)

@@ -14,7 +14,7 @@ from helixauth.error import (EnvironmentNotFound,
 from helixauth.db.filters import (EnvironmentFilter, UserFilter, ServiceFilter,
     UserRightsFilter, SessionFilter, SubjectUserFilter, GroupFilter)
 from helixauth.db.dataobject import (Environment, User, Service, UserRights,
-    Group, serialize_field)
+    Group, serialize_field, deserialize_field)
 from helixauth.logic.auth import Authentifier
 from helixauth.wsgi.protocol import unauthorized_actions
 import cjson
@@ -198,8 +198,8 @@ class Handler(AbstractHandler):
         ss, total = f.filter_counted(curs)
         def viewer(obj):
             result = obj.to_dict()
-            result.pop('environment_id', None)
-            result['properties'] = [unicode(p, 'utf-8') for p in result['properties']]
+            result = deserialize_field(result, 'serialized_properties', 'properties')
+            result.pop('environment_id')
             return result
         return response_ok(services=self.objects_info(ss, viewer),
             total=total)
@@ -218,7 +218,8 @@ class Handler(AbstractHandler):
 
         loader = partial(f.filter_one_obj, curs, for_update=True)
         try:
-            self.update_obj(curs, data, loader)
+            d = serialize_field(data, 'new_properties', 'new_serialized_properties')
+            self.update_obj(curs, d, loader)
         except DataIntegrityError:
             raise HelixauthObjectAlreadyExists('Service %s already exists' %
                 data.get('new_name'))

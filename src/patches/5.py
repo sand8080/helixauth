@@ -8,7 +8,7 @@ def apply(curs):
             FOREIGN KEY (environment_id) REFERENCES environment(id),
             name varchar NOT NULL,
             type varchar NOT NULL,
-            properties varchar[],
+            serialized_properties varchar,
             is_active boolean NOT NULL DEFAULT True,
             is_possible_deactiate boolean NOT NULL DEFAULT True
         )

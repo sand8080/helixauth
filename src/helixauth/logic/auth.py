@@ -81,7 +81,7 @@ class Authentifier(object):
         res = {}
         for srv in srvs:
             if user.role == User.ROLE_SUPER:
-                r = srv.properties
+                r = cjson.decode(srv.serialized_properties)
             else:
                 r = rights.get(str(srv.id), []) # String key id for json.encode
             res[srv.type] = r
