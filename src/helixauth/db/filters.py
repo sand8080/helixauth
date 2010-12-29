@@ -107,6 +107,7 @@ class SubjectUserFilter(EnvironmentObjectsFilter):
 class GroupFilter(EnvironmentObjectsFilter):
     cond_map = [
         ('id', 'id', Eq),
+        ('ids', 'id', In),
         ('name', 'name', Like),
     ]
 
