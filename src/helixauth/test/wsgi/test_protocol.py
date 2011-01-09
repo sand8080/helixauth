@@ -108,6 +108,13 @@ class ProtocolTestCase(RootTestCase):
             {'status': 'ok', 'id': 1})
         self.validate_error_response(a_name)
 
+    def test_modify_password(self):
+        a_name = 'modify_password'
+        self.api.validate_request(a_name, {'session_id': 'i',
+            'old_password': 'p', 'new_password': 'pp'})
+
+        self.validate_status_response(a_name)
+
     def test_add_service(self):
         a_name = 'add_service'
         self.api.validate_request(a_name, {'session_id': 'i',

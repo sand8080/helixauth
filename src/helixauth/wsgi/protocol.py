@@ -187,6 +187,16 @@ ADD_USER_RESPONSE = AnyOf(
     RESPONSE_STATUS_ERROR
 )
 
+MODIFY_PASSWORD_REQUEST = dict(
+    {
+        'old_password': Text(),
+        'new_password': Text(),
+    },
+    **AUTHORIZED_REQUEST_AUTH_INFO
+)
+
+MODIFY_PASSWORD_RESPONSE = RESPONSE_STATUS_ONLY
+
 ADD_SERVICE_REQUEST = dict(
     {
         'name': Text(),
@@ -338,6 +348,9 @@ protocol = [
     # user
     ApiCall('add_user_request', Scheme(ADD_USER_REQUEST)),
     ApiCall('add_user_response', Scheme(ADD_USER_RESPONSE)),
+
+    ApiCall('modify_password_request', Scheme(MODIFY_PASSWORD_REQUEST)),
+    ApiCall('modify_password_response', Scheme(MODIFY_PASSWORD_RESPONSE)),
 
     # user rights
     ApiCall('modify_users_rights_request', Scheme(MODIFY_USERS_RIGHTS_REQUEST)),
