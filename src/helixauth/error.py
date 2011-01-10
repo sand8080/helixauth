@@ -28,6 +28,12 @@ class UserNotFound(HelixauthObjectNotFound):
 #        self.code = error_code.H
 
 
+class UserWrongOldPassword(HelixauthError):
+    def __init__(self, *args, **kwargs):
+        super(UserWrongOldPassword, self).__init__(*args, **kwargs)
+        self.code = error_code.HELIXAUTH_USER_WRONG_OLD_PASSWORD
+
+
 class ServiceDeactivationError(HelixauthError):
     def __init__(self, service_name):
         super(ServiceDeactivationError, self).__init__(

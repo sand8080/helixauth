@@ -10,7 +10,7 @@ from helixauth.conf.db import transaction
 from helixauth.error import (EnvironmentNotFound,
     HelixauthObjectAlreadyExists, SessionNotFound, UserNotFound, SessionExpired,
     HelixauthError, UserInactive, ServiceDeactivationError, UserAuthError,
-    GroupAlreadyExists, HelixauthObjectNotFound)
+    GroupAlreadyExists, HelixauthObjectNotFound, UserWrongOldPassword)
 from helixauth.db.filters import (EnvironmentFilter, UserFilter, ServiceFilter,
     UserRightsFilter, SessionFilter, SubjectUserFilter, GroupFilter)
 from helixauth.db.dataobject import (Environment, User, Service, UserRights,
@@ -175,6 +175,21 @@ class Handler(AbstractHandler):
         # For correct action logging
         data['subject_users_ids'] = [user.id]
         return response_ok(id=user.id)
+
+    @transaction()
+    @authentificate
+    @detalize_error(UserWrongOldPassword, 'old_password')
+    def modify_password(self, data, session, curs=None):
+        f = UserFilter(session, {'id': session.user_id}, {}, None)
+        user = f.filter_one_obj(curs)
+        old_password = data['old_password']
+        a = Authentifier()
+        if user.password != a.encrypt_password(old_password):
+            raise UserWrongOldPassword()
+        loader = partial(f.filter_one_obj, curs, for_update=True)
+        d = {'new_password': a.encrypt_password(data['new_password'])}
+        self.update_obj(curs, d, loader)
+        return response_ok()
 
     @transaction()
     @authentificate
