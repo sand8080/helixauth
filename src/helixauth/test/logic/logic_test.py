@@ -55,15 +55,6 @@ class LogicTestCase(DbBasedTestCase):
         self.assertNotEqual(None, session_id)
         return response
 
-    def get_environment(self, **kwargs):
-        return self.handle_action('get_environment', kwargs)
-
-    def modify_environment(self, **kwargs):
-        return self.handle_action('modify_environment', kwargs)
-
-    def login(self, **kwargs):
-        return self.handle_action('login', kwargs)
-
     @transaction()
     def get_session(self, session_id, for_update=False, curs=None):
         f = SessionFilter({'session_id': session_id}, {}, {})
@@ -77,49 +68,13 @@ class LogicTestCase(DbBasedTestCase):
         session.update_date = session.update_date - td
         mapping.save(curs, session)
 
-    def check_response_ok(self, resp):
-        self.assertEqual('ok', resp['status'])
-
     @transaction()
     def inactivate_user(self, user, curs=None):
         user.is_active = False
         mapping.save(curs, user)
 
-    def add_user(self, **kwargs):
-        return self.handle_action('add_user', kwargs)
-
-    def add_service(self, **kwargs):
-        return self.handle_action('add_service', kwargs)
-
-    def get_services(self, **kwargs):
-        return self.handle_action('get_services', kwargs)
-
-    def modify_service(self, **kwargs):
-        return self.handle_action('modify_service', kwargs)
-
-    def modify_users_rights(self, **kwargs):
-        return self.handle_action('modify_users_rights', kwargs)
-
-    def get_authorized_api_actions(self):
-        return self.handle_action('get_authorized_api_actions', {})
-
-    def check_access(self, **kwargs):
-        return self.handle_action('check_access', kwargs)
-
-    def get_user_rights(self, **kwargs):
-        return self.handle_action('get_user_rights', kwargs)
-
-    def add_group(self, **kwargs):
-        return self.handle_action('add_group', kwargs)
-
-    def modify_group(self, **kwargs):
-        return self.handle_action('modify_group', kwargs)
-
-    def delete_group(self, **kwargs):
-        return self.handle_action('delete_group', kwargs)
-
-    def get_groups(self, **kwargs):
-        return self.handle_action('get_groups', kwargs)
+    def check_response_ok(self, resp):
+        self.assertEqual('ok', resp['status'])
 
     @transaction()
     def load_auth_service(self, env_id, curs=None):
@@ -130,3 +85,20 @@ class LogicTestCase(DbBasedTestCase):
     def load_service(self, env_id, name, curs=None):
         f = ServiceFilter(env_id, {'name': name}, {}, None)
         return f.filter_one_obj(curs)
+
+
+def make_api_call(f_name):
+    def m(self, **kwargs):
+        return self.handle_action(f_name, kwargs)
+    m.__name__ = f_name
+    return m
+
+
+methods = ['login', 'get_environment', 'modify_environment',
+    'add_service', 'modify_service', 'get_services',
+    'add_user', 'change_password', 'modify_users_rights', 'get_user_rights',
+    'add_group', 'modify_group', 'delete_group', 'get_groups',
+    'get_authorized_api_actions',
+    'check_access',]
+for method_name in methods:
+    setattr(LogicTestCase, method_name, make_api_call(method_name))
