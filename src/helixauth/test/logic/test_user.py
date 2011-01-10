@@ -1,34 +1,27 @@
 import unittest
 
-from helixauth.test.logic.logic_test import LogicTestCase
+from helixauth.test.logic.actor_logic_test import ActorLogicTestCase
 from helixauth.db.dataobject import User
 
 
-class UserTestCase(LogicTestCase):
-    env_name = 'UserTestCase'
-    su_login = 'su_test'
-    su_password = 'qweasdzxc'
-
+class UserTestCase(ActorLogicTestCase):
     def setUp(self):
         super(UserTestCase, self).setUp()
-        req = {'name': self.env_name, 'su_login': self.su_login,
-            'su_password': self.su_password,
-            'custom_actor_info': 'from %s' % self.env_name}
-        self.add_environment(**req)
+        self.create_actor_env()
 
     def test_add_user_by_super(self):
-        resp = self.login(**{'environment_name': self.env_name, 'login': self.su_login,
-            'password': self.su_password})
-        self.check_response_ok(resp)
-        session_id = resp['session_id']
-        req = {'session_id': session_id, 'login': 'user_1',
+        sess_id = self.login_actor()
+        req = {'session_id': sess_id, 'login': 'user_1',
             'password': '1', 'role': User.ROLE_SUPER}
         resp = self.add_user(**req)
         self.check_response_ok(resp)
-        req = {'session_id': session_id, 'login': 'user_2',
+        req = {'session_id': sess_id, 'login': 'user_2',
             'password': '2', 'role': User.ROLE_USER}
         resp = self.add_user(**req)
         self.check_response_ok(resp)
+
+#    def test_modify_password(self):
+#        pass
 
 
 if __name__ == '__main__':
