@@ -1,4 +1,4 @@
-from helixcore.db.sql import And, Eq, MoreEq, LessEq, In, Like
+from helixcore.db.sql import And, Eq, MoreEq, LessEq, In, Like, AnyOf
 from helixcore.db.wrapper import SelectedMoreThanOneRow, ObjectNotFound
 from helixcore.db.filters import ObjectsFilter as OFImpl
 
@@ -70,8 +70,10 @@ class EnvironmentFilter(OFImpl):
 class UserFilter(InSessionFilter):
     cond_map = [
         ('id', 'id', Eq),
-        ('login', 'login', Eq),
+        ('ids', 'id', In),
+        ('login', 'login', Like),
         ('password', 'password', Eq),
+        ('groups_ids', 'groups_ids', AnyOf),
     ]
 
     def __init__(self, session, filter_params, paging_params, ordering_params):

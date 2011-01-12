@@ -165,16 +165,38 @@ class Handler(AbstractHandler):
     @detalize_error(HelixauthObjectAlreadyExists, 'login')
     def add_user(self, data, session, curs=None):
         a = Authentifier()
-        u_data = {'environment_id': session.environment_id,
-            'login': data.get('login'), 'role': data.get('role', User.ROLE_USER),
+        env_id = session.environment_id
+        u_data = {'environment_id': env_id, 'login': data.get('login'),
+            'role': data.get('role', User.ROLE_USER),
             'password': a.encrypt_password(data.get('password')),
             'is_active': data.get('is_active', True),
         }
+        if u_data['role'] == User.ROLE_SUPER:
+            filtered_g_ids = []
+        else:
+            f = GroupFilter(env_id, {}, {}, None)
+            groups = f.filter_objs(curs)
+            g_ids = [g.id for g in groups]
+            filtered_g_ids = filter(lambda x: x in g_ids, data.get('groups_ids', []))
+        u_data['groups_ids'] = filtered_g_ids
         user = User(**u_data)
         mapping.save(curs, user)
         # For correct action logging
         data['subject_users_ids'] = [user.id]
         return response_ok(id=user.id)
+
+    @transaction()
+    @authentificate
+    def get_users(self, data, session, curs=None):
+        f = UserFilter(session, data['filter_params'],
+            data['paging_params'], data.get('ordering_params'))
+        users, total = f.filter_counted(curs)
+        def viewer(obj):
+            result = obj.to_dict()
+            result.pop('password')
+            result.pop('environment_id')
+            return result
+        return response_ok(users=self.objects_info(users, viewer), total=total)
 
     @transaction()
     @authentificate

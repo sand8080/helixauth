@@ -10,6 +10,7 @@ def apply(curs):
             password varchar NOT NULL,
             is_active boolean NOT NULL DEFAULT True,
             role varchar NOT NULL CHECK(role in ('super', 'user')),
+            groups_ids integer[] DEFAULT ARRAY[]::integer[],
             PRIMARY KEY(id),
             UNIQUE(environment_id, login)
         )

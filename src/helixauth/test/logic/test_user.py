@@ -40,6 +40,91 @@ class UserTestCase(ActorLogicTestCase):
         resp = self.login(**req)
         self.check_response_ok(resp)
 
+    def test_get_users(self):
+        sess_id = self.login_actor()
+        # adding group
+        req = {'session_id': sess_id, 'name': 'grp_0',
+            'rights': [{'service_id': 1, 'properties': ['one', 'two']}]
+        }
+        resp = self.add_group(**req)
+        self.check_response_ok(resp)
+        # adding users
+        req = {'session_id': sess_id, 'login': 'user_0',
+            'password': '1', 'role': User.ROLE_USER, 'groups_ids': [1]}
+        resp = self.add_user(**req)
+        self.check_response_ok(resp)
+        req['login'] = 'user_1'
+        resp = self.add_user(**req)
+        self.check_response_ok(resp)
+
+        # checking filtering by login
+        req = {'session_id': sess_id, 'filter_params': {'login': '*_1'},
+            'paging_params': {}}
+        resp = self.get_users(**req)
+        self.check_response_ok(resp)
+        users = resp['users']
+        self.assertEqual(1, len(users))
+        self.assertEqual('user_1', users[0]['login'])
+
+        # checking filtering by groups_ids
+        req = {'session_id': sess_id, 'filter_params': {'groups_ids': [1, 2, 3]},
+            'paging_params': {}}
+        resp = self.get_users(**req)
+        self.check_response_ok(resp)
+        users = resp['users']
+        self.assertEqual(2, len(users))
+        self.assertEqual('user_0', users[0]['login'])
+        self.assertEqual('user_1', users[1]['login'])
+
+        # checking filtering without params
+        req = {'session_id': sess_id, 'filter_params': {},
+            'paging_params': {}}
+        resp = self.get_users(**req)
+        self.check_response_ok(resp)
+        users = resp['users']
+        self.assertEqual(3, len(users))
+
+    def test_add_user_with_groups(self):
+        sess_id = self.login_actor()
+        req = {'session_id': sess_id, 'name': 'grp_0',
+            'rights': [{'service_id': 1, 'properties': ['one', 'two']}]
+        }
+        resp = self.add_group(**req)
+
+        # checking only existed groups ids used for user
+        self.check_response_ok(resp)
+        req = {'session_id': sess_id, 'login': 'user_1',
+            'password': '1', 'role': User.ROLE_USER, 'groups_ids': [1, 7, 9]}
+        resp = self.add_user(**req)
+        self.check_response_ok(resp)
+        user_id = resp['id']
+
+        req = {'session_id': sess_id, 'filter_params': {'ids': [user_id]},
+            'paging_params': {}}
+        resp = self.get_users(**req)
+        self.check_response_ok(resp)
+        users = resp['users']
+        self.assertEqual(1, len(users))
+        user = users[0]
+        self.assertEqual([1], user['groups_ids'])
+
+        # checking groups ids ignored for super user
+        self.check_response_ok(resp)
+        req = {'session_id': sess_id, 'login': 'super_2',
+            'password': '1', 'role': User.ROLE_SUPER, 'groups_ids': [1, 7, 9]}
+        resp = self.add_user(**req)
+        self.check_response_ok(resp)
+        user_id = resp['id']
+
+        req = {'session_id': sess_id, 'filter_params': {'ids': [user_id]},
+            'paging_params': {}}
+        resp = self.get_users(**req)
+        self.check_response_ok(resp)
+        users = resp['users']
+        self.assertEqual(1, len(users))
+        user = users[0]
+        self.assertEqual([], user['groups_ids'])
+
 
 if __name__ == '__main__':
     unittest.main()

@@ -178,6 +178,7 @@ ADD_USER_REQUEST = dict(
         'password': Text(),
         Optional('role'): AnyOf(dataobject.User.ROLE_SUPER, dataobject.User.ROLE_USER),
         Optional('is_active'): bool,
+        Optional('groups_ids'): [int],
     },
     **AUTHORIZED_REQUEST_AUTH_INFO
 )
@@ -196,6 +197,39 @@ MODIFY_PASSWORD_REQUEST = dict(
 )
 
 MODIFY_PASSWORD_RESPONSE = RESPONSE_STATUS_ONLY
+
+GET_USERS_REQUEST = dict(
+    {
+        'filter_params': {
+            Optional('ids'): [int],
+            Optional('login'): Text(),
+            Optional('groups_ids'): [int],
+            Optional('is_active'): bool
+        },
+        'paging_params': REQUEST_PAGING_PARAMS,
+        Optional('ordering_params'): [AnyOf('name', '-name', 'id', '-id')]
+    },
+    **AUTHORIZED_REQUEST_AUTH_INFO
+)
+
+USER_INFO = {
+    'id': int,
+    'login': Text(),
+    'role': AnyOf(dataobject.User.ROLE_SUPER, dataobject.User.ROLE_USER),
+    'is_active': bool,
+    'groups_ids': [int],
+}
+
+GET_USERS_RESPONSE = AnyOf(
+    dict(
+        RESPONSE_STATUS_OK,
+        **{
+            'users': [USER_INFO],
+            'total': NonNegative(int),
+        }
+    ),
+    RESPONSE_STATUS_ERROR
+)
 
 ADD_SERVICE_REQUEST = dict(
     {
@@ -351,6 +385,9 @@ protocol = [
 
     ApiCall('modify_password_request', Scheme(MODIFY_PASSWORD_REQUEST)),
     ApiCall('modify_password_response', Scheme(MODIFY_PASSWORD_RESPONSE)),
+
+    ApiCall('get_users_request', Scheme(GET_USERS_REQUEST)),
+    ApiCall('get_users_response', Scheme(GET_USERS_RESPONSE)),
 
     # user rights
     ApiCall('modify_users_rights_request', Scheme(MODIFY_USERS_RIGHTS_REQUEST)),

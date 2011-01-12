@@ -103,6 +103,12 @@ class ProtocolTestCase(RootTestCase):
             'login': 'l', 'password': 'p', 'role': 'user'})
         self.api.validate_request(a_name, {'session_id': 'i',
             'login': 'l', 'password': 'p', 'role': 'super', 'is_active': False})
+        self.api.validate_request(a_name, {'session_id': 'i',
+            'login': 'l', 'password': 'p', 'role': 'super', 'is_active': False,
+            'groups_ids': []})
+        self.api.validate_request(a_name, {'session_id': 'i',
+            'login': 'l', 'password': 'p', 'role': 'super', 'is_active': False,
+            'groups_ids': [1, 2, 3]})
 
         self.api.validate_response(a_name,
             {'status': 'ok', 'id': 1})
@@ -114,6 +120,43 @@ class ProtocolTestCase(RootTestCase):
             'old_password': 'p', 'new_password': 'pp'})
 
         self.validate_status_response(a_name)
+
+    def test_get_users(self):
+        a_name = 'get_users'
+        self.api.validate_request(a_name, {'session_id': 's',
+            'filter_params': {}, 'paging_params': {},})
+        self.api.validate_request(a_name, {'session_id': 's',
+            'filter_params': {}, 'paging_params': {'limit': 0,},})
+        self.api.validate_request(a_name, {'session_id': 's',
+            'filter_params': {}, 'paging_params': {'limit': 0, 'offset': 0,},})
+        self.api.validate_request(a_name, {'session_id': 's',
+            'filter_params': {'ids': []},
+            'paging_params': {'limit': 0, 'offset': 0,},})
+        self.api.validate_request(a_name, {'session_id': 's',
+            'filter_params': {'ids': [1, 2, 3]},
+            'paging_params': {'limit': 0, 'offset': 0,},})
+        self.api.validate_request(a_name, {'session_id': 's',
+            'filter_params': {'ids': [1, 2, 3]},
+            'paging_params': {'limit': 0, 'offset': 0,},
+            'ordering_params': ['-id']})
+        self.api.validate_request(a_name, {'session_id': 's',
+            'filter_params': {'groups_ids': [3, 4], 'login': 'jack'},
+            'paging_params': {'limit': 0, 'offset': 0,},
+            'ordering_params': ['-id']})
+
+        self.api.validate_response(a_name, {'status': 'ok', 'total': 2, 'users': []})
+        self.api.validate_response(a_name, {'status': 'ok', 'total': 4,
+            'users': [
+                {'id': 42, 'login': 'l', 'is_active': True, 'role': 'user', 'groups_ids': [],},
+            ]
+        })
+        self.api.validate_response(a_name, {'status': 'ok', 'total': 4,
+            'users': [
+                {'id': 42, 'login': 'l', 'is_active': True, 'role': 'user', 'groups_ids': [],},
+                {'id': 24, 'login': 'l', 'is_active': True, 'role': 'user', 'groups_ids': [1, 2],},
+            ]
+        })
+        self.validate_error_response(a_name)
 
     def test_add_service(self):
         a_name = 'add_service'
