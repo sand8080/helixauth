@@ -10,7 +10,8 @@ from helixauth.conf.db import transaction
 from helixauth.error import (EnvironmentNotFound,
     HelixauthObjectAlreadyExists, SessionNotFound, UserNotFound, SessionExpired,
     HelixauthError, UserInactive, ServiceDeactivationError, UserAuthError,
-    GroupAlreadyExists, HelixauthObjectNotFound, UserWrongOldPassword)
+    GroupAlreadyExists, HelixauthObjectNotFound, UserWrongOldPassword,
+    SuperUserCreationDenied)
 from helixauth.db.filters import (EnvironmentFilter, UserFilter, ServiceFilter,
     UserRightsFilter, SessionFilter, SubjectUserFilter, GroupFilter)
 from helixauth.db.dataobject import (Environment, User, Service, UserRights,
@@ -163,6 +164,7 @@ class Handler(AbstractHandler):
     @transaction()
     @authentificate
     @detalize_error(HelixauthObjectAlreadyExists, 'login')
+    @detalize_error(HelixauthObjectAlreadyExists, 'role')
     def add_user(self, data, session, curs=None):
         a = Authentifier()
         env_id = session.environment_id
@@ -172,12 +174,12 @@ class Handler(AbstractHandler):
             'is_active': data.get('is_active', True),
         }
         if u_data['role'] == User.ROLE_SUPER:
-            filtered_g_ids = []
-        else:
-            f = GroupFilter(env_id, {}, {}, None)
-            groups = f.filter_objs(curs)
-            g_ids = [g.id for g in groups]
-            filtered_g_ids = filter(lambda x: x in g_ids, data.get('groups_ids', []))
+            raise SuperUserCreationDenied
+
+        f = GroupFilter(env_id, {}, {}, None)
+        groups = f.filter_objs(curs)
+        g_ids = [g.id for g in groups]
+        filtered_g_ids = filter(lambda x: x in g_ids, data.get('groups_ids', []))
         u_data['groups_ids'] = filtered_g_ids
         user = User(**u_data)
         mapping.save(curs, user)
