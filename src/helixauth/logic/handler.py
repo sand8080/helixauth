@@ -175,7 +175,7 @@ class Handler(AbstractHandler):
     @transaction()
     @authentificate
     @detalize_error(HelixauthObjectAlreadyExists, 'login')
-    @detalize_error(HelixauthObjectAlreadyExists, 'role')
+    @detalize_error(SuperUserCreationDenied, 'role')
     def add_user(self, data, session, curs=None):
         a = Authentifier()
         env_id = session.environment_id
@@ -193,7 +193,11 @@ class Handler(AbstractHandler):
         filtered_g_ids = filter(lambda x: x in g_ids, data.get('groups_ids', []))
         u_data['groups_ids'] = filtered_g_ids
         user = User(**u_data)
-        mapping.save(curs, user)
+        try:
+            mapping.save(curs, user)
+        except ObjectCreationError:
+            raise HelixauthObjectAlreadyExists
+
         # For correct action logging
         data['subject_users_ids'] = [user.id]
         return response_ok(id=user.id)
