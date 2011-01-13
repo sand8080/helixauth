@@ -121,7 +121,6 @@ class Handler(AbstractHandler):
         user = User(**u_data)
         mapping.save(curs, user)
 
-
         # adding default service auth
         a_data = self.get_authorized_api_actions({})
         actions = a_data['actions']
@@ -131,6 +130,18 @@ class Handler(AbstractHandler):
         s = Service(**d)
         mapping.save(curs, s)
 
+        # adding groups of administrators and users
+        d = {'environment_id': env.id, 'name': 'Administrators', 'is_active': True,
+            'rights': [{'service_id': s.id, 'properties': actions}]}
+        g = Group(**d)
+        mapping.save(curs, g)
+        d = {'environment_id': env.id, 'name': 'Users', 'is_active': True,
+            'rights': [{'service_id': s.id, 'properties': ['modify_password',
+            'get_user_rights', 'check_access']}]}
+        g = Group(**d)
+        mapping.save(curs, g)
+
+        # creating session for super user
         auth = Authentifier()
         session = auth.create_session(curs, env, user)
 

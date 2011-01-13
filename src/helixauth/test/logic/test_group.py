@@ -54,9 +54,17 @@ class GroupTestCase(ActorLogicTestCase):
         req = {'session_id': sess_id, 'id': 1, 'new_name': 'grp2'}
         self.assertRaises(RequestProcessingError, self.modify_group, **req)
 
+    def _groups_num(self, sess_id):
+        req = {'session_id': sess_id, 'filter_params': {}, 'paging_params': {}}
+        resp = self.get_groups(**req)
+        self.check_response_ok(resp)
+        return len(resp['groups'])
+
     @transaction()
     def test_delete_group(self, curs=None):
         sess_id = self.login_actor()
+        groups_num = self._groups_num(sess_id)
+
         req = {'session_id': sess_id, 'name': 'grp0',
             'rights': [{'service_id': 1, 'properties':['a']}]}
         resp = self.add_group(**req)
@@ -69,15 +77,17 @@ class GroupTestCase(ActorLogicTestCase):
 
         session = self.get_session(sess_id)
         f = GroupFilter(session.environment_id, {}, {}, None)
-        self.assertEquals(2, f.filter_objs_count(curs))
+        self.assertEquals(groups_num + 2, f.filter_objs_count(curs))
 
         req = {'session_id': sess_id, 'id': 1}
         resp = self.delete_group(**req)
         self.check_response_ok(resp)
-        self.assertEquals(1, f.filter_objs_count(curs))
+        self.assertEquals(groups_num + 1, f.filter_objs_count(curs))
 
     def test_get_groups(self, curs=None):
         sess_id = self.login_actor()
+        groups_num = self._groups_num(sess_id)
+
         req = {'session_id': sess_id, 'name': 'grp0',
             'rights': [{'service_id': 1, 'properties':['a']}]}
         resp = self.add_group(**req)
@@ -92,7 +102,7 @@ class GroupTestCase(ActorLogicTestCase):
             'paging_params': {}}
         resp = self.get_groups(**req)
         self.check_response_ok(resp)
-        self.assertEquals(2, len(resp['groups']))
+        self.assertEquals(groups_num + 2, len(resp['groups']))
 
 
 if __name__ == '__main__':
