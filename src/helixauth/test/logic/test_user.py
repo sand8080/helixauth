@@ -14,7 +14,7 @@ class UserTestCase(ActorLogicTestCase):
     def test_add_user_by_super(self):
         sess_id = self.login_actor()
         req = {'session_id': sess_id, 'login': 'user_1',
-            'password': '1', 'role': User.ROLE_SUPER}
+            'password': '1', 'role': User.ROLE_USER}
         resp = self.add_user(**req)
         self.check_response_ok(resp)
         req = {'session_id': sess_id, 'login': 'user_2',
@@ -109,14 +109,7 @@ class UserTestCase(ActorLogicTestCase):
         self.assertEqual([1], user['groups_ids'])
 
         # checking groups ids ignored for super user
-        self.check_response_ok(resp)
-        req = {'session_id': sess_id, 'login': 'super_2',
-            'password': '1', 'role': User.ROLE_SUPER, 'groups_ids': [1, 7, 9]}
-        resp = self.add_user(**req)
-        self.check_response_ok(resp)
-        user_id = resp['id']
-
-        req = {'session_id': sess_id, 'filter_params': {'ids': [user_id]},
+        req = {'session_id': sess_id, 'filter_params': {'login': self.actor_login},
             'paging_params': {}}
         resp = self.get_users(**req)
         self.check_response_ok(resp)

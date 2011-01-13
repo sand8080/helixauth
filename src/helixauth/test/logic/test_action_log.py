@@ -4,7 +4,6 @@ import unittest
 from helixauth.test.logic.actor_logic_test import ActorLogicTestCase
 
 from helixauth.db.filters import ActionLogFilter
-from helixauth.db.dataobject import User
 from helixauth.conf.db import transaction
 from helixauth.test.wsgi.client import Client
 
@@ -83,7 +82,7 @@ class ActionLogTestCase(ActorLogicTestCase):
     def test_add_user(self, curs=None):
         session_id = self.login_actor()
         req = {'session_id': session_id, 'login': 'u0',
-            'password': 'qazwsx', 'role': User.ROLE_SUPER}
+            'password': 'qazwsx'}
         resp = self.cli.add_user(**req)
         self.check_response_ok(resp)
 

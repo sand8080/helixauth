@@ -102,12 +102,12 @@ class ProtocolTestCase(RootTestCase):
         self.api.validate_request(a_name, {'session_id': 'i',
             'login': 'l', 'password': 'p', 'role': 'user'})
         self.api.validate_request(a_name, {'session_id': 'i',
-            'login': 'l', 'password': 'p', 'role': 'super', 'is_active': False})
+            'login': 'l', 'password': 'p', 'role': 'user', 'is_active': False})
         self.api.validate_request(a_name, {'session_id': 'i',
-            'login': 'l', 'password': 'p', 'role': 'super', 'is_active': False,
+            'login': 'l', 'password': 'p', 'is_active': False,
             'groups_ids': []})
         self.api.validate_request(a_name, {'session_id': 'i',
-            'login': 'l', 'password': 'p', 'role': 'super', 'is_active': False,
+            'login': 'l', 'password': 'p', 'is_active': False,
             'groups_ids': [1, 2, 3]})
 
         self.api.validate_response(a_name,
