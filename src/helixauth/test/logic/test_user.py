@@ -76,6 +76,15 @@ class UserTestCase(ActorLogicTestCase):
         self.assertEqual('user_0', users[0]['login'])
         self.assertEqual('user_1', users[1]['login'])
 
+        # checking filtering by roles
+        req = {'session_id': sess_id, 'filter_params': {'roles': [User.ROLE_SUPER]},
+            'paging_params': {}}
+        resp = self.get_users(**req)
+        self.check_response_ok(resp)
+        users = resp['users']
+        self.assertEqual(1, len(users))
+        self.assertEqual(User.ROLE_SUPER, users[0]['role'])
+
         # checking filtering without params
         req = {'session_id': sess_id, 'filter_params': {},
             'paging_params': {}}

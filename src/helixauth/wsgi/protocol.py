@@ -201,7 +201,9 @@ MODIFY_PASSWORD_RESPONSE = RESPONSE_STATUS_ONLY
 GET_USERS_REQUEST = dict(
     {
         'filter_params': {
+            Optional('id'): int,
             Optional('ids'): [int],
+            Optional('roles'): [AnyOf(dataobject.User.ROLE_SUPER, dataobject.User.ROLE_USER),],
             Optional('login'): Text(),
             Optional('groups_ids'): [int],
             Optional('is_active'): bool

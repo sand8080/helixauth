@@ -143,6 +143,14 @@ class ProtocolTestCase(RootTestCase):
             'filter_params': {'groups_ids': [3, 4], 'login': 'jack'},
             'paging_params': {'limit': 0, 'offset': 0,},
             'ordering_params': ['-id']})
+        self.api.validate_request(a_name, {'session_id': 's',
+            'filter_params': {'roles': ['super'], 'id': 4},
+            'paging_params': {'limit': 0, 'offset': 0,},
+            'ordering_params': ['-id']})
+        self.api.validate_request(a_name, {'session_id': 's',
+            'filter_params': {'roles': [], 'id': 4},
+            'paging_params': {'limit': 0, 'offset': 0,},
+            'ordering_params': ['-id']})
 
         self.api.validate_response(a_name, {'status': 'ok', 'total': 2, 'users': []})
         self.api.validate_response(a_name, {'status': 'ok', 'total': 4,
