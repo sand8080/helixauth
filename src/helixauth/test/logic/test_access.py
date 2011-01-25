@@ -16,25 +16,28 @@ class AccessTestCase(ActorLogicTestCase):
 
     def test_access_limited_user(self):
         self.create_actor_env()
-        session_id = self.login_actor()
+        sess_id = self.login_actor()
 
         # creating another service
-        req = {'session_id': session_id, 'name': 's1', 'type': 'ts1',
+        req = {'session_id': sess_id, 'name': 's1', 'type': 'ts1',
             'properties': ['a', 'b']}
         resp = self.add_service(**req)
         self.check_response_ok(resp)
 
         # adding limited user
-        req = {'session_id': session_id, 'login': 'u0', 'password': 'p0'}
+        req = {'session_id': sess_id, 'filter_params': {'name': 'Users'},
+            'paging_params': {}}
+        resp = self.get_groups(**req)
+        self.check_response_ok(resp)
+        groups = resp['groups']
+        self.assertEqual(1, len(groups))
+        grp = groups[0]
+
+        req = {'session_id': sess_id, 'login': 'u0', 'password': 'p0',
+            'groups_ids': [grp['id']]}
         resp = self.add_user(**req)
         self.check_response_ok(resp)
-        u_id = resp['id']
-        granted = ['check_access']
         env = self.get_environment_by_name(self.actor_env_name)
-        srv = self.load_auth_service(env.id)
-        req = {'session_id': session_id, 'subject_users_ids': [u_id],
-            'rights': [{'service_id': srv.id, 'properties': granted}]}
-        self.modify_users_rights(**req)
 
         # login limited user
         req = {'environment_name': env.name, 'login': 'u0', 'password': 'p0'}

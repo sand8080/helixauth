@@ -9,7 +9,7 @@ from helixcore import mapping
 from helixauth.conf import settings
 from helixauth.conf.db import transaction
 from helixauth.db.dataobject import Session, User
-from helixauth.db.filters import SessionFilter, ServiceFilter, UserRightsFilter
+from helixauth.db.filters import SessionFilter, ServiceFilter, GroupFilter
 from helixauth.error import SessionExpired, UserAccessDenied
 from helixauth.wsgi.protocol import protocol
 
@@ -69,15 +69,16 @@ class Authentifier(object):
     def _get_user_rights(self, curs, env, user, srvs):
         rights = {}
         if user.role != User.ROLE_SUPER:
-            f = UserRightsFilter(env.id, {'user_id': user.id}, {}, None)
-            u_r = f.filter_one_obj(curs)
-            if u_r:
-                rights_l = cjson.decode(u_r.serialized_rights)
-                # String key id for json.encode
-                rights = dict([(str(el['service_id']), el['properties']) for el in rights_l])
-            else:
-                rights = {}
-
+            f = GroupFilter(env.id, {'ids': user.groups_ids}, {}, None)
+            groups = f.filter_objs(curs)
+            for g in groups:
+                rights_lst = cjson.decode(g.serialized_rights)
+                for r in rights_lst:
+                    # String key id for json.encode
+                    srv_id = str(r['service_id'])
+                    srv_props = r['properties']
+                    cur_props = rights.get(srv_id, [])
+                    rights[srv_id] = list(set(cur_props + srv_props))
         res = {}
         for srv in srvs:
             if user.role == User.ROLE_SUPER:

@@ -319,20 +319,6 @@ class ProtocolTestCase(RootTestCase):
         ]})
         self.validate_error_response(a_name)
 
-    def test_modify_users_rights(self):
-        a_name = 'modify_users_rights'
-        self.api.validate_request(a_name, {'session_id': 's',
-            'subject_users_ids': [],
-            'rights':[{'service_id': 1, 'properties': []}]})
-        self.api.validate_request(a_name, {'session_id': 's',
-            'subject_users_ids': [],
-            'rights':[{'service_id': 1, 'properties': ['a', u'я']}]})
-        self.api.validate_request(a_name, {'session_id': 's',
-            'subject_users_ids': [],
-            'rights':[{'service_id': 1, 'properties': ['b']}]})
-
-        self.validate_status_response(a_name)
-
     def test_get_user_rights(self):
         a_name = 'get_user_rights'
         self.api.validate_request(a_name, {'session_id': 's'})

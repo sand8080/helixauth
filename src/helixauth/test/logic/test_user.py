@@ -41,13 +41,14 @@ class UserTestCase(ActorLogicTestCase):
         self.check_response_ok(resp)
 
     def test_get_users(self):
-        sess_id = self.login_actor()
         # adding group
+        sess_id = self.login_actor()
         req = {'session_id': sess_id, 'name': 'grp_0',
             'rights': [{'service_id': 1, 'properties': ['one', 'two']}]
         }
         resp = self.add_group(**req)
         self.check_response_ok(resp)
+
         # adding users
         req = {'session_id': sess_id, 'login': 'user_0',
             'password': '1', 'role': User.ROLE_USER, 'groups_ids': [1]}
@@ -126,6 +127,40 @@ class UserTestCase(ActorLogicTestCase):
         self.assertEqual(1, len(users))
         user = users[0]
         self.assertEqual([], user['groups_ids'])
+
+    def test_get_user_rights(self):
+        sess_id = self.login_actor()
+        req = {'session_id': sess_id}
+        resp = self.get_user_rights(**req)
+        self.check_response_ok(resp)
+
+        req = {'session_id': sess_id, 'filter_params': {'name': 'Users'},
+            'paging_params': {}}
+        resp = self.get_groups(**req)
+        self.check_response_ok(resp)
+        groups = resp['groups']
+        self.assertEqual(1, len(groups))
+        grp = groups[0]
+
+        # adding limited user
+        req = {'session_id': sess_id, 'login': 'u0', 'password': 'p0',
+            'groups_ids': [grp['id']]}
+        resp = self.add_user(**req)
+        self.check_response_ok(resp)
+
+        # login limited user
+        req = {'environment_name': self.actor_env_name,
+            'login': 'u0', 'password': 'p0'}
+        resp = self.login(**req)
+        self.check_response_ok(resp)
+        s0_id = resp['session_id']
+        req = {'session_id': s0_id}
+        resp = self.get_user_rights(**req)
+        self.check_response_ok(resp)
+        expected = {'status': 'ok', 'rights': [
+            {'service_type': 'auth', 'service_id': 1,
+            'properties': ['modify_password', 'get_user_rights', 'check_access']}]}
+        self.assertEquals(expected, resp)
 
 
 if __name__ == '__main__':

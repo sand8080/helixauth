@@ -162,16 +162,6 @@ GET_GROUPS_RESPONSE = AnyOf(
     RESPONSE_STATUS_ERROR
 )
 
-MODIFY_USERS_RIGHTS_REQUEST = dict(
-    {
-        'subject_users_ids': [int],
-        'rights': RIGHTS_SCHEME,
-    },
-    **AUTHORIZED_REQUEST_AUTH_INFO
-)
-
-MODIFY_USERS_RIGHTS_RESPONSE = RESPONSE_STATUS_ONLY
-
 ADD_USER_REQUEST = dict(
     {
         'login': Text(),
@@ -294,16 +284,6 @@ MODIFY_SERVICE_REQUEST = dict(
 
 MODIFY_SERVICE_RESPONSE = RESPONSE_STATUS_ONLY
 
-MODIFY_USERS_RIGHTS_REQUEST = dict(
-    {
-        'subject_users_ids': [int],
-        'rights': [{'service_id': int, 'properties': [Text()]}],
-    },
-    **AUTHORIZED_REQUEST_AUTH_INFO
-)
-
-MODIFY_USERS_RIGHTS_RESPONSE = RESPONSE_STATUS_ONLY
-
 GET_USER_RIGHTS_REQUEST = AUTHORIZED_REQUEST_AUTH_INFO
 
 GET_USER_RIGHTS_RESPONSE = AnyOf(
@@ -385,18 +365,14 @@ protocol = [
     ApiCall('add_user_request', Scheme(ADD_USER_REQUEST)),
     ApiCall('add_user_response', Scheme(ADD_USER_RESPONSE)),
 
-    ApiCall('modify_password_request', Scheme(MODIFY_PASSWORD_REQUEST)),
-    ApiCall('modify_password_response', Scheme(MODIFY_PASSWORD_RESPONSE)),
-
     ApiCall('get_users_request', Scheme(GET_USERS_REQUEST)),
     ApiCall('get_users_response', Scheme(GET_USERS_RESPONSE)),
 
-    # user rights
-    ApiCall('modify_users_rights_request', Scheme(MODIFY_USERS_RIGHTS_REQUEST)),
-    ApiCall('modify_users_rights_response', Scheme(MODIFY_USERS_RIGHTS_RESPONSE)),
-
     ApiCall('get_user_rights_request', Scheme(GET_USER_RIGHTS_REQUEST)),
     ApiCall('get_user_rights_response', Scheme(GET_USER_RIGHTS_RESPONSE)),
+
+    ApiCall('modify_password_request', Scheme(MODIFY_PASSWORD_REQUEST)),
+    ApiCall('modify_password_response', Scheme(MODIFY_PASSWORD_RESPONSE)),
 
     # check access
     ApiCall('check_access_request', Scheme(CHECK_ACCESS_REQUEST)),

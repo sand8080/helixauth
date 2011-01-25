@@ -41,11 +41,6 @@ class User(Mapped):
         return super(User, self).__repr__(except_attrs=except_attrs + ('password',))
 
 
-class UserRights(Mapped):
-    __slots__ = ['id', 'environment_id', 'user_id', 'serialized_rights']
-    table = 'user_rights'
-
-
 class Group(Mapped):
     __slots__ = ['id', 'environment_id', 'name', 'is_active', 'serialized_rights']
     table = 'group_data'
