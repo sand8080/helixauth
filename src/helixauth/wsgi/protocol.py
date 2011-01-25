@@ -162,16 +162,6 @@ GET_GROUPS_RESPONSE = AnyOf(
     RESPONSE_STATUS_ERROR
 )
 
-MODIFY_USERS_RIGHTS_REQUEST = dict(
-    {
-        'subject_users_ids': [int],
-        'rights': RIGHTS_SCHEME,
-    },
-    **AUTHORIZED_REQUEST_AUTH_INFO
-)
-
-MODIFY_USERS_RIGHTS_RESPONSE = RESPONSE_STATUS_ONLY
-
 ADD_USER_REQUEST = dict(
     {
         'login': Text(),

@@ -329,37 +329,6 @@ class Handler(AbstractHandler):
 
     @transaction()
     @authentificate
-    def modify_users_rights(self, data, session, curs=None):
-        u_ids = data['subject_users_ids']
-        f = UserRightsFilter(session.environment_id,
-            {'subject_users_ids': u_ids}, {}, ['id'])
-        u_rs = f.filter_objs(curs, for_update=True)
-        u_rs_idx = dict([(r.user_id, r) for r in u_rs])
-
-        # Filtering services from environment
-        f = ServiceFilter(session.environment_id, {}, {}, None)
-        ss_idx = f.indexed_by_id(curs)
-        rights = filter(lambda x: x['service_id'] in ss_idx, data['rights'])
-
-        for u_id in u_ids:
-            if u_id in u_rs_idx:
-                r = u_rs_idx[u_id]
-            else:
-                r = UserRights(**{'environment_id': session.environment_id,
-                    'user_id': u_id})
-            r.serialized_rights = cjson.encode(rights)
-            mapping.save(curs, r)
-
-        # invalidate users sessions data
-        f = SessionFilter({'environment_id': session.environment_id,
-            'subject_users_ids': u_ids}, {}, ['id'])
-        sess = f.filter_objs(curs, for_update=True)
-        mapping.delete_objects(curs, sess)
-
-        return response_ok()
-
-    @transaction()
-    @authentificate
     @detalize_error(UserAuthError, [])
     def get_user_rights(self, data, session, curs=None):
         s_data = cjson.decode(session.serialized_data)
