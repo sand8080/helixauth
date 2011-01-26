@@ -3,6 +3,7 @@ import unittest
 from helixauth.test.wsgi.test_protocol import ProtocolTestCase #IGNORE:W0611 @UnusedImport
 
 from helixauth.test.logic.test_login import LoginTestCase #IGNORE:W0611 @UnusedImport
+from helixauth.test.logic.test_logout import LogoutTestCase #IGNORE:W0611 @UnusedImport
 from helixauth.test.logic.test_environment import EnvironmentTestCase #IGNORE:W0611 @UnusedImport
 from helixauth.test.logic.test_user import UserTestCase #IGNORE:W0611 @UnusedImport
 from helixauth.test.logic.test_service import ServiceTestCase #IGNORE:W0611 @UnusedImport

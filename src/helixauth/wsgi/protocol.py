@@ -65,6 +65,10 @@ LOGIN_REQUEST = {
 
 LOGIN_RESPONSE = AUTHORIZED_RESPONSE_STATUS_ONLY
 
+LOGOUT_REQUEST = AUTHORIZED_REQUEST_AUTH_INFO
+
+LOGOUT_RESPONSE = RESPONSE_STATUS_ONLY
+
 ADD_ENVIRONMENT_REQUEST = {
     'name': Text(),
     'su_login': Text(),
@@ -327,6 +331,10 @@ protocol = [
     # login user
     ApiCall('login_request', Scheme(LOGIN_REQUEST)),
     ApiCall('login_response', Scheme(LOGIN_RESPONSE)),
+
+    # logout user
+    ApiCall('logout_request', Scheme(LOGOUT_REQUEST)),
+    ApiCall('logout_response', Scheme(LOGOUT_RESPONSE)),
 
     # environment
     ApiCall('add_environment_request', Scheme(ADD_ENVIRONMENT_REQUEST)),

@@ -68,6 +68,11 @@ class ProtocolTestCase(RootTestCase):
             'environment_name': 'n'})
         self.validate_authorized_status_response(a_name)
 
+    def test_logout(self):
+        a_name = 'logout'
+#        self.api.validate_request(a_name, {'session_id': 'i'})
+        self.validate_status_response(a_name)
+
     def test_add_environment(self):
         a_name = 'add_environment'
         self.api.validate_request(a_name, {'name': 'n', 'su_login': 'l',

@@ -94,7 +94,8 @@ def make_api_call(f_name):
     return m
 
 
-methods = ['login', 'get_environment', 'modify_environment',
+methods = ['login', 'logout',
+    'get_environment', 'modify_environment',
     'add_service', 'modify_service', 'get_services',
     'add_user', 'modify_password', 'get_users',
     'get_user_rights',

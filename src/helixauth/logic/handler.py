@@ -104,6 +104,12 @@ class Handler(AbstractHandler):
         return response_ok(session_id=session.session_id)
 
     @transaction()
+    @authentificate
+    def logout(self, data, session, curs=None):
+        mapping.delete(curs, session)
+        return response_ok()
+
+    @transaction()
     @detalize_error(HelixauthObjectAlreadyExists, ['name', 'su_login', 'su_password'])
     def add_environment(self, data, curs=None):
         env_data = {'name': data.get('name')}
