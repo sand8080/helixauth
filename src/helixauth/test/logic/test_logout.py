@@ -1,7 +1,6 @@
 import unittest
 
 from helixauth.test.logic.actor_logic_test import ActorLogicTestCase
-from helixcore.error import RequestProcessingError
 
 
 class LogoutTestCase(ActorLogicTestCase):
@@ -12,7 +11,7 @@ class LogoutTestCase(ActorLogicTestCase):
         resp = self.logout(**req)
         self.check_response_ok(resp)
         req = {'session_id': sess_id}
-        self.assertRaises(RequestProcessingError, self.logout, **req)
+        self.check_response_ok(resp)
 
 
 if __name__ == '__main__':

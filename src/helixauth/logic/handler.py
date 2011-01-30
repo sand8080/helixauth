@@ -13,7 +13,7 @@ from helixauth.error import (EnvironmentNotFound,
     GroupAlreadyExists, HelixauthObjectNotFound, UserWrongOldPassword,
     SuperUserCreationDenied)
 from helixauth.db.filters import (EnvironmentFilter, UserFilter, ServiceFilter,
-    SubjectUserFilter, GroupFilter)
+    SubjectUserFilter, GroupFilter, SessionFilter)
 from helixauth.db.dataobject import (Environment, User, Service,
     Group, serialize_field, deserialize_field)
 from helixauth.logic.auth import Authentifier
@@ -104,9 +104,16 @@ class Handler(AbstractHandler):
         return response_ok(session_id=session.session_id)
 
     @transaction()
-    @authentificate
-    def logout(self, data, session, curs=None):
-        mapping.delete(curs, session)
+    @detalize_error(HelixauthError, 'session_id')
+    def logout(self, data, curs=None):
+
+        session_id = data.get('session_id')
+        f = SessionFilter({'session_id': session_id}, {}, {})
+        try:
+            session = f.filter_one_obj(curs, for_update=True)
+            mapping.delete(curs, session)
+        except SessionNotFound:
+            pass
         return response_ok()
 
     @transaction()
