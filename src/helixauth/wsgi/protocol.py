@@ -1,6 +1,6 @@
 from helixcore.server.api import ApiCall
 from helixcore.json_validator import (Optional, AnyOf, NonNegative,
-    Scheme, Text, ArbitraryDict, NullableText)
+    Scheme, Text, ArbitraryDict, NullableText, IsoDatetime)
 
 from helixauth.db import dataobject
 
@@ -288,6 +288,44 @@ MODIFY_SERVICE_REQUEST = dict(
 
 MODIFY_SERVICE_RESPONSE = RESPONSE_STATUS_ONLY
 
+ACTION_LOG_INFO = {
+    'id': int,
+    'custom_actor_user_info': NullableText(),
+    'actor_user_id': int,
+    'subject_users_ids': [int],
+    'action': Text(),
+    'request_date': IsoDatetime(),
+    'remote_addr': Text(),
+    'request': Text(),
+    'response': Text(),
+}
+
+GET_ACTION_LOGS_REQUEST = dict(
+    {
+        'filter_params': {
+            Optional('subject_users_ids'): [int],
+            Optional('from_request_date'): IsoDatetime(),
+            Optional('to_request_date'): IsoDatetime(),
+            Optional('action'): Text(),
+            Optional('actor_user_id'): int,
+        },
+        'paging_params': REQUEST_PAGING_PARAMS,
+        Optional('ordering_params'): [AnyOf('request_date', '-request_date', 'id', '-id')]
+    },
+    **AUTHORIZED_REQUEST_AUTH_INFO
+)
+
+GET_ACTION_LOGS_RESPONSE = AnyOf(
+    dict(
+        RESPONSE_STATUS_OK,
+        **{
+            'action_logs': [ACTION_LOG_INFO],
+            'total': NonNegative(int),
+        }
+    ),
+    RESPONSE_STATUS_ERROR
+)
+
 GET_USER_RIGHTS_REQUEST = AUTHORIZED_REQUEST_AUTH_INFO
 
 GET_USER_RIGHTS_RESPONSE = AnyOf(
@@ -381,6 +419,10 @@ protocol = [
 
     ApiCall('modify_password_request', Scheme(MODIFY_PASSWORD_REQUEST)),
     ApiCall('modify_password_response', Scheme(MODIFY_PASSWORD_RESPONSE)),
+
+    # action log
+    ApiCall('get_action_logs_request', Scheme(GET_ACTION_LOGS_REQUEST)),
+    ApiCall('get_action_logs_response', Scheme(GET_ACTION_LOGS_RESPONSE)),
 
     # check access
     ApiCall('check_access_request', Scheme(CHECK_ACCESS_REQUEST)),
