@@ -13,7 +13,7 @@ from helixauth.error import (EnvironmentNotFound,
     GroupAlreadyExists, HelixauthObjectNotFound, UserWrongOldPassword,
     SuperUserCreationDenied)
 from helixauth.db.filters import (EnvironmentFilter, UserFilter, ServiceFilter,
-    SubjectUserFilter, GroupFilter, SessionFilter)
+    SubjectUserFilter, GroupFilter, SessionFilter, ActionLogFilter)
 from helixauth.db.dataobject import (Environment, User, Service,
     Group, serialize_field, deserialize_field)
 from helixauth.logic.auth import Authentifier
@@ -338,6 +338,20 @@ class Handler(AbstractHandler):
             result['rights'] = cjson.decode(s_rights)
             return result
         return response_ok(groups=self.objects_info(ss, viewer),
+            total=total)
+
+    @transaction()
+    @authentificate
+    def get_action_logs(self, data, session, curs=None):
+        f = ActionLogFilter(session.environment_id, data['filter_params'],
+            data['paging_params'], data.get('ordering_params'))
+        ss, total = f.filter_counted(curs)
+        def viewer(obj):
+            result = obj.to_dict()
+            result.pop('environment_id', None)
+            result['request_date'] = '%s' % result['request_date']
+            return result
+        return response_ok(action_logs=self.objects_info(ss, viewer),
             total=total)
 
     @transaction()

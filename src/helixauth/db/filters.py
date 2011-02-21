@@ -132,6 +132,7 @@ class ActionLogFilter(EnvironmentObjectsFilter):
         ('actor_user_id', 'actor_user_id', Eq),
         ('from_request_date', 'request_date', MoreEq),
         ('to_request_date', 'request_date', LessEq),
+        ('subject_users_ids', 'subject_users_ids', In),
     ]
 
     def __init__(self, environment_id, filter_params, paging_params, ordering_params):

@@ -108,6 +108,14 @@ class ActionLogTestCase(ActorLogicTestCase):
         env = self.get_environment_by_name(self.actor_env_name)
         self._check_action_tracked(env, 'add_service', None)
 
+    def test_get_action_logs(self):
+        session_id = self.login_actor()
+
+        req = {'session_id': session_id, 'filter_params': {},
+            'paging_params': {}, 'ordering_params': []}
+        resp = self.get_action_logs(**req)
+        self.check_response_ok(resp)
+
 
 if __name__ == '__main__':
     unittest.main()
