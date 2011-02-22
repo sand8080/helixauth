@@ -7,8 +7,12 @@ from helixauth.db.dataobject import ActionLog
 
 class HelixauthApplication(Application):
     def __init__(self, h, p, l):
-        tracking_api_calls = ('login', 'add_user', 'add_service',
-            'add_environment')
+        tracking_api_calls = ('login', 'logout',
+            'add_environment', 'modify_environment',
+            'add_service', 'modify_service',
+            'add_group', 'modify_group', 'delete_group',
+            'add_user',
+            'modify_password',)
         super(HelixauthApplication, self).__init__(h, p, l, tracking_api_calls)
 
     @transaction()

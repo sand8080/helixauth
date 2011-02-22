@@ -1,4 +1,4 @@
-from helixcore.db.sql import And, Eq, MoreEq, LessEq, In, Like, AnyOf
+from helixcore.db.sql import And, Eq, MoreEq, LessEq, In, Like, Any, AnyOf
 from helixcore.db.wrapper import SelectedMoreThanOneRow, ObjectNotFound
 from helixcore.db.filters import ObjectsFilter as OFImpl
 
@@ -132,7 +132,9 @@ class ActionLogFilter(EnvironmentObjectsFilter):
         ('actor_user_id', 'actor_user_id', Eq),
         ('from_request_date', 'request_date', MoreEq),
         ('to_request_date', 'request_date', LessEq),
-        ('subject_users_ids', 'subject_users_ids', In),
+        # OR condition
+        (('subject_users_ids', 'actor_user_id'),
+            ('subject_users_ids', 'actor_user_id'), (Any, Eq)),
     ]
 
     def __init__(self, environment_id, filter_params, paging_params, ordering_params):

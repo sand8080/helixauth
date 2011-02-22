@@ -335,16 +335,6 @@ class ProtocolTestCase(RootTestCase):
         self.api.validate_request(a_name, {'session_id': 's',
             'filter_params': {}, 'paging_params': {'limit': 0, 'offset': 0,},})
         self.api.validate_request(a_name, {'session_id': 's',
-            'filter_params': {'subject_users_ids': []},
-            'paging_params': {'limit': 0, 'offset': 0,},})
-        self.api.validate_request(a_name, {'session_id': 's',
-            'filter_params': {'subject_users_ids': [1, 2, 3]},
-            'paging_params': {'limit': 0, 'offset': 0,},})
-        self.api.validate_request(a_name, {'session_id': 's',
-            'filter_params': {'subject_users_ids': [1, 2, 3]},
-            'paging_params': {'limit': 0, 'offset': 0,},
-            'ordering_params': ['request_date', '-id']})
-        self.api.validate_request(a_name, {'session_id': 's',
             'filter_params': {'from_request_date': '2011-02-21 00:00:00',
             'to_request_date': '2011-02-21 23:59:59'},
             'paging_params': {}})

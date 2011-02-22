@@ -303,7 +303,7 @@ ACTION_LOG_INFO = {
 GET_ACTION_LOGS_REQUEST = dict(
     {
         'filter_params': {
-            Optional('subject_users_ids'): [int],
+#            Optional('subject_users_ids'): [int],
             Optional('from_request_date'): IsoDatetime(),
             Optional('to_request_date'): IsoDatetime(),
             Optional('action'): Text(),
