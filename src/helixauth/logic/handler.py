@@ -100,6 +100,7 @@ class Handler(AbstractHandler):
         # Required for proper logging action
         data['environment_id'] = env.id
         data['actor_user_id'] = user.id
+        data['session_id'] = session.session_id
 
         return response_ok(session_id=session.session_id)
 

@@ -7,6 +7,7 @@ def apply(curs):
             PRIMARY KEY(id),
             environment_id integer,
             FOREIGN KEY (environment_id) REFERENCES environment(id),
+            session_id text,
             custom_actor_user_info varchar,
             actor_user_id integer,
             FOREIGN KEY (actor_user_id) REFERENCES user_data(id),
@@ -23,6 +24,12 @@ def apply(curs):
     curs.execute(
     '''
         CREATE INDEX action_log_environment_id_idx ON action_log(environment_id);
+    ''')
+
+    print 'Creating index action_log_environment_id_session_id_idx on action_log'
+    curs.execute(
+    '''
+        CREATE INDEX action_log_environment_id_session_id_idx ON action_log(environment_id, session_id);
     ''')
 
     print 'Creating index action_log_environment_id_action_idx on action_log'
@@ -47,6 +54,9 @@ def revert(curs):
 
     print 'Dropping index action_log_environment_id_idx on action_log'
     curs.execute('DROP INDEX IF EXISTS action_log_environment_id_idx')
+
+    print 'Dropping index action_log_environment_id_session_id_idx on action_log'
+    curs.execute('DROP INDEX IF EXISTS action_log_environment_id_session_id_idx')
 
     print 'Dropping table action_log'
     curs.execute('DROP TABLE IF EXISTS action_log')

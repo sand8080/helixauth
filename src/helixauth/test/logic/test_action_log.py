@@ -114,19 +114,22 @@ class ActionLogTestCase(ActorLogicTestCase):
 #        env = self.get_environment_by_name(self.actor_env_name)
 #        self._check_action_tracked(env, 'add_service', None)
 
-    def test_get_action_logs(self):
-        sess_id = self.login_actor()
-        req = {'session_id': sess_id, 'filter_params': {},
-            'paging_params': {}, 'ordering_params': []}
-        resp = self.get_action_logs(**req)
-        self.check_response_ok(resp)
+#    def test_get_action_logs(self):
+#        sess_id = self.login_actor()
+#        req = {'session_id': sess_id, 'filter_params': {},
+#            'paging_params': {}, 'ordering_params': []}
+#        resp = self.get_action_logs(**req)
+#        self.check_response_ok(resp)
 
     def test_login(self):
         sess_id = self.login_actor()
-        req = {'session_id': sess_id, 'filter_params': {},
+        req = {'session_id': sess_id, 'filter_params': {'action': 'login'},
             'paging_params': {}, 'ordering_params': []}
         resp = self.get_action_logs(**req)
         self.check_response_ok(resp)
+        for a_l in resp['action_logs']:
+            self.assertNotEquals(None, a_l['session_id'])
+            self.assertEquals('login', a_l['action'])
 
         logs_num = len(resp['action_logs'])
         self.login_actor()
@@ -134,6 +137,9 @@ class ActionLogTestCase(ActorLogicTestCase):
         self.check_response_ok(resp)
         new_logs_num = len(resp['action_logs'])
         self.assertEquals(logs_num + 1, new_logs_num)
+        for a_l in resp['action_logs']:
+            self.assertNotEquals(None, a_l['session_id'])
+            self.assertEquals('login', a_l['action'])
 
 
 if __name__ == '__main__':

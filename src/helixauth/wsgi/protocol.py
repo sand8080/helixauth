@@ -290,6 +290,7 @@ MODIFY_SERVICE_RESPONSE = RESPONSE_STATUS_ONLY
 
 ACTION_LOG_INFO = {
     'id': int,
+    'session_id': NullableText(),
     'custom_actor_user_info': NullableText(),
     'actor_user_id': int,
     'subject_users_ids': [int],
