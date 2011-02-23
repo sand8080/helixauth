@@ -352,7 +352,7 @@ CHECK_ACCESS_RESPONSE = RESPONSE_STATUS_ONLY
 
 
 unauthorized_actions = ('ping', 'get_api_actions', 'add_environment',
-    'get_authorized_api_actions', 'login')
+    'get_authorized_api_actions')
 
 
 protocol = [

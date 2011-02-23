@@ -37,24 +37,6 @@ class LogicTestCase(DbBasedTestCase):
         f = SubjectUserFilter(environment_id, filter_params, {}, {})
         return f.filter_one_obj(curs)
 
-    def add_environment(self, **kwargs):
-        response = self.handle_action('add_environment', kwargs)
-        name = kwargs['name']
-        env = self.get_environment_by_name(name)
-        self.assertEqual(name, env.name)
-
-        self.assertNotEqual(None, response.get('session_id'))
-        login = kwargs['su_login']
-        password = kwargs['su_password']
-        user = self.get_subj_user(env.id, login, password)
-
-        self.assertEqual(login, user.login)
-        self.assertEqual(env.id, user.environment_id)
-        self.check_response_ok(response)
-        session_id = response.get('session_id')
-        self.assertNotEqual(None, session_id)
-        return response
-
     @transaction()
     def get_session(self, session_id, for_update=False, curs=None):
         f = SessionFilter({'session_id': session_id}, {}, {})
@@ -95,10 +77,10 @@ def make_api_call(f_name):
 
 
 methods = ['login', 'logout',
-    'get_environment', 'modify_environment',
+    'add_environment', 'get_environment', 'modify_environment',
     'add_service', 'modify_service', 'get_services',
     'add_user', 'modify_password', 'get_users',
-#    'get_user_rights',
+    'get_user_rights',
     'get_action_logs',
     'add_group', 'modify_group', 'delete_group', 'get_groups',
     'get_authorized_api_actions',

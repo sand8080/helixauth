@@ -21,7 +21,7 @@ def make_api_call(f_name):
 
 
 methods = list(unauthorized_actions +
-    ('add_user',
+    ('add_user', 'login', 'logout',
     'add_service', 'get_services', 'modify_service'))
 
 for method_name in methods:
