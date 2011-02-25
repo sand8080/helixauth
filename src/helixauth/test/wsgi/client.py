@@ -20,10 +20,14 @@ def make_api_call(f_name):
     return m
 
 
-methods = list(unauthorized_actions +
-    ('login', 'logout',
-    'add_user',
-    'add_service', 'get_services', 'modify_service'))
+def get_api_calls():
+    api_calls = [p.name for p in protocol]
+    result = set()
+    for api_call in api_calls:
+        clean = api_call.replace('_request', '').replace('_response', '')
+        result.add(clean)
+    return result
 
-for method_name in methods:
+
+for method_name in get_api_calls():
     setattr(Client, method_name, make_api_call(method_name))
