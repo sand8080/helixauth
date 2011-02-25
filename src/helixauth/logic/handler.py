@@ -113,6 +113,12 @@ class Handler(AbstractHandler):
         try:
             session = f.filter_one_obj(curs, for_update=True)
             mapping.delete(curs, session)
+
+            # Required for proper logging action
+            data['environment_id'] = session.environment_id
+            data['actor_user_id'] = session.user_id
+            data['session_id'] = session.session_id
+
         except SessionNotFound:
             pass
         return response_ok()

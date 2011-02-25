@@ -16,27 +16,6 @@ class ActionLogTestCase(ActorLogicTestCase):
             'su_login': self.actor_login, 'su_password': self.actor_password}
         self.cli.add_environment(**req)
 
-#    @transaction()
-#    def _check_action_tracked(self, environment, action, custom_actor_user_info, curs=None):
-#        filter_params = {'action': action, 'custom_actor_user_info': custom_actor_user_info}
-#        f = ActionLogFilter(environment.id, filter_params, {}, {})
-#        action_logs = f.filter_objs(curs)
-#        self.assertEqual(1, len(action_logs))
-#        action_log = action_logs[0]
-#        self.assertEqual(environment.id, action_log.environment_id)
-#        self.assertEqual(action, action_log.action)
-#        self.assertEqual(custom_actor_user_info, action_log.custom_actor_user_info)
-#
-#    def _make_trackable_action(self, environment, action, data):
-#        self._make_action(action, data)
-#        self._check_action_tracked(environment, action, data.get('custom_operator_info'))
-#
-#    def _make_action(self, action, data):
-#        auth_data = {'login': self.cli.login, 'password': self.cli.password}
-#        auth_data.update(data)
-#        m = getattr(self.cli, action)
-#        m(**auth_data)
-
     def login_actor(self):
         req = {'environment_name': self.actor_env_name,
             'login': self.actor_login, 'password': self.actor_password}
@@ -44,16 +23,6 @@ class ActionLogTestCase(ActorLogicTestCase):
         self.check_response_ok(resp)
         return resp['session_id']
 
-#    @transaction()
-#    def get_action_logs_num(self, environment, curs=None):
-#        f = ActionLogFilter(environment.id, {}, {}, {})
-#        return f.filter_objs_count(curs)
-#    def test_unauthorized_tracking_action(self):
-#        self.cli.add_environment(name=self.actor_env_name,
-#            su_login='a', su_password='b') #IGNORE:E1101
-#        environment = self.get_environment_by_name(self.actor_env_name)
-#        self._check_action_tracked(environment, 'add_environment', None)
-#
 #    def test_tracking_error_action(self):
 #        environment = self.get_environment_by_name(self.actor_env_name)
 #        self.assertEquals(1, self.get_action_logs_num(environment))
@@ -121,25 +90,36 @@ class ActionLogTestCase(ActorLogicTestCase):
 #        resp = self.get_action_logs(**req)
 #        self.check_response_ok(resp)
 
+    def _count_records(self, sess_id, action):
+        req = {'session_id': sess_id, 'filter_params': {'action': action},
+            'paging_params': {}, 'ordering_params': []}
+        resp = self.get_action_logs(**req)
+        self.check_response_ok(resp)
+        return len(resp['action_logs'])
+
     def test_login(self):
+        action = 'login'
         sess_id = self.login_actor()
-        req = {'session_id': sess_id, 'filter_params': {'action': 'login'},
+        logs_num = self._count_records(sess_id, action)
+
+        self.login_actor()
+        req = {'session_id': sess_id, 'filter_params': {'action': action},
             'paging_params': {}, 'ordering_params': []}
         resp = self.get_action_logs(**req)
         self.check_response_ok(resp)
         for a_l in resp['action_logs']:
             self.assertNotEquals(None, a_l['session_id'])
             self.assertEquals('login', a_l['action'])
+        self.assertEquals(logs_num + 1, self._count_records(sess_id, action))
 
-        logs_num = len(resp['action_logs'])
-        self.login_actor()
-        resp = self.get_action_logs(**req)
-        self.check_response_ok(resp)
-        new_logs_num = len(resp['action_logs'])
-        self.assertEquals(logs_num + 1, new_logs_num)
-        for a_l in resp['action_logs']:
-            self.assertNotEquals(None, a_l['session_id'])
-            self.assertEquals('login', a_l['action'])
+    def test_logout(self):
+        action = 'logout'
+        sess_id = self.login_actor()
+        logs_num = self._count_records(sess_id, action)
+
+        self.cli.logout(**{'session_id': sess_id})
+        sess_id = self.login_actor()
+        self.assertEquals(logs_num + 1, self._count_records(sess_id, action))
 
 
 if __name__ == '__main__':
