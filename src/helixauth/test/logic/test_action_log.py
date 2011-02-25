@@ -92,6 +92,24 @@ class ActionLogTestCase(ActorLogicTestCase):
             self.assertEquals('login', a_l['action'])
         self.assertEquals(logs_num + 1, self._count_records(sess_id, action))
 
+    def test_login_failed(self):
+        action = 'login'
+        sess_id = self.login_actor()
+        req_al = {'session_id': sess_id, 'filter_params': {'action': action},
+            'paging_params': {}, 'ordering_params': []}
+        resp = self.get_action_logs(**req_al)
+        self.check_response_ok(resp)
+        logs_num = len(resp['action_logs'])
+
+        req_login = {'environment_name': self.actor_env_name,
+            'login': 'l', 'password': 'fake'}
+        resp = self.cli.login(**req_login)
+        self.assertEquals('error', resp['status'])
+        resp = self.get_action_logs(**req_al)
+        self.check_response_ok(resp)
+        logs_num_new = len(resp['action_logs'])
+        self.assertEquals(logs_num + 1, logs_num_new)
+
     def test_logout(self):
         action = 'logout'
         sess_id = self.login_actor()
