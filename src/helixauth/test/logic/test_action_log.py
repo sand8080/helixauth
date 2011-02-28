@@ -70,6 +70,28 @@ class ActionLogTestCase(ActorLogicTestCase):
 #        resp = self.get_action_logs(**req)
 #        self.check_response_ok(resp)
 
+#    def test_tracking_error_action(self):
+#        environment = self.get_environment_by_name(self.actor_env_name)
+#        self.assertEquals(1, self.get_action_logs_num(environment))
+#
+#        req = {'environment_name': self.actor_env_name, 'login': self.actor_login,
+#            'password': self.actor_password}
+#        self.cli.login(**req)
+#        self.assertEquals(2, self.get_action_logs_num(environment))
+#
+#        req = {'environment_name': '_%s_' % self.actor_env_name,
+#            'login': self.actor_login, 'password': self.actor_password}
+#        self.cli.login(**req)
+#
+#        # Environment is not defined so actions log by env is not changed
+#        self.assertEquals(2, self.get_action_logs_num(environment))
+#        class EnvImitator(object):
+#            id = None
+#        env_imitator = EnvImitator()
+#        self.assertEquals(1, self.get_action_logs_num(env_imitator))
+
+
+
     def _count_records(self, sess_id, action):
         req = {'session_id': sess_id, 'filter_params': {'action': action},
             'paging_params': {}, 'ordering_params': []}
@@ -129,26 +151,6 @@ class ActionLogTestCase(ActorLogicTestCase):
         sess_id = self.login_actor()
         self.cli.get_environment()
         self.assertEquals(0, self._count_records(sess_id, action))
-
-#    def test_tracking_error_action(self):
-#        environment = self.get_environment_by_name(self.actor_env_name)
-#        self.assertEquals(1, self.get_action_logs_num(environment))
-#
-#        req = {'environment_name': self.actor_env_name, 'login': self.actor_login,
-#            'password': self.actor_password}
-#        self.cli.login(**req)
-#        self.assertEquals(2, self.get_action_logs_num(environment))
-#
-#        req = {'environment_name': '_%s_' % self.actor_env_name,
-#            'login': self.actor_login, 'password': self.actor_password}
-#        self.cli.login(**req)
-#
-#        # Environment is not defined so actions log by env is not changed
-#        self.assertEquals(2, self.get_action_logs_num(environment))
-#        class EnvImitator(object):
-#            id = None
-#        env_imitator = EnvImitator()
-#        self.assertEquals(1, self.get_action_logs_num(env_imitator))
 
 
 if __name__ == '__main__':

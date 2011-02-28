@@ -292,7 +292,7 @@ ACTION_LOG_INFO = {
     'id': int,
     'session_id': NullableText(),
     'custom_actor_user_info': NullableText(),
-    'actor_user_id': int,
+    'actor_user_id': AnyOf(int, None),
     'subject_users_ids': [int],
     'action': Text(),
     'request_date': IsoDatetime(),

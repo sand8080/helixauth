@@ -85,6 +85,9 @@ class Handler(AbstractHandler):
         f = EnvironmentFilter(enc_data, {}, {})
         env = f.filter_one_obj(curs)
 
+        # Required for proper logging action
+        data['environment_id'] = env.id
+
         f = SubjectUserFilter(env.id, enc_data, {}, {})
         try:
             user = f.filter_one_obj(curs)
@@ -98,7 +101,6 @@ class Handler(AbstractHandler):
         session = auth.create_session(curs, env, user)
 
         # Required for proper logging action
-        data['environment_id'] = env.id
         data['actor_user_id'] = user.id
         data['session_id'] = session.session_id
 
@@ -351,7 +353,8 @@ class Handler(AbstractHandler):
     @authentificate
     def get_action_logs(self, data, session, curs=None):
         f_params = data['filter_params']
-        f_params[('subject_users_ids', 'actor_user_id')] = (session.user_id, session.user_id)
+#        FOR user scoping
+#        f_params[('subject_users_ids', 'actor_user_id')] = (session.user_id, session.user_id)
         f = ActionLogFilter(session.environment_id, f_params,
             data['paging_params'], data.get('ordering_params'))
         ss, total = f.filter_counted(curs)
