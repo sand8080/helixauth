@@ -33,6 +33,10 @@ def authentificate(method):
         session_id = data.get('session_id')
         session = auth.get_session(session_id)
 
+        # Required for proper logging action
+        data['actor_user_id'] = session.user_id
+        data['environment_id'] = session.environment_id
+
         f = UserFilter(session, {'id': session.user_id}, {}, {})
         user = f.filter_one_obj(curs)
 
@@ -48,8 +52,6 @@ def authentificate(method):
         result = method(self, data, session, curs)
 
         # Required for proper logging action
-        data['actor_user_id'] = session.user_id
-        data['environment_id'] = session.environment_id
         data['custom_actor_info'] = custom_actor_info
 
         return result

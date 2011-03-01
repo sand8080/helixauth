@@ -141,9 +141,33 @@ class ActionLogTestCase(ActorLogicTestCase):
         sess_id = self.login_actor()
         self.assertEquals(logs_num + 1, self._count_records(sess_id, action))
 
-    def test_add_environment(self):
-        action = 'add_environment'
+    def test_modify_environment(self):
+        action = 'modify_environment'
         sess_id = self.login_actor()
+        req = {'session_id': sess_id, 'new_name': 'new_name'}
+        resp = self.cli.modify_environment(**req)
+        self.check_response_ok(resp)
+        self.assertEquals(1, self._count_records(sess_id, action))
+
+    def test_modify_environment_failure(self):
+        sess_id = self.login_actor()
+        l = 'l'
+        p = 'p'
+        req = {'session_id': sess_id, 'login': l, 'password': p}
+        resp = self.cli.add_user(**req)
+        self.check_response_ok(resp)
+
+        req = {'environment_name': self.actor_env_name,
+            'login': l, 'password': p}
+        resp = self.cli.login(**req)
+        self.check_response_ok(resp)
+        u_sess_id = resp['session_id']
+
+        action = 'modify_environment'
+        req = {'session_id': u_sess_id, 'new_name': 'new_name'}
+        resp = self.cli.modify_environment(**req)
+        self.assertEquals('error', resp['status'])
+
         self.assertEquals(1, self._count_records(sess_id, action))
 
     def test_get_environment(self):
