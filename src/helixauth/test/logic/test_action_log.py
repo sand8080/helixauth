@@ -118,6 +118,28 @@ class ActionLogTestCase(ActorLogicTestCase):
             'properties': ['a', 'b', 'c']}
         self._logged_action(action, req)
 
+    def test_modify_service(self):
+        sess_id = self.login_actor()
+        req = {'session_id': sess_id, 'name': 'n', 'type': 't',
+            'properties': ['a', 'b', 'c']}
+        resp = self.cli.add_service(**req)
+        self.check_response_ok(resp)
+        srv_id = resp['id']
+
+        action = 'modify_service'
+        req = {'session_id': sess_id, 'id': srv_id, 'new_name': 'lala',
+            'new_is_active': False}
+        self._logged_action(action, req)
+
+    def test_get_services(self):
+        action = 'get_services'
+        sess_id = self.login_actor()
+        req = {'session_id': sess_id, 'filter_params': {},
+            'paging_params': {}}
+        resp = self.cli.get_services(**req)
+        self.check_response_ok(resp)
+        self.assertEquals(0, self._count_records(sess_id, action))
+
 
 if __name__ == '__main__':
     unittest.main()
