@@ -311,7 +311,7 @@ class Handler(AbstractHandler):
             mapping.save(curs, group)
         except ObjectCreationError:
             raise GroupAlreadyExists('Group %s already exists' % group.name)
-        return response_ok()
+        return response_ok(id=group.id)
 
     @transaction()
     @authentificate

@@ -35,6 +35,17 @@ class ActionLogTestCase(ActorLogicTestCase):
         self.check_response_ok(resp)
         self.assertEquals(logs_num + 1, self._count_records(sess_id, action))
 
+    def _not_logged_action(self, action, sess_id, req):
+        api_call = getattr(self.cli, action)
+        req['session_id'] = sess_id
+        resp = api_call(**req)
+        self.check_response_ok(resp)
+        self.assertEquals(0, self._count_records(sess_id, action))
+
+    def _not_logged_filtering_action(self, action, sess_id):
+        req = {'filter_params': {}, 'paging_params': {}}
+        self._not_logged_action(action, sess_id, req)
+
     def test_login(self):
         action = 'login'
         sess_id = self.login_actor()
@@ -108,8 +119,7 @@ class ActionLogTestCase(ActorLogicTestCase):
     def test_get_environment(self):
         action = 'get_environment'
         sess_id = self.login_actor()
-        self.cli.get_environment()
-        self.assertEquals(0, self._count_records(sess_id, action))
+        self._not_logged_action(action, sess_id, {})
 
     def test_add_service(self):
         action = 'add_service'
@@ -134,11 +144,44 @@ class ActionLogTestCase(ActorLogicTestCase):
     def test_get_services(self):
         action = 'get_services'
         sess_id = self.login_actor()
-        req = {'session_id': sess_id, 'filter_params': {},
-            'paging_params': {}}
-        resp = self.cli.get_services(**req)
+        self._not_logged_filtering_action(action, sess_id)
+
+    def test_add_group(self):
+        action = 'add_group'
+        sess_id = self.login_actor()
+        req = {'session_id': sess_id, 'name': 'n',
+            'rights': [{'service_id': 1, 'properties': ['a', 'b']}]}
+        self._logged_action(action, req)
+
+    def test_modify_group(self):
+        sess_id = self.login_actor()
+        req = {'session_id': sess_id, 'name': 'n',
+            'rights': [{'service_id': 1, 'properties': ['a', 'b']}]}
+        resp = self.cli.add_group(**req)
         self.check_response_ok(resp)
-        self.assertEquals(0, self._count_records(sess_id, action))
+        grp_id = resp['id']
+
+        action = 'modify_group'
+        req = {'session_id': sess_id, 'id': grp_id,
+            'new_rights': [{'service_id': 1, 'properties': ['a']}]}
+        self._logged_action(action, req)
+
+    def test_delete_group(self):
+        sess_id = self.login_actor()
+        req = {'session_id': sess_id, 'name': 'n',
+            'rights': [{'service_id': 1, 'properties': ['a', 'b']}]}
+        resp = self.cli.add_group(**req)
+        self.check_response_ok(resp)
+        grp_id = resp['id']
+
+        action = 'delete_group'
+        req = {'session_id': sess_id, 'id': grp_id}
+        self._logged_action(action, req)
+
+    def test_get_groups(self):
+        action = 'get_groups'
+        sess_id = self.login_actor()
+        self._not_logged_filtering_action(action, sess_id)
 
 
 if __name__ == '__main__':

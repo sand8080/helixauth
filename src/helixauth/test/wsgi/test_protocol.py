@@ -258,7 +258,8 @@ class ProtocolTestCase(RootTestCase):
             'rights': [{'service_id': 1, 'properties': ['a', 'b']}],
             'is_active': False})
 
-        self.validate_status_response(a_name)
+        self.api.validate_response(a_name, {'status': 'ok', 'id': 1})
+        self.validate_error_response(a_name)
 
     def test_modify_group(self):
         a_name = 'modify_group'
