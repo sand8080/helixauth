@@ -23,6 +23,14 @@ from helixcore.db.wrapper import ObjectCreationError
 from functools import wraps
 
 
+def _add_log_info(data, session, custom_actor_info=None):
+    data['actor_user_id'] = session.user_id
+    data['environment_id'] = session.environment_id
+    data['session_id'] = session.session_id
+    if custom_actor_info:
+        data['custom_actor_info'] = custom_actor_info
+
+
 def authentificate(method):
     @wraps(method)
     @detalize_error(SessionNotFound, 'session_id')
@@ -33,26 +41,25 @@ def authentificate(method):
         session_id = data.get('session_id')
         session = auth.get_session(session_id)
 
-        # Required for proper logging action
-        data['actor_user_id'] = session.user_id
-        data['environment_id'] = session.environment_id
-
         f = UserFilter(session, {'id': session.user_id}, {}, {})
         user = f.filter_one_obj(curs)
 
-        if user.environment_id != session.environment_id:
-            raise HelixauthError('User and session from different environments')
-        if not user.is_active:
-            raise UserInactive()
+        try:
+            if user.environment_id != session.environment_id:
+                raise HelixauthError('User and session from different environments')
+            if not user.is_active:
+                raise UserInactive()
+            auth.check_access(session, Service.TYPE_AUTH, method.__name__)
+        except Exception, e:
+            _add_log_info(data, session)
+            raise e
 
-        auth.check_access(session, Service.TYPE_AUTH, method.__name__)
         data.pop('session_id', None)
         custom_actor_info = data.pop('custom_actor_info', None)
 
         result = method(self, data, session, curs)
 
-        # Required for proper logging action
-        data['custom_actor_info'] = custom_actor_info
+        _add_log_info(data, session, custom_actor_info)
 
         return result
     return decroated
@@ -102,9 +109,7 @@ class Handler(AbstractHandler):
         auth = Authentifier()
         session = auth.create_session(curs, env, user)
 
-        # Required for proper logging action
-        data['actor_user_id'] = user.id
-        data['session_id'] = session.session_id
+        _add_log_info(data, session)
 
         return response_ok(session_id=session.session_id)
 
@@ -117,12 +122,7 @@ class Handler(AbstractHandler):
         try:
             session = f.filter_one_obj(curs, for_update=True)
             mapping.delete(curs, session)
-
-            # Required for proper logging action
-            data['environment_id'] = session.environment_id
-            data['actor_user_id'] = session.user_id
-            data['session_id'] = session.session_id
-
+            _add_log_info(data, session)
         except SessionNotFound:
             pass
         return response_ok()
@@ -169,9 +169,7 @@ class Handler(AbstractHandler):
         auth = Authentifier()
         session = auth.create_session(curs, env, user)
 
-        # Required for proper logging action
-        data['actor_user_id'] = session.user_id
-        data['environment_id'] = session.environment_id
+        _add_log_info(data, session)
 
         return response_ok(session_id=session.session_id,
             environment_id=env.id)
