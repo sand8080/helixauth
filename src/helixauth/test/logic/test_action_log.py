@@ -183,6 +183,29 @@ class ActionLogTestCase(ActorLogicTestCase):
         sess_id = self.login_actor()
         self._not_logged_filtering_action(action, sess_id)
 
+    def test_add_user(self):
+        action = 'add_user'
+        sess_id = self.login_actor()
+        req = {'session_id': sess_id, 'login': 'l', 'password': 'p'}
+        self._logged_action(action, req)
+
+    def test_get_users(self):
+        action = 'get_users'
+        sess_id = self.login_actor()
+        self._not_logged_filtering_action(action, sess_id)
+
+    def test_get_user_rights(self):
+        action = 'get_user_rights'
+        sess_id = self.login_actor()
+        self._not_logged_action(action, sess_id, {})
+
+    def test_modify_password(self):
+        action = 'modify_password'
+        sess_id = self.login_actor()
+        req = {'session_id': sess_id, 'old_password': self.actor_password,
+            'new_password': 'p'}
+        self._logged_action(action, req)
+
 
 if __name__ == '__main__':
     unittest.main()
