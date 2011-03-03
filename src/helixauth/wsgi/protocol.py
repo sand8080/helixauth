@@ -187,7 +187,7 @@ ADD_USER_RESPONSE = AnyOf(
     RESPONSE_STATUS_ERROR
 )
 
-MODIFY_PASSWORD_REQUEST = dict(
+MODIFY_USER_SELF_REQUEST = dict(
     {
         'old_password': Text(),
         'new_password': Text(),
@@ -195,7 +195,7 @@ MODIFY_PASSWORD_REQUEST = dict(
     **AUTHORIZED_REQUEST_AUTH_INFO
 )
 
-MODIFY_PASSWORD_RESPONSE = RESPONSE_STATUS_ONLY
+MODIFY_USER_SELF_RESPONSE = RESPONSE_STATUS_ONLY
 
 GET_USERS_REQUEST = dict(
     {
@@ -420,8 +420,8 @@ protocol = [
     ApiCall('get_user_rights_request', Scheme(GET_USER_RIGHTS_REQUEST)),
     ApiCall('get_user_rights_response', Scheme(GET_USER_RIGHTS_RESPONSE)),
 
-    ApiCall('modify_password_request', Scheme(MODIFY_PASSWORD_REQUEST)),
-    ApiCall('modify_password_response', Scheme(MODIFY_PASSWORD_RESPONSE)),
+    ApiCall('modify_user_self_request', Scheme(MODIFY_USER_SELF_REQUEST)),
+    ApiCall('modify_user_self_response', Scheme(MODIFY_USER_SELF_RESPONSE)),
 
     # action log
     ApiCall('get_action_logs_request', Scheme(GET_ACTION_LOGS_REQUEST)),

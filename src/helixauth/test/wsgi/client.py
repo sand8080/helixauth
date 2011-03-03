@@ -2,7 +2,7 @@ from helixcore.test.util import ClientSimpleApplication
 
 from helixauth.conf.log import logger
 from helixauth.logic.actions import handle_action
-from helixauth.wsgi.protocol import protocol, unauthorized_actions
+from helixauth.wsgi.protocol import protocol
 from helixauth.wsgi.server import HelixauthApplication
 
 

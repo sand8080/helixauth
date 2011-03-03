@@ -3,7 +3,7 @@ import unittest
 from helixcore.error import RequestProcessingError
 
 from helixauth.test.logic.actor_logic_test import ActorLogicTestCase
-from helixauth.db.dataobject import User
+from helixauth.db.dataobject import User, Service
 
 
 class UserTestCase(ActorLogicTestCase):
@@ -22,17 +22,17 @@ class UserTestCase(ActorLogicTestCase):
         resp = self.add_user(**req)
         self.check_response_ok(resp)
 
-    def test_modify_password(self):
+    def test_modify_user_self(self):
         sess_id = self.login_actor()
         # checking is impossible to change password with wrong old password
         req = {'session_id': sess_id, 'old_password': 'fake%s' % self.actor_password,
             'new_password': 'lala'}
-        self.assertRaises(RequestProcessingError, self.modify_password, **req)
+        self.assertRaises(RequestProcessingError, self.modify_user_self, **req)
         # changing password
         new_pw = 'new%s' % self.actor_password
         req = {'session_id': sess_id, 'old_password': self.actor_password,
             'new_password': new_pw}
-        resp = self.modify_password(**req)
+        resp = self.modify_user_self(**req)
         self.check_response_ok(resp)
         # checking password changed
         req = {'environment_name': self.actor_env_name,
@@ -157,10 +157,11 @@ class UserTestCase(ActorLogicTestCase):
         req = {'session_id': s0_id}
         resp = self.get_user_rights(**req)
         self.check_response_ok(resp)
-        expected = {'status': 'ok', 'rights': [
-            {'service_type': 'auth', 'service_id': 1,
-            'properties': ['modify_password', 'get_user_rights', 'check_access']}]}
-        self.assertEquals(expected, resp)
+        rights_l = resp['rights']
+        for rights in rights_l:
+            if rights['service_type'] == Service.TYPE_AUTH:
+                self.assertEquals(sorted(['modify_user_self', 'get_user_rights', 'check_access']),
+                    sorted(rights['properties']))
 
 
 if __name__ == '__main__':

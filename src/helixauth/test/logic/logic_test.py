@@ -13,6 +13,7 @@ from helixauth.db.filters import EnvironmentFilter, SessionFilter,\
     SubjectUserFilter, ServiceFilter
 from helixauth.logic import actions, auth
 from helixauth.wsgi.protocol import protocol
+from helixauth.test.wsgi.client import get_api_calls
 
 
 class LogicTestCase(DbBasedTestCase):
@@ -76,14 +77,6 @@ def make_api_call(f_name):
     return m
 
 
-methods = ['login', 'logout',
-    'add_environment', 'get_environment', 'modify_environment',
-    'add_service', 'modify_service', 'get_services',
-    'add_user', 'modify_password', 'get_users',
-    'get_user_rights',
-    'get_action_logs',
-    'add_group', 'modify_group', 'delete_group', 'get_groups',
-    'get_authorized_api_actions',
-    'check_access',]
+methods = get_api_calls()
 for method_name in methods:
     setattr(LogicTestCase, method_name, make_api_call(method_name))

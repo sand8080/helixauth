@@ -11,8 +11,7 @@ class HelixauthApplication(Application):
             'add_environment', 'modify_environment',
             'add_service', 'modify_service',
             'add_group', 'modify_group', 'delete_group',
-            'add_user',
-            'modify_password',)
+            'add_user', 'modify_user_self',)
         super(HelixauthApplication, self).__init__(h, p, l, tracking_api_calls)
 
     @transaction()

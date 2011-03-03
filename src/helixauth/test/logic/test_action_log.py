@@ -199,8 +199,8 @@ class ActionLogTestCase(ActorLogicTestCase):
         sess_id = self.login_actor()
         self._not_logged_action(action, sess_id, {})
 
-    def test_modify_password(self):
-        action = 'modify_password'
+    def test_modify_user_self(self):
+        action = 'modify_user_self'
         sess_id = self.login_actor()
         req = {'session_id': sess_id, 'old_password': self.actor_password,
             'new_password': 'p'}

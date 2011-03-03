@@ -121,8 +121,8 @@ class ProtocolTestCase(RootTestCase):
             {'status': 'ok', 'id': 1})
         self.validate_error_response(a_name)
 
-    def test_modify_password(self):
-        a_name = 'modify_password'
+    def test_modify_user_self(self):
+        a_name = 'modify_user_self'
         self.api.validate_request(a_name, {'session_id': 'i',
             'old_password': 'p', 'new_password': 'pp'})
 

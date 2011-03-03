@@ -160,7 +160,7 @@ class Handler(AbstractHandler):
         g = Group(**d)
         mapping.save(curs, g)
         d = {'environment_id': env.id, 'name': 'Users', 'is_active': True,
-            'rights': [{'service_id': s.id, 'properties': ['modify_password',
+            'rights': [{'service_id': s.id, 'properties': ['modify_user_self',
             'get_user_rights', 'check_access']}]}
         g = Group(**d)
         mapping.save(curs, g)
@@ -240,7 +240,7 @@ class Handler(AbstractHandler):
     @transaction()
     @authentificate
     @detalize_error(UserWrongOldPassword, 'old_password')
-    def modify_password(self, data, session, curs=None):
+    def modify_user_self(self, data, session, curs=None):
         f = UserFilter(session, {'id': session.user_id}, {}, None)
         user = f.filter_one_obj(curs)
         old_password = data['old_password']
