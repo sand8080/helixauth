@@ -3,6 +3,7 @@ import unittest
 
 from helixauth.test.logic.actor_logic_test import ActorLogicTestCase
 from helixauth.test.wsgi.client import Client
+from helixauth.db.dataobject import Service
 
 
 class ActionLogTestCase(ActorLogicTestCase):
@@ -38,8 +39,7 @@ class ActionLogTestCase(ActorLogicTestCase):
     def _not_logged_action(self, action, sess_id, req):
         api_call = getattr(self.cli, action)
         req['session_id'] = sess_id
-        resp = api_call(**req)
-        self.check_response_ok(resp)
+        api_call(**req)
         self.assertEquals(0, self._count_records(sess_id, action))
 
     def _not_logged_filtering_action(self, action, sess_id):
@@ -205,6 +205,24 @@ class ActionLogTestCase(ActorLogicTestCase):
         req = {'session_id': sess_id, 'old_password': self.actor_password,
             'new_password': 'p'}
         self._logged_action(action, req)
+
+    def test_get_action_logs(self):
+        action = 'get_action_logs'
+        sess_id = self.login_actor()
+        self._not_logged_filtering_action(action, sess_id)
+
+    def test_check_access(self):
+        action = 'check_access'
+        sess_id = self.login_actor()
+        req = {'session_id': sess_id, 'service_type': Service.TYPE_AUTH,
+            'property': 'check_access'}
+        self._not_logged_action(action, sess_id, req)
+        req = {'session_id': sess_id, 'service_type': Service.TYPE_AUTH,
+            'property': 'fake'}
+        self._not_logged_action(action, sess_id, req)
+        req = {'session_id': sess_id, 'service_type': 'fake',
+            'property': 'fake'}
+        self._not_logged_action(action, sess_id, req)
 
 
 if __name__ == '__main__':

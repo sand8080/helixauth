@@ -64,8 +64,10 @@ class UserAuthError(HelixauthError):
 
 
 class UserAccessDenied(HelixauthError):
-    def __init__(self, property):
-        raise UserAuthError('Access denied to %s' % property)
+    def __init__(self, service_type, property):
+        super(UserAccessDenied, self).__init__('Access denied to service %s property %s' %
+            (service_type, property))
+        self.code = error_code.HELIXAUTH_USER_ACCESS_DENIED
 
 
 class UserInactive(HelixauthError):
