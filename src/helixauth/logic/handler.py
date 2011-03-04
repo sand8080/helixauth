@@ -353,8 +353,9 @@ class Handler(AbstractHandler):
     @authentificate
     def get_action_logs(self, data, session, curs=None):
         f_params = data['filter_params']
-#        FOR user scoping
-#        f_params[('subject_users_ids', 'actor_user_id')] = (session.user_id, session.user_id)
+        u_id = f_params.pop('user_id', None)
+        if u_id:
+            f_params[('subject_users_ids', 'actor_user_id')] = (u_id, u_id)
         f = ActionLogFilter(session.environment_id, f_params,
             data['paging_params'], data.get('ordering_params'))
         ss, total = f.filter_counted(curs)

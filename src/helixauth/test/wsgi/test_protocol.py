@@ -342,7 +342,7 @@ class ProtocolTestCase(RootTestCase):
         self.api.validate_request(a_name, {'session_id': 's',
             'filter_params': {'action': 'a'}, 'paging_params': {}})
         self.api.validate_request(a_name, {'session_id': 's',
-            'filter_params': {'actor_user_id': 1}, 'paging_params': {}})
+            'filter_params': {'user_id': 1}, 'paging_params': {}})
 
         self.api.validate_response(a_name, {'status': 'ok', 'total': 2,
             'action_logs': []})
