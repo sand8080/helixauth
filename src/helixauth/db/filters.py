@@ -129,7 +129,7 @@ class GroupFilter(EnvironmentObjectsFilter):
 class ActionLogFilter(EnvironmentObjectsFilter):
     cond_map = [
         ('action', 'action', Eq),
-        ('session_id', 'session', Eq),
+        ('session_id', 'session_id', Eq),
         ('actor_user_id', 'actor_user_id', Eq),
         ('from_request_date', 'request_date', MoreEq),
         ('to_request_date', 'request_date', LessEq),
