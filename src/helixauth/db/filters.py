@@ -75,6 +75,7 @@ class UserFilter(InSessionFilter):
         ('login', 'login', Like),
         ('password', 'password', Eq),
         ('groups_ids', 'groups_ids', AnyOf),
+        ('is_active', 'is_active', Eq),
     ]
 
     def __init__(self, session, filter_params, paging_params, ordering_params):
