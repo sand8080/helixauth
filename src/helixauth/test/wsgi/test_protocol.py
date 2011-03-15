@@ -384,6 +384,61 @@ class ProtocolTestCase(RootTestCase):
         ]})
         self.validate_error_response(a_name)
 
+    def test_get_action_logs_self(self):
+        a_name = 'get_action_logs_self'
+        self.api.validate_request(a_name, {'session_id': 's',
+            'filter_params': {}, 'paging_params': {},})
+        self.api.validate_request(a_name, {'session_id': 's',
+            'filter_params': {}, 'paging_params': {'limit': 0,},})
+        self.api.validate_request(a_name, {'session_id': 's',
+            'filter_params': {}, 'paging_params': {'limit': 0, 'offset': 0,},})
+        self.api.validate_request(a_name, {'session_id': 's',
+            'filter_params': {'from_request_date': '2011-02-21 00:00:00',
+            'to_request_date': '2011-02-21 23:59:59'},
+            'paging_params': {}})
+        self.api.validate_request(a_name, {'session_id': 's',
+            'filter_params': {'action': 'a'}, 'paging_params': {}})
+        self.api.validate_request(a_name, {'session_id': 's',
+            'filter_params': {'session_id': ''}, 'paging_params': {}})
+
+        self.api.validate_response(a_name, {'status': 'ok', 'total': 2,
+            'action_logs': []})
+        self.api.validate_response(a_name, {'status': 'ok', 'total': 4,
+            'action_logs': [
+            {
+                'id': 42, 'session_id': 's_id', 'custom_actor_user_info': None,
+                'subject_users_ids': [3], 'actor_user_id': 1, 'action': 'a',
+                'request_date': '%s' % datetime.datetime.now(pytz.utc),
+                'remote_addr': '127.0.0.1', 'request': 'req',
+                'response': 'resp'
+            },
+        ]})
+        self.api.validate_response(a_name, {'status': 'ok', 'total': 4,
+            'action_logs': [
+            {
+                'id': 42, 'session_id': 's_id', 'custom_actor_user_info': None,
+                'subject_users_ids': [3], 'actor_user_id': 1, 'action': 'a',
+                'request_date': '%s' % datetime.datetime.now(pytz.utc),
+                'remote_addr': '127.0.0.1', 'request': 'req',
+                'response': 'resp'
+            },
+            {
+                'id': 43, 'session_id': None, 'custom_actor_user_info': 'some info',
+                'subject_users_ids': [3], 'actor_user_id': 1, 'action': 'a',
+                'request_date': '%s' % datetime.datetime.now(pytz.utc),
+                'remote_addr': '127.0.0.2', 'request': 'req',
+                'response': 'resp'
+            },
+            {
+                'id': 44, 'session_id': 's_id', 'custom_actor_user_info': 'some info',
+                'subject_users_ids': [3], 'actor_user_id': None, 'action': 'login',
+                'request_date': '%s' % datetime.datetime.now(pytz.utc),
+                'remote_addr': '127.0.0.2', 'request': 'req',
+                'response': 'resp'
+            },
+        ]})
+        self.validate_error_response(a_name)
+
     def test_get_user_rights(self):
         a_name = 'get_user_rights'
         self.api.validate_request(a_name, {'session_id': 's'})

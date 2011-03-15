@@ -329,6 +329,22 @@ GET_ACTION_LOGS_RESPONSE = AnyOf(
     RESPONSE_STATUS_ERROR
 )
 
+GET_ACTION_LOGS_SELF_REQUEST = dict(
+    {
+        'filter_params': {
+            Optional('from_request_date'): IsoDatetime(),
+            Optional('to_request_date'): IsoDatetime(),
+            Optional('action'): Text(),
+            Optional('session_id'): Text(),
+        },
+        'paging_params': REQUEST_PAGING_PARAMS,
+        Optional('ordering_params'): [AnyOf('request_date', '-request_date', 'id', '-id')]
+    },
+    **AUTHORIZED_REQUEST_AUTH_INFO
+)
+
+GET_ACTION_LOGS_SELF_RESPONSE = GET_ACTION_LOGS_RESPONSE
+
 GET_USER_RIGHTS_REQUEST = AUTHORIZED_REQUEST_AUTH_INFO
 
 GET_USER_RIGHTS_RESPONSE = AnyOf(
@@ -426,6 +442,9 @@ protocol = [
     # action log
     ApiCall('get_action_logs_request', Scheme(GET_ACTION_LOGS_REQUEST)),
     ApiCall('get_action_logs_response', Scheme(GET_ACTION_LOGS_RESPONSE)),
+
+    ApiCall('get_action_logs_self_request', Scheme(GET_ACTION_LOGS_SELF_REQUEST)),
+    ApiCall('get_action_logs_self_response', Scheme(GET_ACTION_LOGS_SELF_RESPONSE)),
 
     # check access
     ApiCall('check_access_request', Scheme(CHECK_ACCESS_REQUEST)),
