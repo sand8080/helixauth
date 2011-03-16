@@ -21,12 +21,18 @@ class ActionLogTestCase(ActorLogicTestCase):
         self.check_response_ok(resp)
         return resp['session_id']
 
-    def _count_records(self, sess_id, action):
+    def _do_count(self, sess_id, action, filtering_method):
         req = {'session_id': sess_id, 'filter_params': {'action': action},
             'paging_params': {}, 'ordering_params': []}
-        resp = self.get_action_logs(**req)
+        resp = filtering_method(**req)
         self.check_response_ok(resp)
         return len(resp['action_logs'])
+
+    def _count_records(self, sess_id, action):
+        return self._do_count(sess_id, action, self.cli.get_action_logs)
+
+    def _count_self_records(self, sess_id, action):
+        return self._do_count(sess_id, action, self.cli.get_action_logs_self)
 
     def _logged_action(self, action, req):
         sess_id = req['session_id']
@@ -210,6 +216,20 @@ class ActionLogTestCase(ActorLogicTestCase):
         action = 'get_action_logs'
         sess_id = self.login_actor()
         self._not_logged_filtering_action(action, sess_id)
+
+    def test_get_action_logs_self(self):
+        action = 'get_action_logs_self'
+        sess_id = self.login_actor()
+        self._not_logged_filtering_action(action, sess_id)
+        logins_num = self._count_self_records(sess_id, 'login')
+        req = {'session_id': sess_id, 'login': 'l', 'password': 'p'}
+        self._logged_action('add_user', req)
+        req = {'environment_name': self.actor_env_name, 'login': 'l',
+            'password': 'p'}
+        resp = self.cli.login(**req)
+        self.check_response_ok(resp)
+        self.assertEquals(logins_num,
+            self._count_self_records(sess_id, 'login'))
 
     def test_check_access(self):
         action = 'check_access'

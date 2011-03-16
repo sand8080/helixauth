@@ -352,6 +352,9 @@ class Handler(AbstractHandler):
     @transaction()
     @authentificate
     def get_action_logs(self, data, session, curs=None):
+        return self._get_action_logs(data, session, curs)
+
+    def _get_action_logs(self, data, session, curs):
         f_params = data['filter_params']
         u_id = f_params.pop('user_id', None)
         if u_id:
@@ -366,6 +369,12 @@ class Handler(AbstractHandler):
             return result
         return response_ok(action_logs=self.objects_info(ss, viewer),
             total=total)
+
+    @transaction()
+    @authentificate
+    def get_action_logs_self(self, data, session, curs=None):
+        data['filter_params']['user_id'] = session.user_id
+        return self._get_action_logs(data, session, curs)
 
     @transaction()
     @authentificate
