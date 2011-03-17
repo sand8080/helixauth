@@ -187,6 +187,19 @@ ADD_USER_RESPONSE = AnyOf(
     RESPONSE_STATUS_ERROR
 )
 
+MODIFY_USERS_REQUEST = dict(
+    {
+        'subject_users_ids': [int],
+        Optional('new_login'): Text(),
+        Optional('new_password'): Text(),
+        Optional('new_is_active'): bool,
+        Optional('new_groups_ids'): [int],
+    },
+    **AUTHORIZED_REQUEST_AUTH_INFO
+)
+
+MODIFY_USERS_RESPONSE = RESPONSE_STATUS_ONLY
+
 MODIFY_USER_SELF_REQUEST = dict(
     {
         'old_password': Text(),
@@ -435,6 +448,9 @@ protocol = [
 
     ApiCall('get_user_rights_request', Scheme(GET_USER_RIGHTS_REQUEST)),
     ApiCall('get_user_rights_response', Scheme(GET_USER_RIGHTS_RESPONSE)),
+
+    ApiCall('modify_users_request', Scheme(MODIFY_USERS_REQUEST)),
+    ApiCall('modify_users_response', Scheme(MODIFY_USERS_RESPONSE)),
 
     ApiCall('modify_user_self_request', Scheme(MODIFY_USER_SELF_REQUEST)),
     ApiCall('modify_user_self_response', Scheme(MODIFY_USER_SELF_RESPONSE)),

@@ -1,13 +1,13 @@
 # coding=utf-8
-import unittest
-
-from helixcore.server.api import Api
-from helixcore.error import ValidationError
-
 from helixauth.test.root_test import RootTestCase
 from helixauth.wsgi.protocol import protocol
+from helixcore.error import ValidationError
+from helixcore.server.api import Api
 import datetime
 import pytz
+import unittest
+
+
 
 
 class ProtocolTestCase(RootTestCase):
@@ -72,7 +72,7 @@ class ProtocolTestCase(RootTestCase):
 
     def test_logout(self):
         a_name = 'logout'
-#        self.api.validate_request(a_name, {'session_id': 'i'})
+        self.api.validate_request(a_name, {'session_id': 'i'})
         self.validate_status_response(a_name)
 
     def test_add_environment(self):
@@ -125,6 +125,27 @@ class ProtocolTestCase(RootTestCase):
         a_name = 'modify_user_self'
         self.api.validate_request(a_name, {'session_id': 'i',
             'old_password': 'p', 'new_password': 'pp'})
+
+        self.validate_status_response(a_name)
+
+    def test_modify_users(self):
+        a_name = 'modify_users'
+        self.api.validate_request(a_name, {'session_id': 'i',
+            'subject_users_ids': []})
+        self.api.validate_request(a_name, {'session_id': 'i',
+            'subject_users_ids': [1]})
+        self.api.validate_request(a_name, {'session_id': 'i',
+            'subject_users_ids': [1, 2], 'new_login': 'l'})
+        self.api.validate_request(a_name, {'session_id': 'i',
+            'subject_users_ids': [1, 2], 'new_password': 'p'})
+        self.api.validate_request(a_name, {'session_id': 'i',
+            'subject_users_ids': [1, 2], 'new_is_active': False})
+        self.api.validate_request(a_name, {'session_id': 'i',
+            'subject_users_ids': [1, 2], 'new_groups_ids': []})
+        self.api.validate_request(a_name, {'session_id': 'i',
+            'subject_users_ids': [1, 2], 'new_groups_ids': [1]})
+        self.api.validate_request(a_name, {'session_id': 'i',
+            'subject_users_ids': [1, 2], 'new_groups_ids': [1, 2]})
 
         self.validate_status_response(a_name)
 
