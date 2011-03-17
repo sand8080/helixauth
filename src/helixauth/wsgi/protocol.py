@@ -189,7 +189,7 @@ ADD_USER_RESPONSE = AnyOf(
 
 MODIFY_USERS_REQUEST = dict(
     {
-        'subject_users_ids': [int],
+        'ids': [int],
         Optional('new_login'): Text(),
         Optional('new_password'): Text(),
         Optional('new_is_active'): bool,

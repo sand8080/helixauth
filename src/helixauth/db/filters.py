@@ -70,7 +70,7 @@ class EnvironmentFilter(OFImpl):
 class UserFilter(InSessionFilter):
     cond_map = [
         ('id', 'id', Eq),
-        ('subject_users_ids', 'id', In),
+        ('ids', 'id', In),
         ('roles', 'role', In),
         ('login', 'login', Like),
         ('password', 'password', Eq),

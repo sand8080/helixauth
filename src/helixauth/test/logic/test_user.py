@@ -61,6 +61,13 @@ class UserTestCase(ActorLogicTestCase):
         self.check_response_ok(resp)
         u_id = resp['id']
 
+        req = {'session_id': sess_id, 'filter_params': {'ids': [u_id]},
+            'paging_params': {}}
+        resp = self.get_users(**req)
+        self.check_response_ok(resp)
+        self.assertEquals(1, len(resp['users']))
+        u_old = resp['users'][0]
+
     def test_get_users(self):
         # adding group
         sess_id = self.login_actor()

@@ -262,11 +262,11 @@ class Handler(AbstractHandler):
     def modify_users(self, data, session, curs=None):
         f = UserFilter(session, {'roles': [User.ROLE_SUPER]}, {}, None)
         su = f.filter_one_obj(curs)
-        u_ids = data['subject_users_ids']
+        u_ids = data['ids']
         if su.id in u_ids:
             raise SuperUserModificationDenied()
 
-        f = UserFilter(session, {'subject_users_ids': u_ids}, {}, 'id')
+        f = UserFilter(session, {'ids': u_ids}, {}, 'id')
         loader = partial(f.filter_objs, curs, for_update=True)
         self.update_objs(curs, data, loader)
         return response_ok()
