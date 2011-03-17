@@ -25,12 +25,19 @@ class HelixauthObjectAlreadyExists(HelixauthError, ObjectCreationError):
 class UserNotFound(HelixauthObjectNotFound):
     def __init__(self, **kwargs):
         super(UserNotFound, self).__init__('User', **kwargs)
-#        self.code = error_code.H
+
 
 class SuperUserCreationDenied(HelixauthObjectNotFound):
     def __init__(self, *args, **kwargs):
         super(SuperUserCreationDenied, self).__init__(*args, **kwargs)
         self.code = error_code.HELIXAUTH_SUPERUSER_CREATION_DENIED
+
+
+class SuperUserModificationDenied(HelixauthError):
+    def __init__(self, *args, **kwargs):
+        super(SuperUserModificationDenied, self).__init__(*args, **kwargs)
+        self.code = error_code.HELIXAUTH_SUPERUSER_MODIFICATION_DENIED
+
 
 class UserWrongOldPassword(HelixauthError):
     def __init__(self, *args, **kwargs):

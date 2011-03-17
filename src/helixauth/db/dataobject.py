@@ -17,7 +17,7 @@ def deserialize_field(d, f_src_name, f_dst_name):
         res[f_dst_name] = cjson.decode(v)
     return res
 
-# TODO: add nullable session_id
+
 class ActionLog(Mapped):
     __slots__ = ['id', 'environment_id', 'session_id',
         'custom_actor_user_info', 'actor_user_id',

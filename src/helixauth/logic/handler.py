@@ -11,7 +11,7 @@ from helixauth.error import (EnvironmentNotFound,
     HelixauthObjectAlreadyExists, SessionNotFound, UserNotFound, SessionExpired,
     HelixauthError, UserInactive, ServiceDeactivationError, UserAuthError,
     GroupAlreadyExists, HelixauthObjectNotFound, UserWrongOldPassword,
-    SuperUserCreationDenied)
+    SuperUserCreationDenied, SuperUserModificationDenied)
 from helixauth.db.filters import (EnvironmentFilter, UserFilter, ServiceFilter,
     SubjectUserFilter, GroupFilter, SessionFilter, ActionLogFilter)
 from helixauth.db.dataobject import (Environment, User, Service,
@@ -194,6 +194,12 @@ class Handler(AbstractHandler):
                 data.get('new_name'))
         return response_ok()
 
+    def _filter_existed_groups(self, curs, session, groups_ids):
+        f = GroupFilter(session.environment_id, {}, {}, None)
+        groups = f.filter_objs(curs)
+        g_ids = [g.id for g in groups]
+        return filter(lambda x: x in g_ids, groups_ids)
+
     @transaction()
     @authentificate
     @detalize_error(HelixauthObjectAlreadyExists, 'login')
@@ -209,10 +215,8 @@ class Handler(AbstractHandler):
         if u_data['role'] == User.ROLE_SUPER:
             raise SuperUserCreationDenied
 
-        f = GroupFilter(env_id, {}, {}, None)
-        groups = f.filter_objs(curs)
-        g_ids = [g.id for g in groups]
-        filtered_g_ids = filter(lambda x: x in g_ids, data.get('groups_ids', []))
+        groups_ids = data.get('groups_ids', [])
+        filtered_g_ids = self._filter_existed_groups(curs, session, groups_ids)
         u_data['groups_ids'] = filtered_g_ids
         user = User(**u_data)
         try:
@@ -250,6 +254,21 @@ class Handler(AbstractHandler):
         loader = partial(f.filter_one_obj, curs, for_update=True)
         d = {'new_password': a.encrypt_password(data['new_password'])}
         self.update_obj(curs, d, loader)
+        return response_ok()
+
+    @transaction()
+    @authentificate
+    @detalize_error(SuperUserModificationDenied, 'subject_users_ids')
+    def modify_users(self, data, session, curs=None):
+        f = UserFilter(session, {'roles': [User.ROLE_SUPER]}, {}, None)
+        su = f.filter_one_obj(curs)
+        u_ids = data['subject_users_ids']
+        if su.id in u_ids:
+            raise SuperUserModificationDenied()
+
+        f = UserFilter(session, {'subject_users_ids': u_ids}, {}, 'id')
+        loader = partial(f.filter_objs, curs, for_update=True)
+        self.update_objs(curs, data, loader)
         return response_ok()
 
     @transaction()

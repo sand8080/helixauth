@@ -40,6 +40,27 @@ class UserTestCase(ActorLogicTestCase):
         resp = self.login(**req)
         self.check_response_ok(resp)
 
+    def test_modify_super_users_failed(self):
+        sess_id = self.login_actor()
+        req = {'session_id': sess_id, 'paging_params': {},
+            'filter_params': {'login': self.actor_login}}
+        resp = self.get_users(**req)
+        self.check_response_ok(resp)
+        users = resp['users']
+        self.assertEqual(1, len(users))
+        su_id = users[0]['id']
+        req = {'session_id': sess_id, 'subject_users_ids': [su_id]}
+        self.assertRaises(RequestProcessingError, self.modify_users, **req)
+
+    def test_modify_users(self):
+        sess_id = self.login_actor()
+        # adding user
+        req = {'session_id': sess_id, 'login': 'user_0',
+            'password': '1', 'role': User.ROLE_USER, 'groups_ids': []}
+        resp = self.add_user(**req)
+        self.check_response_ok(resp)
+        u_id = resp['id']
+
     def test_get_users(self):
         # adding group
         sess_id = self.login_actor()
