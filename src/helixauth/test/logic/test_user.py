@@ -4,12 +4,20 @@ from helixcore.error import RequestProcessingError
 
 from helixauth.test.logic.actor_logic_test import ActorLogicTestCase
 from helixauth.db.dataobject import User, Service
+from helixauth.logic.auth import Authentifier
 
 
 class UserTestCase(ActorLogicTestCase):
     def setUp(self):
         super(UserTestCase, self).setUp()
         self.create_actor_env()
+
+    def _get_users(self, sess_id, ids):
+        req = {'session_id': sess_id, 'filter_params': {'ids': ids},
+            'paging_params': {}}
+        resp = self.get_users(**req)
+        self.check_response_ok(resp)
+        return resp['users']
 
     def test_add_user_by_super(self):
         sess_id = self.login_actor()
@@ -52,21 +60,65 @@ class UserTestCase(ActorLogicTestCase):
         req = {'session_id': sess_id, 'subject_users_ids': [su_id]}
         self.assertRaises(RequestProcessingError, self.modify_users, **req)
 
+    def test_modify_users_login_failed(self):
+        sess_id = self.login_actor()
+        # adding users
+        u_ids = []
+        for i in range(2):
+            req = {'session_id': sess_id, 'login': 'user_%s' % i,
+                'password': 'p', 'role': User.ROLE_USER, 'groups_ids': []}
+            resp = self.add_user(**req)
+            self.check_response_ok(resp)
+            u_ids.append(resp['id'])
+        # trying to modify users
+        req = {'session_id': sess_id, 'ids': u_ids, 'new_login': 'n_l'}
+        self.assertRaises(RequestProcessingError, self.modify_users, **req)
+        # checking modification canceled
+        for i, u_id in enumerate(u_ids):
+            users = self._get_users(sess_id, [u_id])
+            u = users[0]
+            self.assertEquals('user_%s' % i, u['login'])
+
     def test_modify_users(self):
         sess_id = self.login_actor()
         # adding user
         req = {'session_id': sess_id, 'login': 'user_0',
-            'password': '1', 'role': User.ROLE_USER, 'groups_ids': []}
+            'password': 'p', 'role': User.ROLE_USER, 'groups_ids': []}
         resp = self.add_user(**req)
         self.check_response_ok(resp)
         u_id = resp['id']
 
-        req = {'session_id': sess_id, 'filter_params': {'ids': [u_id]},
-            'paging_params': {}}
-        resp = self.get_users(**req)
+        users = self._get_users(sess_id, [u_id])
+        self.assertEquals(1, len(users))
+        u = users[0]
+        self.assertEquals('user_0', u['login'])
+        self.assertEquals(True, u['is_active'])
+        self.assertEquals([], u['groups_ids'])
+        self.assertEquals(User.ROLE_USER, u['role'])
+
+        # adding group
+        sess_id = self.login_actor()
+        req = {'session_id': sess_id, 'name': 'grp_0',
+            'rights': [{'service_id': 1, 'properties': ['one', 'two']}]
+        }
+        resp = self.add_group(**req)
         self.check_response_ok(resp)
-        self.assertEquals(1, len(resp['users']))
-        u_old = resp['users'][0]
+        g_id = resp['id']
+
+        # users modification
+        req = {'session_id': sess_id, 'ids': [u_id], 'new_login': 'n_l',
+            'new_password': 'n_p', 'new_is_active': False,
+            'new_groups_ids': [g_id, 10000]}
+        resp = self.modify_users(**req)
+        self.check_response_ok(resp)
+        # checking modification
+        users = self._get_users(sess_id, [u_id])
+        self.assertEquals(1, len(users))
+        u = users[0]
+        self.assertEquals('n_l', u['login'])
+        self.assertEquals(False, u['is_active'])
+        self.assertEquals([g_id], u['groups_ids'])
+        self.assertEquals(User.ROLE_USER, u['role'])
 
     def test_get_users(self):
         # adding group

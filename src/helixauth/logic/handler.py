@@ -259,12 +259,16 @@ class Handler(AbstractHandler):
     @transaction()
     @authentificate
     @detalize_error(SuperUserModificationDenied, 'subject_users_ids')
+    @detalize_error(DataIntegrityError, 'ids')
     def modify_users(self, data, session, curs=None):
         f = UserFilter(session, {'roles': [User.ROLE_SUPER]}, {}, None)
         su = f.filter_one_obj(curs)
         u_ids = data['ids']
         if su.id in u_ids:
             raise SuperUserModificationDenied()
+        groups_ids = data.get('new_groups_ids', [])
+        filtered_g_ids = self._filter_existed_groups(curs, session, groups_ids)
+        data['new_groups_ids'] = filtered_g_ids
 
         f = UserFilter(session, {'ids': u_ids}, {}, 'id')
         loader = partial(f.filter_objs, curs, for_update=True)
