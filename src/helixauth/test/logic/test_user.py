@@ -239,7 +239,8 @@ class UserTestCase(ActorLogicTestCase):
         rights_l = resp['rights']
         for rights in rights_l:
             if rights['service_type'] == Service.TYPE_AUTH:
-                self.assertEquals(sorted(['modify_user_self', 'get_user_rights', 'check_access']),
+                self.assertEquals(sorted(['modify_user_self', 'get_user_rights',
+                    'get_action_logs_self', 'check_access']),
                     sorted(rights['properties']))
 
 

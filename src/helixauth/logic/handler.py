@@ -50,18 +50,16 @@ def authentificate(method):
             if not user.is_active:
                 raise UserInactive()
             auth.check_access(session, Service.TYPE_AUTH, method.__name__)
+
+            data.pop('session_id', None)
+            custom_actor_info = data.pop('custom_actor_info', None)
+
+            result = method(self, data, session, curs)
+            _add_log_info(data, session, custom_actor_info)
+            return result
         except Exception, e:
             _add_log_info(data, session)
             raise e
-
-        data.pop('session_id', None)
-        custom_actor_info = data.pop('custom_actor_info', None)
-
-        result = method(self, data, session, curs)
-
-        _add_log_info(data, session, custom_actor_info)
-
-        return result
     return decroated
 
 

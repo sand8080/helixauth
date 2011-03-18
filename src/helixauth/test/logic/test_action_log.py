@@ -52,6 +52,9 @@ class ActionLogTestCase(ActorLogicTestCase):
         req = {'filter_params': {}, 'paging_params': {}}
         self._not_logged_action(action, sess_id, req)
 
+    def check_response_ok(self, resp):
+        self.assertEqual('ok', resp['status'])
+
     def test_login(self):
         action = 'login'
         sess_id = self.login_actor()
@@ -211,6 +214,38 @@ class ActionLogTestCase(ActorLogicTestCase):
         req = {'session_id': sess_id, 'old_password': self.actor_password,
             'new_password': 'p'}
         self._logged_action(action, req)
+
+    def test_modify_users(self):
+        sess_id = self.login_actor()
+        req = {'session_id': sess_id, 'login': 'u0', 'password': 'p'}
+        resp = self.cli.add_user(**req)
+        self.check_response_ok(resp)
+        u_id = resp['id']
+
+        action = 'modify_users'
+        req = {'session_id': sess_id, 'ids': [u_id],
+            'new_login': 'n_u0'}
+        self._logged_action(action, req)
+
+    def test_modify_users_failure_logged(self):
+        sess_id = self.login_actor()
+        req = {'session_id': sess_id, 'paging_params': {},
+            'filter_params': {'login': self.actor_login}}
+        resp = self.cli.get_users(**req)
+        self.check_response_ok(resp)
+        users = resp['users']
+        self.assertEquals(1, len(users))
+        u = users[0]
+
+        u_id = u['id']
+        action = 'modify_users'
+        logs_num = self._count_self_records(sess_id, action)
+        req = {'session_id': sess_id, 'ids': [u_id],
+            'new_groups_ids': []}
+        resp = self.cli.modify_users(**req)
+        self.assertEquals('error', resp['status'])
+        self.assertEquals(logs_num + 1,
+            self._count_self_records(sess_id, action))
 
     def test_get_action_logs(self):
         action = 'get_action_logs'
