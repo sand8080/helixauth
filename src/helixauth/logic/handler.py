@@ -161,7 +161,7 @@ class Handler(AbstractHandler):
         mapping.save(curs, g)
         d = {'environment_id': env.id, 'name': 'Users', 'is_active': True,
             'rights': [{'service_id': s.id, 'properties': ['modify_user_self',
-            'get_user_rights', 'check_access']}]}
+            'get_user_rights', 'check_access', 'get_action_logs_self']}]}
         g = Group(**d)
         mapping.save(curs, g)
 
