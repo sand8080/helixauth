@@ -4,7 +4,6 @@ from helixcore.error import RequestProcessingError
 
 from helixauth.test.logic.actor_logic_test import ActorLogicTestCase
 from helixauth.db.dataobject import User, Service
-from helixauth.logic.auth import Authentifier
 
 
 class UserTestCase(ActorLogicTestCase):
