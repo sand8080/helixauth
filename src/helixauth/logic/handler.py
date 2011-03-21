@@ -267,6 +267,9 @@ class Handler(AbstractHandler):
         groups_ids = data.get('new_groups_ids', [])
         filtered_g_ids = self._filter_existed_groups(curs, session, groups_ids)
         data['new_groups_ids'] = filtered_g_ids
+        if 'new_password' in data:
+            a = Authentifier()
+            data['new_password'] = a.encrypt_password(data['new_password'])
 
         f = UserFilter(session, {'ids': u_ids}, {}, 'id')
         loader = partial(f.filter_objs, curs, for_update=True)
