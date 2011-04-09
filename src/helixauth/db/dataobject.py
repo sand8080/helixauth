@@ -34,12 +34,12 @@ class Environment(Mapped):
 class User(Mapped):
     ROLE_SUPER = 'super'
     ROLE_USER = 'user'
-    __slots__ = ['id', 'environment_id', 'login', 'password', 'is_active',
-        'role', 'groups_ids']
+    __slots__ = ['id', 'environment_id', 'login', 'password', 'salt',
+        'is_active', 'role', 'groups_ids']
     table = 'user_data'
 
     def __repr__(self, except_attrs=()):
-        return super(User, self).__repr__(except_attrs=except_attrs + ('password',))
+        return super(User, self).__repr__(except_attrs=except_attrs + ('password', 'salt'))
 
 
 class Group(Mapped):

@@ -2,7 +2,8 @@ from uuid import uuid4
 import cjson
 import pytz
 from datetime import datetime, timedelta
-from hashlib import sha256
+from hashlib import sha512
+from random import randint
 
 from helixcore import mapping
 
@@ -15,10 +16,18 @@ from helixauth.wsgi.protocol import protocol
 
 
 class Authentifier(object):
-    def encrypt_password(self, password):
-        h = sha256()
+    def encrypt_password(self, password, salt):
+        h = sha512()
         h.update(password)
-        return h.hexdigest()
+        p = h.hexdigest()
+        h_s = sha512()
+        h_s.update('%s%s' % (p, salt))
+        return h_s.hexdigest()
+
+    def salt(self, size=16):
+        symbols = ' !@#$%^&*()_+=-,.<>/?0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz'
+        res = map(lambda x: symbols[randint(0, len(symbols) - 1)], range(size))
+        return ''.join(res)
 
     @transaction()
     def get_session(self, session_id, curs=None):

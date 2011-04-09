@@ -9,9 +9,9 @@ from helixauth.test.db_based_test import DbBasedTestCase
 
 from helixauth.conf import settings
 from helixauth.conf.db import transaction
-from helixauth.db.filters import EnvironmentFilter, SessionFilter,\
-    SubjectUserFilter, ServiceFilter
-from helixauth.logic import actions, auth
+from helixauth.db.filters import (EnvironmentFilter, SessionFilter,
+    SubjectUserFilter, ServiceFilter)
+from helixauth.logic import actions
 from helixauth.wsgi.protocol import protocol
 from helixauth.test.wsgi.client import get_api_calls
 
@@ -32,9 +32,7 @@ class LogicTestCase(DbBasedTestCase):
 
     @transaction()
     def get_subj_user(self, environment_id, login, password, curs=None):
-        a = auth.Authentifier()
-        filter_params = {'environment_id': environment_id,
-            'login': login, 'password': a.encrypt_password(password)}
+        filter_params = {'environment_id': environment_id, 'login': login}
         f = SubjectUserFilter(environment_id, filter_params, {}, {})
         return f.filter_one_obj(curs)
 

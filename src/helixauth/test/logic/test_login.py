@@ -17,10 +17,10 @@ class LoginTestCase(LogicTestCase):
         self.add_environment(**req)
 
     def test_login_super_user(self):
-        response = self.login(environment_name=self.env_name,
+        resp = self.login(environment_name=self.env_name,
             login=self.su_login, password=self.su_password)
-        self.check_response_ok(response)
-        self.get_session(response['session_id'])
+        self.check_response_ok(resp)
+        self.get_session(resp['session_id'])
 
     def test_login_failed(self):
         # Wrong environment

@@ -1,7 +1,6 @@
 from functools import partial
 
 from helixcore import mapping
-from helixcore import security
 from helixcore.actions.handler import detalize_error, AbstractHandler
 from helixcore.error import DataIntegrityError
 from helixcore.server.response import response_ok
@@ -87,15 +86,14 @@ class Handler(AbstractHandler):
     @detalize_error(UserAuthError, ['login', 'password'])
     @detalize_error(UserInactive, ['login', 'password'])
     def login(self, data, curs=None):
-        a = Authentifier()
-        enc_data = security.encrypt_passwords(data, a.encrypt_password)
-        f = EnvironmentFilter(enc_data, {}, {})
+        f = EnvironmentFilter(data, {}, {})
         env = f.filter_one_obj(curs)
 
         # Required for proper logging action
         data['environment_id'] = env.id
 
-        f = SubjectUserFilter(env.id, enc_data, {}, {})
+        f_params = {'environment_id': env.id, 'login': data.get('login')}
+        f = SubjectUserFilter(env.id, f_params, {}, {})
         try:
             user = f.filter_one_obj(curs)
         except UserNotFound:
@@ -103,8 +101,13 @@ class Handler(AbstractHandler):
         if not user.is_active:
             raise UserInactive()
 
-        # creating session
+        # checking password
         auth = Authentifier()
+        enc_p = auth.encrypt_password(data.get('password'), user.salt)
+        if enc_p != user.password:
+            raise UserAuthError
+
+        # creating session
         session = auth.create_session(curs, env, user)
 
         _add_log_info(data, session)
@@ -137,9 +140,10 @@ class Handler(AbstractHandler):
 
         # creating user
         a = Authentifier()
+        salt = a.salt()
         u_data = {'environment_id': env.id, 'login': data.get('su_login'),
-            'password': a.encrypt_password(data.get('su_password')),
-            'role': User.ROLE_SUPER}
+            'password': a.encrypt_password(data.get('su_password'), salt),
+            'salt': salt, 'role': User.ROLE_SUPER}
         user = User(**u_data)
         mapping.save(curs, user)
 
@@ -205,10 +209,11 @@ class Handler(AbstractHandler):
     def add_user(self, data, session, curs=None):
         a = Authentifier()
         env_id = session.environment_id
+        salt = a.salt()
         u_data = {'environment_id': env_id, 'login': data.get('login'),
             'role': data.get('role', User.ROLE_USER),
-            'password': a.encrypt_password(data.get('password')),
-            'is_active': data.get('is_active', True),
+            'password': a.encrypt_password(data.get('password'), salt),
+            'salt': salt, 'is_active': data.get('is_active', True),
         }
         if u_data['role'] == User.ROLE_SUPER:
             raise SuperUserCreationDenied
@@ -235,6 +240,7 @@ class Handler(AbstractHandler):
         def viewer(obj):
             result = obj.to_dict()
             result.pop('password')
+            result.pop('salt')
             result.pop('environment_id')
             return result
         return response_ok(users=self.objects_info(users, viewer), total=total)
@@ -247,10 +253,12 @@ class Handler(AbstractHandler):
         user = f.filter_one_obj(curs)
         old_password = data['old_password']
         a = Authentifier()
-        if user.password != a.encrypt_password(old_password):
+        if user.password != a.encrypt_password(old_password, user.salt):
             raise UserWrongOldPassword()
         loader = partial(f.filter_one_obj, curs, for_update=True)
-        d = {'new_password': a.encrypt_password(data['new_password'])}
+        salt = a.salt()
+        d = {'new_salt': salt,
+            'new_password': a.encrypt_password(data['new_password'], salt)}
         self.update_obj(curs, d, loader)
         return response_ok()
 
@@ -269,7 +277,9 @@ class Handler(AbstractHandler):
         data['new_groups_ids'] = filtered_g_ids
         if 'new_password' in data:
             a = Authentifier()
-            data['new_password'] = a.encrypt_password(data['new_password'])
+            salt = a.salt()
+            data['new_password'] = a.encrypt_password(data['new_password'], salt)
+            data['new_salt'] = salt
 
         f = UserFilter(session, {'ids': u_ids}, {}, 'id')
         loader = partial(f.filter_objs, curs, for_update=True)
