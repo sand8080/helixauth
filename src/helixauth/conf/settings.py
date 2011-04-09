@@ -15,7 +15,7 @@ server_connections = 50
 session_valid_minutes = 500
 
 import logging
-log_filename = '/var/log/helix/helixauth.log'
+log_filename = '/var/log/helixproject/helixauth.log'
 log_level = logging.DEBUG
 log_format = "%(asctime)s [%(levelname)s] - %(message)s"
 log_console = False
