@@ -24,7 +24,6 @@ class ApplicationTestCase(LogicTestCase):
     def test_invalid_request(self):
         result = self.cli.request({'action': 'fakeaction'})
         self.assertEqual('error', result['status'])
-        self.assertEqual('validation', result['category'])
 
     @profile
     def ping_loading(self, repeats=1): #IGNORE:W0613
