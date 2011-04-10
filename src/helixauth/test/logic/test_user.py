@@ -78,6 +78,41 @@ class UserTestCase(ActorLogicTestCase):
             u = users[0]
             self.assertEquals('user_%s' % i, u['login'])
 
+    def test_deactivated_user_actions_denied(self):
+        sess_id = self.login_actor()
+        # adding user
+        u0_login = 'u0'
+        u0_password = 'p0'
+        req = {'session_id': sess_id, 'login': u0_login,
+            'password': u0_password, 'role': User.ROLE_USER,
+            'groups_ids': []}
+        resp = self.add_user(**req)
+        self.check_response_ok(resp)
+        u0_id = resp['id']
+
+        users = self._get_users(sess_id, [u0_id])
+        self.assertEquals(1, len(users))
+        u = users[0]
+        self.assertEquals(u0_login, u['login'])
+        self.assertEquals(True, u['is_active'])
+        self.assertEquals([], u['groups_ids'])
+        self.assertEquals(User.ROLE_USER, u['role'])
+
+        # login user
+        req = {'environment_name': self.actor_env_name,
+            'login': u0_login, 'password': u0_password}
+        resp = self.login(**req)
+        self.check_response_ok(resp)
+        s0_id = resp['session_id']
+        # deactivating user
+        req = {'session_id': sess_id, 'ids': [u0_id],
+            'new_is_active': False}
+        resp = self.modify_users(**req)
+        self.check_response_ok(resp)
+        # checking actions deprecated
+        req = {'session_id': s0_id}
+        self.assertRaises(RequestProcessingError, self.get_user_rights, **req)
+
     def test_modify_users(self):
         sess_id = self.login_actor()
         # adding user
