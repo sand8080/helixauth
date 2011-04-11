@@ -69,7 +69,7 @@ class Authentifier(object):
         return actions
 
     def _get_session_data(self, curs, env, user):
-        f = ServiceFilter(env.id, {}, {}, None)
+        f = ServiceFilter(env.id, {'is_active': True}, {}, None)
         srvs = f.filter_objs(curs)
         srvs_id_type_idx = dict([(str(s.id), s.type) for s in srvs])
         return {'services_id_type_idx': srvs_id_type_idx,
@@ -78,7 +78,8 @@ class Authentifier(object):
     def _get_user_rights(self, curs, env, user, srvs):
         rights = {}
         if user.role != User.ROLE_SUPER:
-            f = GroupFilter(env.id, {'ids': user.groups_ids}, {}, None)
+            f = GroupFilter(env.id, {'ids': user.groups_ids, 'is_active': True},
+                {}, None)
             groups = f.filter_objs(curs)
             for g in groups:
                 rights_lst = cjson.decode(g.serialized_rights)

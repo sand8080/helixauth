@@ -113,6 +113,7 @@ class GroupFilter(EnvironmentObjectsFilter):
         ('id', 'id', Eq),
         ('ids', 'id', In),
         ('name', 'name', Like),
+        ('is_active', 'is_active', Eq),
     ]
 
     def __init__(self, environment_id, filter_params, paging_params, ordering_params):
