@@ -1,7 +1,10 @@
+import cjson
 from functools import partial
+from functools import wraps
 
 from helixcore import mapping
 from helixcore.actions.handler import detalize_error, AbstractHandler
+from helixcore.db.wrapper import ObjectCreationError
 from helixcore.error import DataIntegrityError
 from helixcore.server.response import response_ok
 
@@ -17,9 +20,6 @@ from helixauth.db.dataobject import (Environment, User, Service,
     Group, serialize_field, deserialize_field)
 from helixauth.logic.auth import Authentifier
 from helixauth.wsgi.protocol import unauthorized_actions
-import cjson
-from helixcore.db.wrapper import ObjectCreationError
-from functools import wraps
 
 
 def _add_log_info(data, session, custom_actor_info=None):

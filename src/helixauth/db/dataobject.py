@@ -1,5 +1,6 @@
-from helixcore.mapping.objects import Mapped
 import cjson
+
+from helixcore.mapping.objects import Mapped
 
 
 def serialize_field(d, f_src_name, f_dst_name):
