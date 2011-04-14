@@ -1,13 +1,13 @@
 # coding=utf-8
-from helixauth.test.root_test import RootTestCase
-from helixauth.wsgi.protocol import protocol
-from helixcore.error import ValidationError
-from helixcore.server.api import Api
 import datetime
 import pytz
 import unittest
 
+from helixcore.server.api import Api
+from helixcore.error import ValidationError
 
+from helixauth.test.root_test import RootTestCase
+from helixauth.wsgi.protocol import protocol
 
 
 class ProtocolTestCase(RootTestCase):
