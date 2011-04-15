@@ -1,7 +1,8 @@
 import unittest
 
-from helixauth.test.logic.logic_test import LogicTestCase
 from helixcore.error import RequestProcessingError
+
+from helixauth.test.logic.logic_test import LogicTestCase
 
 
 class LoginTestCase(LogicTestCase):

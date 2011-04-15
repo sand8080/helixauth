@@ -3,6 +3,7 @@ from datetime import timedelta
 
 from helixcore import mapping
 from helixcore.server.api import Api
+from helixcore.test.utils_for_testing import get_api_calls
 
 # must be imported first in helixauth set
 from helixauth.test.db_based_test import DbBasedTestCase
@@ -13,7 +14,7 @@ from helixauth.db.filters import (EnvironmentFilter, SessionFilter,
     SubjectUserFilter, ServiceFilter)
 from helixauth.logic import actions
 from helixauth.wsgi.protocol import protocol
-from helixauth.test.wsgi.client import get_api_calls
+
 
 
 class LogicTestCase(DbBasedTestCase):
@@ -75,6 +76,6 @@ def make_api_call(f_name):
     return m
 
 
-methods = get_api_calls()
+methods = get_api_calls(protocol)
 for method_name in methods:
     setattr(LogicTestCase, method_name, make_api_call(method_name))
