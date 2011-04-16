@@ -13,6 +13,22 @@ class AccessTestCase(ActorLogicTestCase):
             'service_type': Service.TYPE_AUTH}
         resp = self.check_access(**req)
         self.check_response_ok(resp)
+        env_id = resp['environment_id']
+        user_id = resp['user_id']
+
+        req = {'session_id': sess_id}
+        resp = self.get_environment(**req)
+        self.check_response_ok(resp)
+        env = resp['environment']
+        self.assertEquals(env_id, env['id'])
+
+        req = {'session_id': sess_id, 'filter_params': {'login': self.actor_login},
+            'paging_params': {}}
+        resp = self.get_users(**req)
+        self.check_response_ok(resp)
+        user = resp['users'][0]
+        self.assertEquals(user_id, user['id'])
+
         # checking fake property access denied
         req = { 'session_id': sess_id, 'property': 'fake',
             'service_type': Service.TYPE_AUTH}

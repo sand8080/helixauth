@@ -433,4 +433,5 @@ class Handler(AbstractHandler):
         srv_type = data.get('service_type', None)
         p = data.get('property', None)
         a.check_access(session, srv_type, p)
-        return response_ok()
+        return response_ok(user_id=session.user_id,
+            environment_id=session.environment_id)

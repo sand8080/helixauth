@@ -8,7 +8,8 @@ from helixcore.server.protocol_primitives import (REQUEST_PAGING_PARAMS,
     ADDING_OBJECT_RESPONSE,
     PING_REQUEST, PING_RESPONSE,
     LOGIN_REQUEST, LOGIN_RESPONSE,
-    LOGOUT_REQUEST, LOGOUT_RESPONSE)
+    LOGOUT_REQUEST, LOGOUT_RESPONSE,
+    CHECK_ACCESS_REQUEST, CHECK_ACCESS_RESPONSE)
 
 from helixauth.db import dataobject
 
@@ -319,18 +320,6 @@ GET_USER_RIGHTS_RESPONSE = AnyOf(
     ),
     RESPONSE_STATUS_ERROR
 )
-
-CHECK_ACCESS_REQUEST = dict(
-    {
-        Optional('service_id'): int,
-        'service_type': Text(),
-        'property': Text(),
-    },
-    **AUTHORIZED_REQUEST_AUTH_INFO
-)
-
-CHECK_ACCESS_RESPONSE = RESPONSE_STATUS_ONLY
-
 
 unauthorized_actions = ('ping', 'get_api_actions', 'add_environment',
     'get_authorized_api_actions')

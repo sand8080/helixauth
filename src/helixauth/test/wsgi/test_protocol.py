@@ -14,29 +14,27 @@ class ProtocolTestCase(RootTestCase):
     api = Api(protocol)
 
     def validate_error_response(self, action_name):
-        self.api.validate_response(action_name, {'status': 'error', 'category': 't',
-            'code': 'c', 'message': 'h', 'details': [{'f': 'v'}]})
-        self.api.validate_response(action_name, {'status': 'error', 'category': 't',
-            'code': 'c', 'message': 'h', 'details': [{}]})
+        self.api.validate_response(action_name, {'status': 'error',
+            'code': 'c', 'message': 'h'})
         self.assertRaises(ValidationError, self.api.validate_response, action_name,
-            {'status': 'error', 'code': 'c', 'category': 'test'})
+            {'status': 'error', 'code': 'c', 'category': 'c'})
         self.assertRaises(ValidationError, self.api.validate_response, action_name,
-            {'status': 'error', 'code': 'c', 'category': 'test', 'message': 'm'})
+            {'status': 'error', 'code': 'c', 'message': 'm', 'details': []})
 
     def validate_authorized_error_response(self, action_name):
         self.api.validate_response(action_name, {'session_id': 'i',
-            'status': 'error', 'category': 't', 'code': 'c',
-            'message': 'h', 'details': [{'f': 'v'}]})
+            'status': 'error', 'code': 'c',
+            'message': 'h', 'fields': [{'f': 'v'}]})
         self.api.validate_response(action_name, {'session_id': 'i',
-            'status': 'error', 'category': 't', 'code': 'c',
-            'message': 'h', 'details': [{}]})
+            'status': 'error', 'code': 'c',
+            'message': 'h', 'fields': [{}]})
         self.assertRaises(ValidationError, self.api.validate_response, action_name,
-            {'status': 'error', 'category': 't', 'code': 'c',
-            'message': 'h', 'details': [{'f': 'v'}]})
+            {'status': 'error', 'code': 'c',
+            'message': 'h', 'fields': [{'f': 'v'}]})
         self.assertRaises(ValidationError, self.api.validate_response, action_name,
-            {'status': 'error', 'category': 'test', 'code': 'c'})
+            {'status': 'error', 'code': 'c'})
         self.assertRaises(ValidationError, self.api.validate_response, action_name,
-            {'status': 'error', 'category': 'test', 'code': 'c', 'message': 'm'})
+            {'status': 'error', 'code': 'c', 'message': 'm'})
 
     def validate_status_response(self, action_name):
         self.api.validate_response(action_name, {'status': 'ok'})
@@ -479,9 +477,10 @@ class ProtocolTestCase(RootTestCase):
         a_name = 'check_access'
         self.api.validate_request(a_name, {'session_id': 's',
             'service_type': 't', 'property': 'p'})
-        self.api.validate_request(a_name, {'session_id': 's', 'service_id': 1,
-            'service_type': 't', 'property': 'p'})
-        self.validate_status_response(a_name)
+
+        self.api.validate_response(a_name, {'status': 'ok',
+            'user_id': 1, 'environment_id': 1})
+        self.validate_error_response(a_name)
 
 
 if __name__ == '__main__':

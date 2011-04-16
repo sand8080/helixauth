@@ -16,7 +16,6 @@ from helixauth.logic import actions
 from helixauth.wsgi.protocol import protocol
 
 
-
 class LogicTestCase(DbBasedTestCase):
     def handle_action(self, action, data):
         api = Api(protocol)
