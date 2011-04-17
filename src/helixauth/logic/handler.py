@@ -112,7 +112,8 @@ class Handler(AbstractHandler):
 
         _add_log_info(data, session)
 
-        return response_ok(session_id=session.session_id)
+        return response_ok(session_id=session.session_id,
+            user_id=session.user_id, environment_id=session.environment_id)
 
     @transaction()
     @detalize_error(HelixauthError, 'session_id')
