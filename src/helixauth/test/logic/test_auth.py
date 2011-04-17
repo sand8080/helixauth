@@ -1,12 +1,12 @@
 import unittest
 
 from helixauth.test.root_test import RootTestCase
-from helixauth.logic.auth import Authentifier
+from helixauth.logic.auth import Authenticator
 
 
 class AuthTestCase(RootTestCase):
     def test_salt(self):
-        a = Authentifier()
+        a = Authenticator()
         for _ in xrange(1000):
             s = a.salt()
             self.assertNotEquals(None, s)
@@ -14,7 +14,7 @@ class AuthTestCase(RootTestCase):
 
 
     def test_encrypt_password(self):
-        a = Authentifier()
+        a = Authenticator()
         p = a.encrypt_password('pass', 'salt')
         self.assertNotEquals(None, p)
         self.assertNotEquals('', p)

@@ -15,7 +15,7 @@ from helixauth.error import SessionExpired, UserAccessDenied
 from helixauth.wsgi.protocol import protocol
 
 
-class Authentifier(object):
+class Authenticator(object):
     def encrypt_password(self, password, salt):
         h = sha512()
         h.update(password)

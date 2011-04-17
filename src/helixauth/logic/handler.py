@@ -18,7 +18,7 @@ from helixauth.db.filters import (EnvironmentFilter, UserFilter, ServiceFilter,
     SubjectUserFilter, GroupFilter, SessionFilter, ActionLogFilter)
 from helixauth.db.dataobject import (Environment, User, Service,
     Group, serialize_field, deserialize_field)
-from helixauth.logic.auth import Authentifier
+from helixauth.logic.auth import Authenticator
 from helixauth.wsgi.protocol import unauthorized_actions
 
 
@@ -30,13 +30,13 @@ def _add_log_info(data, session, custom_actor_info=None):
         data['custom_actor_info'] = custom_actor_info
 
 
-def authentificate(method):
+def authenticate(method):
     @wraps(method)
     @detalize_error(SessionNotFound, 'session_id')
     @detalize_error(SessionExpired, 'session_id')
     @detalize_error(HelixauthError, 'session_id')
     def decroated(self, data, curs):
-        auth = Authentifier()
+        auth = Authenticator()
         session_id = data.get('session_id')
         session = auth.get_session(session_id)
 
@@ -71,7 +71,7 @@ class Handler(AbstractHandler):
         return response_ok()
 
     def get_api_actions(self, data):
-        a = Authentifier()
+        a = Authenticator()
         actions = a.get_auth_api_actions()
         return response_ok(actions=actions)
 
@@ -102,7 +102,7 @@ class Handler(AbstractHandler):
             raise UserInactive()
 
         # checking password
-        auth = Authentifier()
+        auth = Authenticator()
         enc_p = auth.encrypt_password(data.get('password'), user.salt)
         if enc_p != user.password:
             raise UserAuthError
@@ -140,7 +140,7 @@ class Handler(AbstractHandler):
             raise HelixauthObjectAlreadyExists('Environment %s already exists' % env.name)
 
         # creating user
-        a = Authentifier()
+        a = Authenticator()
         salt = a.salt()
         u_data = {'environment_id': env.id, 'login': data.get('su_login'),
             'password': a.encrypt_password(data.get('su_password'), salt),
@@ -169,7 +169,7 @@ class Handler(AbstractHandler):
         mapping.save(curs, g)
 
         # creating session for super user
-        auth = Authentifier()
+        auth = Authenticator()
         session = auth.create_session(curs, env, user)
 
         _add_log_info(data, session)
@@ -178,14 +178,14 @@ class Handler(AbstractHandler):
             environment_id=env.id)
 
     @transaction()
-    @authentificate
+    @authenticate
     def get_environment(self, data, session, curs=None):
         f = EnvironmentFilter({'id': session.environment_id}, {}, None)
         env = f.filter_one_obj(curs)
         return response_ok(environment=env.to_dict())
 
     @transaction()
-    @authentificate
+    @authenticate
     @detalize_error(HelixauthObjectAlreadyExists, 'new_name')
     def modify_environment(self, data, session, curs=None):
         f = EnvironmentFilter({'id': session.environment_id}, {}, None)
@@ -204,11 +204,11 @@ class Handler(AbstractHandler):
         return filter(lambda x: x in g_ids, groups_ids)
 
     @transaction()
-    @authentificate
+    @authenticate
     @detalize_error(HelixauthObjectAlreadyExists, 'login')
     @detalize_error(SuperUserCreationDenied, 'role')
     def add_user(self, data, session, curs=None):
-        a = Authentifier()
+        a = Authenticator()
         env_id = session.environment_id
         salt = a.salt()
         u_data = {'environment_id': env_id, 'login': data.get('login'),
@@ -233,7 +233,7 @@ class Handler(AbstractHandler):
         return response_ok(id=user.id)
 
     @transaction()
-    @authentificate
+    @authenticate
     def get_users(self, data, session, curs=None):
         f = UserFilter(session, data['filter_params'],
             data['paging_params'], data.get('ordering_params'))
@@ -247,13 +247,13 @@ class Handler(AbstractHandler):
         return response_ok(users=self.objects_info(users, viewer), total=total)
 
     @transaction()
-    @authentificate
+    @authenticate
     @detalize_error(UserWrongOldPassword, 'old_password')
     def modify_user_self(self, data, session, curs=None):
         f = UserFilter(session, {'id': session.user_id}, {}, None)
         user = f.filter_one_obj(curs)
         old_password = data['old_password']
-        a = Authentifier()
+        a = Authenticator()
         if user.password != a.encrypt_password(old_password, user.salt):
             raise UserWrongOldPassword()
         loader = partial(f.filter_one_obj, curs, for_update=True)
@@ -264,7 +264,7 @@ class Handler(AbstractHandler):
         return response_ok()
 
     @transaction()
-    @authentificate
+    @authenticate
     @detalize_error(SuperUserModificationDenied, 'subject_users_ids')
     @detalize_error(DataIntegrityError, 'ids')
     def modify_users(self, data, session, curs=None):
@@ -277,7 +277,7 @@ class Handler(AbstractHandler):
         filtered_g_ids = self._filter_existed_groups(curs, session, groups_ids)
         data['new_groups_ids'] = filtered_g_ids
         if 'new_password' in data:
-            a = Authentifier()
+            a = Authenticator()
             salt = a.salt()
             data['new_password'] = a.encrypt_password(data['new_password'], salt)
             data['new_salt'] = salt
@@ -288,7 +288,7 @@ class Handler(AbstractHandler):
         return response_ok()
 
     @transaction()
-    @authentificate
+    @authenticate
     @detalize_error(ObjectCreationError, 'type')
     def add_service(self, data, session, curs=None):
         d = dict(data)
@@ -302,7 +302,7 @@ class Handler(AbstractHandler):
         return response_ok(id=s.id)
 
     @transaction()
-    @authentificate
+    @authenticate
     def get_services(self, data, session, curs=None):
         f = ServiceFilter(session.environment_id, data['filter_params'],
             data['paging_params'], data.get('ordering_params'))
@@ -316,7 +316,7 @@ class Handler(AbstractHandler):
             total=total)
 
     @transaction()
-    @authentificate
+    @authenticate
     @detalize_error(HelixauthObjectAlreadyExists, 'new_name')
     @detalize_error(ServiceDeactivationError, 'new_is_active')
     def modify_service(self, data, session, curs=None):
@@ -337,7 +337,7 @@ class Handler(AbstractHandler):
         return response_ok()
 
     @transaction()
-    @authentificate
+    @authenticate
     @detalize_error(GroupAlreadyExists, 'name')
     def add_group(self, data, session, curs=None):
         group = Group(**data)
@@ -349,7 +349,7 @@ class Handler(AbstractHandler):
         return response_ok(id=group.id)
 
     @transaction()
-    @authentificate
+    @authenticate
     @detalize_error(GroupAlreadyExists, 'name')
     def modify_group(self, data, session, curs=None):
         f = GroupFilter(session.environment_id, {'id': data.get('id')}, {}, None)
@@ -362,7 +362,7 @@ class Handler(AbstractHandler):
         return response_ok()
 
     @transaction()
-    @authentificate
+    @authenticate
     @detalize_error(HelixauthObjectNotFound, 'id')
     def delete_group(self, data, session, curs=None):
         f = GroupFilter(session.environment_id, {'id': data.get('id')}, {}, None)
@@ -370,7 +370,7 @@ class Handler(AbstractHandler):
         return response_ok()
 
     @transaction()
-    @authentificate
+    @authenticate
     def get_groups(self, data, session, curs=None):
         f = GroupFilter(session.environment_id, data['filter_params'],
             data['paging_params'], data.get('ordering_params'))
@@ -385,7 +385,7 @@ class Handler(AbstractHandler):
             total=total)
 
     @transaction()
-    @authentificate
+    @authenticate
     def get_action_logs(self, data, session, curs=None):
         return self._get_action_logs(data, session, curs)
 
@@ -406,13 +406,13 @@ class Handler(AbstractHandler):
             total=total)
 
     @transaction()
-    @authentificate
+    @authenticate
     def get_action_logs_self(self, data, session, curs=None):
         data['filter_params']['user_id'] = session.user_id
         return self._get_action_logs(data, session, curs)
 
     @transaction()
-    @authentificate
+    @authenticate
     @detalize_error(UserAuthError, [])
     def get_user_rights(self, data, session, curs=None):
         s_data = cjson.decode(session.serialized_data)
@@ -427,10 +427,10 @@ class Handler(AbstractHandler):
         return response_ok(rights=rights)
 
     @transaction()
-    @authentificate
+    @authenticate
     @detalize_error(UserAuthError, [])
     def check_access(self, data, session, curs=None):
-        a = Authentifier()
+        a = Authenticator()
         srv_type = data.get('service_type', None)
         p = data.get('property', None)
         a.check_access(session, srv_type, p)
