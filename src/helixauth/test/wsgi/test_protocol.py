@@ -4,50 +4,14 @@ import pytz
 import unittest
 
 from helixcore.server.api import Api
-from helixcore.error import ValidationError
+from helixcore.test.utils_for_testing import ProtocolTester
 
 from helixauth.test.root_test import RootTestCase
 from helixauth.wsgi.protocol import protocol
 
 
-class ProtocolTestCase(RootTestCase):
+class ProtocolTestCase(RootTestCase, ProtocolTester):
     api = Api(protocol)
-
-    def validate_error_response(self, action_name):
-        self.api.validate_response(action_name, {'status': 'error',
-            'code': 'c', 'message': 'h'})
-        self.assertRaises(ValidationError, self.api.validate_response, action_name,
-            {'status': 'error', 'code': 'c', 'category': 'c'})
-        self.assertRaises(ValidationError, self.api.validate_response, action_name,
-            {'status': 'error', 'code': 'c', 'message': 'm', 'details': []})
-
-    def validate_authorized_error_response(self, action_name):
-        self.api.validate_response(action_name, {'session_id': 'i',
-            'status': 'error', 'code': 'c',
-            'message': 'h', 'fields': [{'f': 'v'}]})
-        self.api.validate_response(action_name, {'session_id': 'i',
-            'status': 'error', 'code': 'c',
-            'message': 'h', 'fields': [{}]})
-        self.assertRaises(ValidationError, self.api.validate_response, action_name,
-            {'status': 'error', 'code': 'c',
-            'message': 'h', 'fields': [{'f': 'v'}]})
-        self.assertRaises(ValidationError, self.api.validate_response, action_name,
-            {'status': 'error', 'code': 'c'})
-        self.assertRaises(ValidationError, self.api.validate_response, action_name,
-            {'status': 'error', 'code': 'c', 'message': 'm'})
-
-    def validate_status_response(self, action_name):
-        self.api.validate_response(action_name, {'status': 'ok'})
-        self.validate_error_response(action_name)
-
-    def validate_authorized_status_response(self, action_name):
-        self.api.validate_response(action_name, {'status': 'ok', 'session_id': 'i'})
-        self.validate_authorized_error_response(action_name)
-
-    def test_ping(self):
-        a_name = 'ping'
-        self.api.validate_request(a_name, {})
-        self.validate_status_response(a_name)
 
     def test_get_api_actions(self):
         a_name = 'get_api_actions'
@@ -59,22 +23,6 @@ class ProtocolTestCase(RootTestCase):
         self.validate_error_response(a_name)
 
     test_get_auuthorized_api_actions = test_get_api_actions
-
-    def test_login(self):
-        a_name = 'login'
-        self.api.validate_request(a_name, {'login': 'l', 'password': 'p',
-            'environment_name': 'e', 'custom_actor_info': 'i'})
-        self.api.validate_request(a_name, {'login': 'l', 'password': 'p',
-            'environment_name': 'n'})
-
-        self.api.validate_response(a_name, {'status': 'ok', 'session_id': 'i',
-            'user_id': 5, 'environment_id': 7})
-        self.validate_error_response(a_name)
-
-    def test_logout(self):
-        a_name = 'logout'
-        self.api.validate_request(a_name, {'session_id': 'i'})
-        self.validate_status_response(a_name)
 
     def test_add_environment(self):
         a_name = 'add_environment'
