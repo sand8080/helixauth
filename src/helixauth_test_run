@@ -2,5 +2,6 @@
 import helixauth.test.test_env
 from helixauth.wsgi.server import Server
 
+
 if __name__ == '__main__':
     Server.run()
