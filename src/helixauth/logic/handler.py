@@ -129,6 +129,43 @@ class Handler(AbstractHandler):
             pass
         return response_ok()
 
+    def _create_default_objects(self, curs, env):
+        # adding default service auth
+        a_data = self.get_authorized_api_actions({})
+        actions_auth = a_data['actions']
+        d = {'environment_id': env.id, 'name': 'Auth',
+            'type': Service.TYPE_AUTH, 'is_active': True,
+            'is_possible_deactiate': False, 'properties': actions_auth}
+        s_auth = Service(**d)
+        mapping.save(curs, s_auth)
+
+        # adding default service billing
+        actions_billing = ['get_currencies', 'get_used_currencies']
+        d = {'environment_id': env.id, 'name': 'Billing',
+            'type': Service.TYPE_BILLING, 'is_active': True,
+            'is_possible_deactiate': True, 'properties': actions_billing}
+        s_billing = Service(**d)
+        mapping.save(curs, s_billing)
+
+        # adding groups of administrators and users
+        d = {'environment_id': env.id, 'name': 'Administrators', 'is_active': True,
+            'rights': [
+                {'service_id': s_auth.id, 'properties': actions_auth},
+                {'service_id': s_billing.id, 'properties': actions_billing}
+            ]}
+        g = Group(**d)
+        mapping.save(curs, g)
+
+        d = {'environment_id': env.id, 'name': 'Users', 'is_active': True,
+            'rights': [
+                {'service_id': s_auth.id, 'properties': ['modify_user_self',
+                    'get_user_rights', 'check_access', 'get_action_logs_self']},
+                {'service_id': s_billing.id, 'properties': ['get_used_currencies',
+                    ]},
+            ]}
+        g = Group(**d)
+        mapping.save(curs, g)
+
     @transaction()
     @detalize_error(HelixauthObjectAlreadyExists, ['name', 'su_login', 'su_password'])
     def add_environment(self, data, curs=None):
@@ -148,25 +185,8 @@ class Handler(AbstractHandler):
         user = User(**u_data)
         mapping.save(curs, user)
 
-        # adding default service auth
-        a_data = self.get_authorized_api_actions({})
-        actions = a_data['actions']
-        d = {'environment_id': env.id, 'name': 'Auth',
-            'type': Service.TYPE_AUTH, 'is_active': True,
-            'is_possible_deactiate': False, 'properties': actions}
-        s = Service(**d)
-        mapping.save(curs, s)
-
-        # adding groups of administrators and users
-        d = {'environment_id': env.id, 'name': 'Administrators', 'is_active': True,
-            'rights': [{'service_id': s.id, 'properties': actions}]}
-        g = Group(**d)
-        mapping.save(curs, g)
-        d = {'environment_id': env.id, 'name': 'Users', 'is_active': True,
-            'rights': [{'service_id': s.id, 'properties': ['modify_user_self',
-            'get_user_rights', 'check_access', 'get_action_logs_self']}]}
-        g = Group(**d)
-        mapping.save(curs, g)
+        # creating default services and groups
+        self._create_default_objects(curs, env)
 
         # creating session for super user
         auth = Authenticator()
