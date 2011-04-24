@@ -16,7 +16,7 @@ class HelixauthApplication(Application):
 
     @transaction()
     def track_api_call(self, remote_addr, s_req, s_resp,
-        action_name, processed_data, curs=None): #IGNORE:W0221
+        action_name, processed_data, curs=None):
         super(HelixauthApplication, self).track_api_call(remote_addr, s_req, s_resp,
             action_name, processed_data)
 

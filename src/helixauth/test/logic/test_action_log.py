@@ -1,12 +1,14 @@
 # coding=utf-8
 import unittest
 
+from helixcore.test.utils_for_testing import ActionsLogTester
+
 from helixauth.test.logic.actor_logic_test import ActorLogicTestCase
 from helixauth.test.wsgi.client import Client
 from helixauth.db.dataobject import Service
 
 
-class ActionLogTestCase(ActorLogicTestCase):
+class ActionLogTestCase(ActorLogicTestCase, ActionsLogTester):
     def setUp(self):
         super(ActionLogTestCase, self).setUp()
         self.cli = Client()
@@ -20,40 +22,6 @@ class ActionLogTestCase(ActorLogicTestCase):
         resp = self.cli.login(**req)
         self.check_response_ok(resp)
         return resp['session_id']
-
-    def _do_count(self, sess_id, action, filtering_method):
-        req = {'session_id': sess_id, 'filter_params': {'action': action},
-            'paging_params': {}, 'ordering_params': []}
-        resp = filtering_method(**req)
-        self.check_response_ok(resp)
-        return len(resp['action_logs'])
-
-    def _count_records(self, sess_id, action):
-        return self._do_count(sess_id, action, self.cli.get_action_logs)
-
-    def _count_self_records(self, sess_id, action):
-        return self._do_count(sess_id, action, self.cli.get_action_logs_self)
-
-    def _logged_action(self, action, req):
-        sess_id = req['session_id']
-        logs_num = self._count_records(sess_id, action)
-        api_call = getattr(self.cli, action)
-        resp = api_call(**req)
-        self.check_response_ok(resp)
-        self.assertEquals(logs_num + 1, self._count_records(sess_id, action))
-
-    def _not_logged_action(self, action, sess_id, req):
-        api_call = getattr(self.cli, action)
-        req['session_id'] = sess_id
-        api_call(**req)
-        self.assertEquals(0, self._count_records(sess_id, action))
-
-    def _not_logged_filtering_action(self, action, sess_id):
-        req = {'filter_params': {}, 'paging_params': {}}
-        self._not_logged_action(action, sess_id, req)
-
-    def check_response_ok(self, resp):
-        self.assertEqual('ok', resp['status'])
 
     def test_login(self):
         action = 'login'
