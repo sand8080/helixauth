@@ -140,7 +140,7 @@ class Handler(AbstractHandler):
         mapping.save(curs, s_auth)
 
         # adding default service billing
-        actions_billing = ['get_currencies', 'get_used_currencies']
+        actions_billing = ['get_currencies', 'get_used_currencies', 'modify_used_currencies']
         d = {'environment_id': env.id, 'name': 'Billing',
             'type': Service.TYPE_BILLING, 'is_active': True,
             'is_possible_deactiate': True, 'properties': actions_billing}
