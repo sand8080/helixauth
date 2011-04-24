@@ -5,7 +5,7 @@ def apply(curs):
         CREATE TABLE action_log (
             id serial,
             PRIMARY KEY(id),
-            environment_id integer,
+            environment_id integer NOT NULL,
             FOREIGN KEY (environment_id) REFERENCES environment(id),
             session_id text,
             custom_actor_user_info varchar,
@@ -24,6 +24,12 @@ def apply(curs):
     curs.execute(
     '''
         CREATE INDEX action_log_environment_id_idx ON action_log(environment_id);
+    ''')
+
+    print 'Creating index action_log_environment_id_actor_user_id_idx on action_log'
+    curs.execute(
+    '''
+        CREATE INDEX action_log_environment_id_actor_user_id_idx ON action_log(environment_id, actor_user_id);
     ''')
 
     print 'Creating index action_log_environment_id_session_id_idx on action_log'
@@ -52,11 +58,14 @@ def revert(curs):
     print 'Dropping index action_log_environment_id_action_idx on action_log'
     curs.execute('DROP INDEX IF EXISTS action_log_environment_id_action_idx')
 
-    print 'Dropping index action_log_environment_id_idx on action_log'
-    curs.execute('DROP INDEX IF EXISTS action_log_environment_id_idx')
-
     print 'Dropping index action_log_environment_id_session_id_idx on action_log'
     curs.execute('DROP INDEX IF EXISTS action_log_environment_id_session_id_idx')
+
+    print 'Dropping index action_log_environment_id_actor_user_id_idx on action_log'
+    curs.execute('DROP INDEX IF EXISTS action_log_environment_id_actor_user_id_idx')
+
+    print 'Dropping index action_log_environment_id_idx on action_log'
+    curs.execute('DROP INDEX IF EXISTS action_log_environment_id_idx')
 
     print 'Dropping table action_log'
     curs.execute('DROP TABLE IF EXISTS action_log')
