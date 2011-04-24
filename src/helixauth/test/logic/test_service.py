@@ -18,23 +18,31 @@ class ServiceTestCase(ActorLogicTestCase):
     def test_default_service_created(self, curs=None):
         env = self.get_environment_by_name(self.actor_env_name)
         f = ServiceFilter(env.id, {}, {}, None)
-        s = f.filter_one_obj(curs)
-        self.assertEqual('Auth', s.name)
-        self.assertEqual(env.id, s.environment_id)
-        self.assertEqual(True, s.is_active)
-        self.assertEqual(False, s.is_possible_deactiate)
+        srvs = f.filter_objs(curs)
+        s_auth = srvs[0]
+        s_billing = srvs[1]
+
+        self.assertEqual('Auth', s_auth.name)
+        self.assertEqual(env.id, s_auth.environment_id)
+        self.assertEqual(True, s_auth.is_active)
+        self.assertEqual(False, s_auth.is_possible_deactiate)
 
         resp = self.get_authorized_api_actions()
         self.check_response_ok(resp)
         auth_a = resp['actions']
 
-        srv_props = cjson.decode(s.serialized_properties)
+        srv_props = cjson.decode(s_auth.serialized_properties)
         self.assertEqual(auth_a, srv_props)
+
+        self.assertEqual('Billing', s_billing.name)
+        self.assertEqual(env.id, s_billing.environment_id)
+        self.assertEqual(True, s_billing.is_active)
+        self.assertEqual(True, s_billing.is_possible_deactiate)
 
     def test_add_service(self):
         session_id = self.login_actor()
         req_srv = {'session_id': session_id, 'name': u'сервис0',
-            'type': Service.TYPE_BILLING, 'properties': ['alpha', u'бетта']}
+            'type': 'new_service', 'properties': ['alpha', u'бетта']}
         resp = self.add_service(**req_srv)
         self.check_response_ok(resp)
 
@@ -54,15 +62,20 @@ class ServiceTestCase(ActorLogicTestCase):
         session_id = self.login_actor()
         req = {'session_id': session_id, 'name': u'сервис0',
             'type': Service.TYPE_BILLING, 'properties': ['alpha', u'бетта']}
-        resp = self.add_service(**req)
-        self.check_response_ok(resp)
         self.assertRaises(RequestProcessingError, self.add_service, **req)
 
     def test_get_services(self):
         session_id = self.login_actor()
+
+        req = {'session_id': session_id, 'filter_params': {},
+            'paging_params': {}, 'ordering_params': ['name']}
+        resp = self.get_services(**req)
+        self.check_response_ok(resp)
+        existed_num = resp['total']
+
         req = {'session_id': session_id, 'properties': ['alpha', u'бетта']}
         s_num = 10
-        for i in xrange(s_num - 1): # one service already exists
+        for i in xrange(s_num - existed_num): #  service already exists
             req['name'] = u'сервис_%d' % i
             req['type'] = u'тип_%d' % i
             self.add_service(**req)
@@ -136,7 +149,7 @@ class ServiceTestCase(ActorLogicTestCase):
 
         name_another = 'another %s' % srv.name
         req = {'session_id': session_id, 'name': name_another,
-            'properties': [], 'type': Service.TYPE_BILLING}
+            'properties': [], 'type': 'new_type'}
         resp = self.add_service(**req)
         self.check_response_ok(resp)
         srv_another = self.load_service(env.id, name_another)
