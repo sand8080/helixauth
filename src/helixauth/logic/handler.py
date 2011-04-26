@@ -140,7 +140,8 @@ class Handler(AbstractHandler):
         mapping.save(curs, s_auth)
 
         # adding default service billing
-        actions_billing = ['get_currencies', 'get_used_currencies', 'modify_used_currencies']
+        actions_billing = ['get_currencies', 'get_used_currencies', 'modify_used_currencies',
+            'get_action_logs', 'get_action_logs_self']
         d = {'environment_id': env.id, 'name': 'Billing',
             'type': Service.TYPE_BILLING, 'is_active': True,
             'is_possible_deactiate': True, 'properties': actions_billing}
@@ -409,6 +410,12 @@ class Handler(AbstractHandler):
     def get_action_logs(self, data, session, curs=None):
         return self._get_action_logs(data, session, curs)
 
+    @transaction()
+    @authenticate
+    def get_action_logs_self(self, data, session, curs=None):
+        data['filter_params']['user_id'] = session.user_id
+        return self._get_action_logs(data, session, curs)
+
     def _get_action_logs(self, data, session, curs):
         f_params = data['filter_params']
         u_id = f_params.pop('user_id', None)
@@ -424,12 +431,6 @@ class Handler(AbstractHandler):
             return result
         return response_ok(action_logs=self.objects_info(ss, viewer),
             total=total)
-
-    @transaction()
-    @authenticate
-    def get_action_logs_self(self, data, session, curs=None):
-        data['filter_params']['user_id'] = session.user_id
-        return self._get_action_logs(data, session, curs)
 
     @transaction()
     @authenticate
