@@ -86,14 +86,14 @@ class Handler(AbstractHandler):
     @detalize_error(UserAuthError, ['login', 'password'])
     @detalize_error(UserInactive, ['login', 'password'])
     def login(self, data, curs=None):
-        f = EnvironmentFilter(data, {}, {})
+        f = EnvironmentFilter(data, {}, None)
         env = f.filter_one_obj(curs)
 
         # Required for proper logging action
         data['environment_id'] = env.id
 
         f_params = {'environment_id': env.id, 'login': data.get('login')}
-        f = SubjectUserFilter(env.id, f_params, {}, {})
+        f = SubjectUserFilter(env.id, f_params, {}, None)
         try:
             user = f.filter_one_obj(curs)
         except UserNotFound:
@@ -120,7 +120,7 @@ class Handler(AbstractHandler):
     def logout(self, data, curs=None):
 
         session_id = data.get('session_id')
-        f = SessionFilter({'session_id': session_id}, {}, {})
+        f = SessionFilter({'session_id': session_id}, {}, None)
         try:
             session = f.filter_one_obj(curs, for_update=True)
             mapping.delete(curs, session)
@@ -317,7 +317,7 @@ class Handler(AbstractHandler):
             data['new_password'] = a.encrypt_password(data['new_password'], salt)
             data['new_salt'] = salt
 
-        f = UserFilter(session, {'ids': u_ids}, {}, 'id')
+        f = UserFilter(session, {'ids': u_ids}, {}, None)
         loader = partial(f.filter_objs, curs, for_update=True)
         self.update_objs(curs, data, loader)
         return response_ok()
