@@ -7,7 +7,7 @@ from helixcore.server.protocol_primitives import (REQUEST_PAGING_PARAMS,
     AUTHORIZED_REQUEST_AUTH_INFO,
     ADDING_OBJECT_RESPONSE,
     PING_REQUEST, PING_RESPONSE,
-    LOGIN_REQUEST, LOGIN_RESPONSE,
+    LOGIN_REQUEST,
     LOGOUT_REQUEST, LOGOUT_RESPONSE,
     CHECK_ACCESS_REQUEST, CHECK_ACCESS_RESPONSE)
 
@@ -34,6 +34,18 @@ ADD_ENVIRONMENT_REQUEST = {
 ADD_ENVIRONMENT_RESPONSE = AnyOf(
     dict({'environment_id': int,}, **AUTHORIZED_RESPONSE_STATUS_OK),
     AUTHORIZED_RESPONSE_STATUS_ERROR
+)
+
+LOGIN_RESPONSE = AnyOf(
+    dict(
+        RESPONSE_STATUS_OK,
+        **{
+            'session_id': Text(),
+            'user_id': int,
+            'environment_id': int,
+        }
+    ),
+    RESPONSE_STATUS_ERROR
 )
 
 GET_ENVIRONMENT_REQUEST = AUTHORIZED_REQUEST_AUTH_INFO
