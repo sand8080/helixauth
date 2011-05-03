@@ -153,13 +153,14 @@ class Handler(AbstractHandler):
         d = {'environment_id': env.id, 'name': 'Administrators', 'is_active': True,
             'rights': [
                 {'service_id': s_auth.id, 'properties': actions_auth},
-                {'service_id': s_billing.id, 'properties': actions_billing}
+                {'service_id': s_billing.id, 'properties': []}
             ]}
         g = Group(**d)
         mapping.save(curs, g)
 
         d = {'environment_id': env.id, 'name': 'Billing Administrators', 'is_active': True,
             'rights': [
+                {'service_id': s_auth.id, 'properties': []},
                 {'service_id': s_billing.id, 'properties': actions_billing}
             ]}
         g = Group(**d)
@@ -169,14 +170,16 @@ class Handler(AbstractHandler):
             'rights': [
                 {'service_id': s_auth.id, 'properties': ['modify_user_self',
                     'get_user_rights', 'check_access', 'get_action_logs_self']},
+                {'service_id': s_billing.id, 'properties': []},
             ]}
         g = Group(**d)
         mapping.save(curs, g)
 
         d = {'environment_id': env.id, 'name': 'Billing Users', 'is_active': True,
             'rights': [
-                {'service_id': s_billing.id, 'properties': ['get_action_logs_self',
-                'get_balance_self']},
+                {'service_id': s_auth.id, 'properties': []},
+                {'service_id': s_billing.id, 'properties': [
+                    'get_action_logs_self', 'get_balance_self']},
             ]}
         g = Group(**d)
         mapping.save(curs, g)
