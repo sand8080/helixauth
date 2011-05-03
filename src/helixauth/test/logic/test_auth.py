@@ -1,3 +1,4 @@
+# coding=utf-8
 import unittest
 
 from helixauth.test.root_test import RootTestCase
@@ -22,6 +23,8 @@ class AuthTestCase(RootTestCase):
         enc_p1 = a.encrypt_password('1', '2')
         enc_p2 = a.encrypt_password('1', '2')
         self.assertEquals(enc_p1, enc_p2)
+
+        enc_p2 = a.encrypt_password(u'чук', '2')
 
 
 if __name__ == '__main__':

@@ -17,6 +17,8 @@ from helixauth.wsgi.protocol import protocol
 
 class Authenticator(object):
     def encrypt_password(self, password, salt):
+        if isinstance(password, unicode):
+            password = password.encode('utf-8')
         h = sha512()
         h.update(password)
         p = h.hexdigest()

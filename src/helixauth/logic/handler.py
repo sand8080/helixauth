@@ -316,7 +316,6 @@ class Handler(AbstractHandler):
             salt = a.salt()
             data['new_password'] = a.encrypt_password(data['new_password'], salt)
             data['new_salt'] = salt
-
         f = UserFilter(session, {'ids': u_ids}, {}, None)
         loader = partial(f.filter_objs, curs, for_update=True)
         self.update_objs(curs, data, loader)
