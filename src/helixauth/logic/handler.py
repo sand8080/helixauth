@@ -142,7 +142,7 @@ class Handler(AbstractHandler):
         # adding default service billing
         actions_billing = ['get_currencies', 'get_used_currencies', 'modify_used_currencies',
             'get_action_logs', 'get_action_logs_self',
-            'add_balance']
+            'add_balance', 'get_balances', 'modify_balances']
         d = {'environment_id': env.id, 'name': 'Billing',
             'type': Service.TYPE_BILLING, 'is_active': True,
             'is_possible_deactiate': True, 'properties': actions_billing}
