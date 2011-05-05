@@ -53,7 +53,13 @@ def authenticate(method):
             data.pop('session_id', None)
             custom_actor_info = data.pop('custom_actor_info', None)
 
-            result = method(self, data, session, curs)
+            try:
+                result = method(self, data, session, curs)
+            except Exception, e:
+                data['environment_id'] = session.environment_id
+                _add_log_info(data, session, custom_actor_info)
+                raise e
+
             _add_log_info(data, session, custom_actor_info)
             return result
         except Exception, e:
