@@ -8,7 +8,7 @@ def apply(curs):
             environment_id integer NOT NULL,
             FOREIGN KEY (environment_id) REFERENCES environment(id),
             session_id text,
-            custom_actor_user_info varchar,
+            custom_actor_info varchar,
             actor_user_id integer,
             FOREIGN KEY (actor_user_id) REFERENCES user_data(id),
             subject_users_ids integer[],

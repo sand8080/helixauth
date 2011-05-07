@@ -21,7 +21,7 @@ class HelixauthApplication(Application):
             action_name, processed_data)
 
         actor_user_id = processed_data.get('actor_user_id')
-        custom_actor_info = processed_data.get('custom_actor_user_info')
+        custom_actor_info = processed_data.get('custom_actor_info')
         environment_id = processed_data.get('environment_id')
         users_ids = processed_data.get('subject_users_ids', [])
         session_id = processed_data.get('session_id')
@@ -29,7 +29,7 @@ class HelixauthApplication(Application):
         data = {
             'environment_id': environment_id,
             'session_id': session_id,
-            'custom_actor_user_info': custom_actor_info,
+            'custom_actor_info': custom_actor_info,
             'actor_user_id': actor_user_id,
             'subject_users_ids': users_ids,
             'action': action_name,
