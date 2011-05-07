@@ -237,7 +237,7 @@ GET_SERVICES_REQUEST = dict(
             Optional('is_active'): bool
         },
         'paging_params': REQUEST_PAGING_PARAMS,
-        Optional('ordering_params'): [AnyOf('id', '-id')]
+        Optional('ordering_params'): [AnyOf('id', '-id', 'name', '-name')]
     },
     **AUTHORIZED_REQUEST_AUTH_INFO
 )
