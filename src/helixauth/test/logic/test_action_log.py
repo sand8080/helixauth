@@ -160,11 +160,36 @@ class ActionLogTestCase(ActorLogicTestCase, ActionsLogTester):
         sess_id = self.login_actor()
         self._not_logged_filtering_action(action, sess_id)
 
+    def _get_user_by_login(self, sess_id, login):
+        req = {'session_id': sess_id, 'filter_params': {'login': login},
+            'paging_params': {}}
+        resp = self.get_users(**req)
+        self.check_response_ok(resp)
+        users = resp['users']
+        self.assertEquals(1, len(users))
+        return users[0]
+
+    def _check_subject_users_ids_set(self, sess_id, action, user_id):
+        req = {'session_id': sess_id, 'filter_params': {'action': action,
+            'user_id': user_id}, 'paging_params': {}}
+        resp = self.get_action_logs(**req)
+        self.check_response_ok(resp)
+
+        action_logs = resp['action_logs']
+        self.assertTrue(len(action_logs) >= 1)
+        for d_log in action_logs:
+            self.assertEquals([user_id], d_log['subject_users_ids'])
+
     def test_add_user(self):
         action = 'add_user'
         sess_id = self.login_actor()
-        req = {'session_id': sess_id, 'login': 'l', 'password': 'p'}
+        login = 'login'
+        req = {'session_id': sess_id, 'login': login, 'password': 'p'}
         self._logged_action(action, req)
+
+        # checking subject user ids are set
+        user = self._get_user_by_login(sess_id, login)
+        self._check_subject_users_ids_set(sess_id, action, user['id'])
 
     def test_get_users(self):
         action = 'get_users'
@@ -191,9 +216,14 @@ class ActionLogTestCase(ActorLogicTestCase, ActionsLogTester):
         u_id = resp['id']
 
         action = 'modify_users'
+        new_login = 'n_u0'
         req = {'session_id': sess_id, 'ids': [u_id],
-            'new_login': 'n_u0'}
+            'new_login': new_login}
         self._logged_action(action, req)
+
+        # checking subject user ids are set
+        user = self._get_user_by_login(sess_id, new_login)
+        self._check_subject_users_ids_set(sess_id, action, user['id'])
 
     def test_modify_users_failure_logged(self):
         sess_id = self.login_actor()

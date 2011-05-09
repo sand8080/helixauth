@@ -328,6 +328,10 @@ class Handler(AbstractHandler):
         f = UserFilter(session, {'ids': u_ids}, {}, None)
         loader = partial(f.filter_objs, curs, for_update=True)
         self.update_objs(curs, data, loader)
+
+        # setting subject users ids
+        data['subject_users_ids'] = u_ids
+
         return response_ok()
 
     @transaction()
