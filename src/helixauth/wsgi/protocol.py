@@ -333,6 +333,24 @@ GET_USER_RIGHTS_RESPONSE = AnyOf(
     RESPONSE_STATUS_ERROR
 )
 
+CHECK_USER_EXIST_REQUEST = dict(
+    {
+        'id': int,
+    },
+    **AUTHORIZED_REQUEST_AUTH_INFO
+)
+
+CHECK_USER_EXIST_RESPONSE = AnyOf(
+    dict(
+        RESPONSE_STATUS_OK,
+        **{
+            'exist': bool,
+        }
+    ),
+    RESPONSE_STATUS_ERROR
+)
+
+
 unauthorized_actions = ('ping', 'get_api_actions', 'add_environment',
     'get_authorized_api_actions')
 
@@ -415,4 +433,8 @@ protocol = [
     # check access
     ApiCall('check_access_request', Scheme(CHECK_ACCESS_REQUEST)),
     ApiCall('check_access_response', Scheme(CHECK_ACCESS_RESPONSE)),
+
+    # check user
+    ApiCall('check_user_exist_request', Scheme(CHECK_USER_EXIST_REQUEST)),
+    ApiCall('check_user_exist_response', Scheme(CHECK_USER_EXIST_RESPONSE)),
 ]

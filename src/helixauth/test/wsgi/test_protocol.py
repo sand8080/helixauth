@@ -449,6 +449,17 @@ class ProtocolTestCase(RootTestCase, ProtocolTester):
             'user_id': 1, 'environment_id': 1})
         self.validate_error_response(a_name)
 
+    def test_check_user_exist_access(self):
+        a_name = 'check_user_exist'
+        self.api.validate_request(a_name, {'session_id': 's',
+            'id': 1})
+
+        self.api.validate_response(a_name, {'status': 'ok',
+            'exist': True})
+        self.api.validate_response(a_name, {'status': 'ok',
+            'exist': False})
+        self.validate_error_response(a_name)
+
 
 if __name__ == '__main__':
     unittest.main()
