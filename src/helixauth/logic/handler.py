@@ -166,7 +166,7 @@ class Handler(AbstractHandler):
 
         d = {'environment_id': env.id, 'name': 'Billing Administrators', 'is_active': True,
             'rights': [
-                {'service_id': s_auth.id, 'properties': []},
+                {'service_id': s_auth.id, 'properties': ['check_user_exist']},
                 {'service_id': s_billing.id, 'properties': actions_billing}
             ]}
         g = Group(**d)
@@ -483,3 +483,15 @@ class Handler(AbstractHandler):
         a.check_access(session, srv_type, p)
         return response_ok(user_id=session.user_id,
             environment_id=session.environment_id)
+
+    @transaction()
+    @authenticate
+    def check_user_exist(self, data, session, curs=None):
+        f = UserFilter(session, {'id': data['id']}, {}, None)
+        exist = False
+        try:
+            f.filter_one_obj(curs)
+            exist = True
+        except UserNotFound:
+            pass
+        return response_ok(exist=exist)

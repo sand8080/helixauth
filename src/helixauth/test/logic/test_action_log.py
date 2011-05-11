@@ -277,6 +277,12 @@ class ActionLogTestCase(ActorLogicTestCase, ActionsLogTester):
             'property': 'fake'}
         self._not_logged_action(action, sess_id, req)
 
+    def test_check_user_exist(self):
+        action = 'check_user_exist'
+        sess_id = self.login_actor()
+        req = {'session_id': sess_id, 'id': 1}
+        self._not_logged_action(action, sess_id, req)
+
 
 if __name__ == '__main__':
     unittest.main()
