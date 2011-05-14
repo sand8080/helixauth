@@ -3,7 +3,8 @@ from functools import partial
 from functools import wraps
 
 from helixcore import mapping
-from helixcore.actions.handler import detalize_error, AbstractHandler
+from helixcore.actions.handler import (detalize_error, AbstractHandler,
+    set_subject_users_ids)
 from helixcore.db.wrapper import ObjectCreationError
 from helixcore.error import DataIntegrityError
 from helixcore.server.response import response_ok
@@ -247,6 +248,7 @@ class Handler(AbstractHandler):
         g_ids = [g.id for g in groups]
         return filter(lambda x: x in g_ids, groups_ids)
 
+    @set_subject_users_ids('id')
     @transaction()
     @authenticate
     @detalize_error(HelixauthObjectAlreadyExists, 'login')
@@ -273,7 +275,7 @@ class Handler(AbstractHandler):
             raise HelixauthObjectAlreadyExists
 
         # For correct action logging
-        data['subject_users_ids'] = [user.id]
+        data['id'] = [user.id]
         return response_ok(id=user.id)
 
     @transaction()
@@ -307,14 +309,15 @@ class Handler(AbstractHandler):
         self.update_obj(curs, d, loader)
         return response_ok()
 
+    @set_subject_users_ids('ids')
     @transaction()
     @authenticate
     @detalize_error(SuperUserModificationDenied, 'subject_users_ids')
     @detalize_error(DataIntegrityError, 'ids')
     def modify_users(self, data, session, curs=None):
+        u_ids = data['ids']
         f = UserFilter(session, {'roles': [User.ROLE_SUPER]}, {}, None)
         su = f.filter_one_obj(curs)
-        u_ids = data['ids']
         if su.id in u_ids:
             raise SuperUserModificationDenied()
         groups_ids = data.get('new_groups_ids', [])
@@ -328,10 +331,6 @@ class Handler(AbstractHandler):
         f = UserFilter(session, {'ids': u_ids}, {}, None)
         loader = partial(f.filter_objs, curs, for_update=True)
         self.update_objs(curs, data, loader)
-
-        # setting subject users ids
-        data['subject_users_ids'] = u_ids
-
         return response_ok()
 
     @transaction()

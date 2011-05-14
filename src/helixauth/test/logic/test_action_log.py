@@ -169,17 +169,6 @@ class ActionLogTestCase(ActorLogicTestCase, ActionsLogTester):
         self.assertEquals(1, len(users))
         return users[0]
 
-    def _check_subject_users_ids_set(self, sess_id, action, user_id):
-        req = {'session_id': sess_id, 'filter_params': {'action': action,
-            'user_id': user_id}, 'paging_params': {}}
-        resp = self.get_action_logs(**req)
-        self.check_response_ok(resp)
-
-        action_logs = resp['action_logs']
-        self.assertTrue(len(action_logs) >= 1)
-        for d_log in action_logs:
-            self.assertEquals([user_id], d_log['subject_users_ids'])
-
     def test_add_user(self):
         action = 'add_user'
         sess_id = self.login_actor()
@@ -244,6 +233,7 @@ class ActionLogTestCase(ActorLogicTestCase, ActionsLogTester):
         self.assertEquals('error', resp['status'])
         self.assertEquals(logs_num + 1,
             self._count_self_records(sess_id, action))
+        self._check_subject_users_ids_set(sess_id, action, u_id)
 
     def test_get_action_logs(self):
         action = 'get_action_logs'
