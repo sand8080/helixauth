@@ -18,7 +18,7 @@ from helixauth.error import (EnvironmentNotFound,
 from helixauth.db.filters import (EnvironmentFilter, UserFilter, ServiceFilter,
     SubjectUserFilter, GroupFilter, SessionFilter, ActionLogFilter)
 from helixauth.db.dataobject import (Environment, User, Service,
-    Group, serialize_field, deserialize_field)
+    Group)
 from helixauth.logic.auth import Authenticator
 from helixauth.wsgi.protocol import unauthorized_actions
 
@@ -355,7 +355,7 @@ class Handler(AbstractHandler):
         ss, total = f.filter_counted(curs)
         def viewer(obj):
             result = obj.to_dict()
-            result = deserialize_field(result, 'serialized_properties', 'properties')
+            result = mapping.objects.deserialize_field(result, 'serialized_properties', 'properties')
             result.pop('environment_id')
             return result
         return response_ok(services=self.objects_info(ss, viewer),
@@ -375,7 +375,7 @@ class Handler(AbstractHandler):
 
         loader = partial(f.filter_one_obj, curs, for_update=True)
         try:
-            d = serialize_field(data, 'new_properties', 'new_serialized_properties')
+            d = mapping.objects.serialize_field(data, 'new_properties', 'new_serialized_properties')
             self.update_obj(curs, d, loader)
         except DataIntegrityError:
             raise HelixauthObjectAlreadyExists('Service %s already exists' %
@@ -401,7 +401,7 @@ class Handler(AbstractHandler):
         f = GroupFilter(session.environment_id, {'id': data.get('id')}, {}, None)
         loader = partial(f.filter_one_obj, curs, for_update=True)
         try:
-            self.update_obj(curs, serialize_field(data, 'new_rights', 'new_serialized_rights'),
+            self.update_obj(curs, mapping.objects.serialize_field(data, 'new_rights', 'new_serialized_rights'),
                 loader)
         except DataIntegrityError:
             raise GroupAlreadyExists(data.get('new_name'))
