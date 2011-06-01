@@ -149,7 +149,9 @@ class Handler(AbstractHandler):
         # adding default service billing
         actions_billing = ['get_currencies', 'get_used_currencies', 'modify_used_currencies',
             'get_action_logs', 'get_action_logs_self',
-            'add_balance', 'get_balances', 'get_balances_self', 'modify_balances']
+            'add_balance', 'get_balances', 'get_balances_self', 'modify_balances',
+            'add_receipt', 'add_bonus', 'lock', 'unlock', 'charge_off',
+            'get_locks', 'get_locks_self']
         d = {'environment_id': env.id, 'name': 'Billing',
             'type': Service.TYPE_BILLING, 'is_active': True,
             'is_possible_deactiate': True, 'properties': actions_billing}
@@ -186,7 +188,7 @@ class Handler(AbstractHandler):
             'rights': [
                 {'service_id': s_auth.id, 'properties': []},
                 {'service_id': s_billing.id, 'properties': [
-                    'get_action_logs_self', 'get_balances_self']},
+                    'get_action_logs_self', 'get_balances_self', 'get_locks_self']},
             ]}
         g = Group(**d)
         mapping.save(curs, g)
