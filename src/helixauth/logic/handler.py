@@ -14,7 +14,7 @@ from helixauth.error import (EnvironmentNotFound,
     HelixauthObjectAlreadyExists, SessionNotFound, UserNotFound, SessionExpired,
     HelixauthError, UserInactive, ServiceDeactivationError, UserAuthError,
     GroupAlreadyExists, HelixauthObjectNotFound, UserWrongOldPassword,
-    SuperUserCreationDenied, SuperUserModificationDenied)
+    SuperUserCreationDenied, SuperUserModificationDenied, UserAccessDenied)
 from helixauth.db.filters import (EnvironmentFilter, UserFilter, ServiceFilter,
     SubjectUserFilter, GroupFilter, SessionFilter, ActionLogFilter)
 from helixauth.db.dataobject import (Environment, User, Service,
@@ -479,9 +479,13 @@ class Handler(AbstractHandler):
         a = Authenticator()
         srv_type = data.get('service_type', None)
         p = data.get('property', None)
-        a.check_access(session, srv_type, p)
-        return response_ok(user_id=session.user_id,
-            environment_id=session.environment_id)
+        try:
+            a.check_access(session, srv_type, p)
+            return response_ok(user_id=session.user_id,
+                environment_id=session.environment_id, access='granted')
+        except UserAccessDenied:
+            return response_ok(user_id=session.user_id,
+                environment_id=session.environment_id, access='denied')
 
     @transaction()
     @authenticate

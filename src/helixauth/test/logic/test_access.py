@@ -6,6 +6,16 @@ from helixcore.error import RequestProcessingError
 
 
 class AccessTestCase(ActorLogicTestCase):
+    def _check_access(self, resp, value):
+        self.check_response_ok(resp)
+        self.assertEquals(value, resp['access'])
+
+    def check_access_granted(self, resp):
+        self._check_access(resp, 'granted')
+
+    def check_access_denied(self, resp):
+        self._check_access(resp, 'denied')
+
     def test_check_access_super_user(self):
         self.create_actor_env()
         sess_id = self.login_actor()
@@ -32,11 +42,14 @@ class AccessTestCase(ActorLogicTestCase):
         # checking fake property access denied
         req = { 'session_id': sess_id, 'property': 'fake',
             'service_type': Service.TYPE_AUTH}
-        self.assertRaises(RequestProcessingError, self.check_access, **req)
+        resp = self.check_access(**req)
+        self.check_access_denied(resp)
+
         # checking fake service access denied
         req = { 'session_id': sess_id, 'property': 'check_access',
             'service_type': 'fake_service'}
-        self.assertRaises(RequestProcessingError, self.check_access, **req)
+        resp = self.check_access(**req)
+        self.check_access_denied(resp)
 
     def test_access_limited_user(self):
         self.create_actor_env()
@@ -73,10 +86,17 @@ class AccessTestCase(ActorLogicTestCase):
         req = {'session_id': u_sess_id, 'service_type': Service.TYPE_AUTH,
             'property': 'check_access'}
         resp = self.check_access(**req)
-        self.check_response_ok(resp)
+        self.check_access_granted(resp)
 
         req = {'session_id': u_sess_id, 'service_type': Service.TYPE_AUTH,
             'property': 'add_user'}
+        resp = self.check_access(**req)
+        self.check_access_denied(resp)
+
+    def test_not_logged_user(self):
+        self.create_actor_env()
+        req = {'session_id': 'fake_session', 'service_type': Service.TYPE_AUTH,
+            'property': 'check_access'}
         self.assertRaises(RequestProcessingError, self.check_access, **req)
 
     def test_access_denied_when_group_inactive(self):

@@ -446,7 +446,9 @@ class ProtocolTestCase(RootTestCase, ProtocolTester):
             'service_type': 't', 'property': 'p'})
 
         self.api.validate_response(a_name, {'status': 'ok',
-            'user_id': 1, 'environment_id': 1})
+            'user_id': 1, 'environment_id': 1, 'access': 'granted'})
+        self.api.validate_response(a_name, {'status': 'ok',
+            'user_id': 1, 'environment_id': 1, 'access': 'denied'})
         self.validate_error_response(a_name)
 
     def test_check_user_exist_access(self):
