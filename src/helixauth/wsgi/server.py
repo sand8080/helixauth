@@ -1,4 +1,4 @@
-from eventlet import wsgi
+from eventlet import wsgi, spawn
 from eventlet.green import socket
 
 from helixauth.conf import settings
@@ -6,6 +6,7 @@ from helixauth.conf.log import logger
 from helixauth.logic.actions import handle_action
 from helixauth.wsgi.application import HelixauthApplication
 from helixauth.wsgi.protocol import protocol
+from helixauth.logic import session_cleaner
 
 
 class Server(object):
@@ -15,6 +16,7 @@ class Server(object):
 
     @staticmethod
     def run():
+        spawn(session_cleaner.run)
         sock = socket.socket() #@UndefinedVariable
         sock.bind((settings.server_host, settings.server_port))
         sock.listen(settings.server_connections)

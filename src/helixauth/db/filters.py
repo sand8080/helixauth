@@ -14,7 +14,7 @@ class SessionFilter(ObjectsFilter):
         ('session_id', 'session_id', Eq),
         ('environment_id', 'environment_id', Eq),
         ('subject_users_ids', 'user_id', In),
-        ('to_update_date', 'update_date', MoreEq),
+        ('to_update_date', 'update_date', LessEq),
     ]
 
     def __init__(self, filter_params, paging_params, ordering_params):
