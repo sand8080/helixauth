@@ -9,7 +9,8 @@ from helixauth.conf.log import logger
 from helixauth.db.filters import SessionFilter
 
 
-def clean(curs):
+@transaction()
+def clean(curs=None):
     to_d = datetime.datetime.now()
     logger.info('Sessions cleaning initiated %s', to_d)
     to_d = to_d - datetime.timedelta(minutes=settings.session_valid_minutes)
@@ -21,8 +22,7 @@ def clean(curs):
     logger.info('Sessions cleaned')
 
 
-@transaction()
-def run(curs=None):
+def run():
     while True:
-        clean(curs)
+        clean()
         eventlet.sleep(seconds=settings.session_cleaning_minutes * 60)
