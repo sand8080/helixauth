@@ -50,7 +50,8 @@ class ProtocolTestCase(RootTestCase, ProtocolTester):
             'su_password': 'p', 'custom_actor_info': None})
 
         self.api.validate_response(a_name,
-            {'status': 'ok', 'session_id': 'i', 'environment_id': 1})
+            {'status': 'ok', 'session_id': 'i', 'environment_id': 1,
+                'user_id': 3})
         self.validate_authorized_error_response(a_name)
 
     def test_get_environment(self):

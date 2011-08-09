@@ -222,7 +222,7 @@ class Handler(AbstractHandler):
         _add_log_info(data, session)
 
         return response_ok(session_id=session.session_id,
-            environment_id=env.id)
+            environment_id=env.id, user_id=session.user_id)
 
     @transaction()
     @authenticate

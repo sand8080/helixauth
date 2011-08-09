@@ -32,7 +32,10 @@ ADD_ENVIRONMENT_REQUEST = {
 }
 
 ADD_ENVIRONMENT_RESPONSE = AnyOf(
-    dict({'environment_id': int,}, **AUTHORIZED_RESPONSE_STATUS_OK),
+    dict(
+        {'environment_id': int, 'user_id': int},
+        **AUTHORIZED_RESPONSE_STATUS_OK
+    ),
     AUTHORIZED_RESPONSE_STATUS_ERROR
 )
 
