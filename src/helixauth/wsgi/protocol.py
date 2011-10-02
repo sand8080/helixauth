@@ -24,6 +24,16 @@ GET_API_ACTIONS_RESPONSE = AnyOf(
     RESPONSE_STATUS_ERROR
 )
 
+GET_API_SCHEME_REQUEST = AUTHORIZED_REQUEST_AUTH_INFO
+
+GET_API_SCHEME_RESPONSE = AnyOf(
+    dict(
+        RESPONSE_STATUS_OK,
+        **{'scheme': Text()}
+    ),
+    RESPONSE_STATUS_ERROR
+)
+
 ADD_ENVIRONMENT_REQUEST = {
     'name': Text(),
     'su_login': Text(),
@@ -351,11 +361,15 @@ protocol = [
     ApiCall('ping_request', Scheme(PING_REQUEST)),
     ApiCall('ping_response', Scheme(PING_RESPONSE)),
 
+    # api actions
     ApiCall('get_api_actions_request', Scheme(GET_API_ACTIONS_REQUEST)),
     ApiCall('get_api_actions_response', Scheme(GET_API_ACTIONS_RESPONSE)),
 
     ApiCall('get_authorized_api_actions_request', Scheme(GET_API_ACTIONS_REQUEST)),
     ApiCall('get_authorized_api_actions_response', Scheme(GET_API_ACTIONS_RESPONSE)),
+
+    ApiCall('get_api_scheme_request', Scheme(GET_API_SCHEME_REQUEST)),
+    ApiCall('get_api_scheme_response', Scheme(GET_API_SCHEME_RESPONSE)),
 
     # login user
     ApiCall('login_request', Scheme(LOGIN_REQUEST)),

@@ -40,6 +40,14 @@ class ProtocolTestCase(RootTestCase, ProtocolTester):
 
     test_get_auuthorized_api_actions = test_get_api_actions
 
+    def test_get_api_scheme(self):
+        a_name = 'get_api_scheme'
+        self.api.validate_request(a_name, {'session_id': 'i'})
+
+        self.api.validate_response(a_name, {'status': 'ok',
+            'scheme': 'html table content'})
+        self.validate_error_response(a_name)
+
     def test_add_environment(self):
         a_name = 'add_environment'
         self.api.validate_request(a_name, {'name': 'n', 'su_login': 'l',
