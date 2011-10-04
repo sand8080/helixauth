@@ -20,7 +20,8 @@ from helixauth.db.filters import (EnvironmentFilter, UserFilter, ServiceFilter,
 from helixauth.db.dataobject import (Environment, User, Service,
     Group)
 from helixauth.logic.auth import Authenticator
-from helixauth.wsgi.protocol import unauthorized_actions
+from helixauth.wsgi.protocol import unauthorized_actions, protocol
+from helixcore.json_validator.html_transformer import HtmlTransformer
 
 
 def _add_log_info(data, session, custom_actor_info=None):
@@ -87,6 +88,12 @@ class Handler(AbstractHandler):
         a = resp['actions']
         auth_a = filter(lambda x: x not in unauthorized_actions, a)
         return response_ok(actions=auth_a)
+
+    @transaction()
+    @authenticate
+    def get_api_scheme(self, data, session, curs=None):
+        trans = HtmlTransformer()
+        return response_ok(scheme=trans.process_protocol(protocol))
 
     @transaction()
     @detalize_error(EnvironmentNotFound, 'environment_name')
