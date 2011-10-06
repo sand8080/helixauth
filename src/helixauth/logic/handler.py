@@ -1,4 +1,4 @@
-import cjson
+import json
 from functools import partial
 from functools import wraps
 
@@ -436,7 +436,7 @@ class Handler(AbstractHandler):
             result = obj.to_dict()
             result.pop('environment_id', None)
             s_rights = result.pop('serialized_rights', '')
-            result['rights'] = cjson.decode(s_rights)
+            result['rights'] = json.loads(s_rights)
             return result
         return response_ok(groups=self.objects_info(ss, viewer),
             total=total)
@@ -472,7 +472,7 @@ class Handler(AbstractHandler):
     @authenticate
     @detalize_error(UserAuthError, [])
     def get_user_rights(self, data, session, curs=None):
-        s_data = cjson.decode(session.serialized_data)
+        s_data = json.loads(session.serialized_data)
         s_rights = s_data['rights']
         srvs_id_type_idx = s_data['services_id_type_idx']
         rights = []

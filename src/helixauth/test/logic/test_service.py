@@ -1,6 +1,6 @@
 # coding=utf-8
 import unittest
-import cjson
+import json
 
 from helixauth.test.logic.actor_logic_test import ActorLogicTestCase
 from helixcore.error import RequestProcessingError
@@ -31,7 +31,7 @@ class ServiceTestCase(ActorLogicTestCase):
         self.check_response_ok(resp)
         auth_a = resp['actions']
 
-        srv_props = cjson.decode(s_auth.serialized_properties)
+        srv_props = json.loads(s_auth.serialized_properties)
         self.assertEqual(auth_a, srv_props)
 
         self.assertEqual('Billing', s_billing.name)
@@ -136,7 +136,7 @@ class ServiceTestCase(ActorLogicTestCase):
         resp = self.modify_service(**req)
         self.check_response_ok(resp)
         n_srv = self.load_auth_service(env.id)
-        self.assertEqual(n_properties, cjson.decode(n_srv.serialized_properties))
+        self.assertEqual(n_properties, json.loads(n_srv.serialized_properties))
 
         req = {'session_id': session_id, 'id': srv.id,
             'new_is_active': False}

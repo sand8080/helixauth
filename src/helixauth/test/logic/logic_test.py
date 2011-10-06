@@ -1,4 +1,4 @@
-import cjson
+import json
 from datetime import timedelta
 
 from helixcore import mapping
@@ -20,7 +20,7 @@ class LogicTestCase(DbBasedTestCase):
     def handle_action(self, action, data):
         api = Api(protocol)
         request = dict(data, action=action)
-        action_name, data = api.handle_request(cjson.encode(request))
+        action_name, data = api.handle_request(json.dumps(request))
         response = actions.handle_action(action_name, dict(data))
         api.handle_response(action_name, dict(response))
         return response

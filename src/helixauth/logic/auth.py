@@ -1,5 +1,5 @@
 from uuid import uuid4
-import cjson
+import json
 import pytz
 from datetime import datetime, timedelta
 from hashlib import sha512
@@ -56,7 +56,7 @@ class Authenticator(object):
             'session_id': '%s' % uuid4(),
             'environment_id': env.id,
             'user_id': user.id,
-            'serialized_data': cjson.encode(session_data),
+            'serialized_data': json.dumps(session_data),
             'start_date': d,
             'update_date': d,
         }
@@ -84,7 +84,7 @@ class Authenticator(object):
                 {}, None)
             groups = f.filter_objs(curs)
             for g in groups:
-                rights_lst = cjson.decode(g.serialized_rights)
+                rights_lst = json.loads(g.serialized_rights)
                 for r in rights_lst:
                     # String key id for json.encode
                     srv_id = str(r['service_id'])
@@ -94,7 +94,7 @@ class Authenticator(object):
         res = {}
         for srv in srvs:
             if user.role == User.ROLE_SUPER:
-                r = cjson.decode(srv.serialized_properties)
+                r = json.loads(srv.serialized_properties)
             else:
                 r = rights.get(str(srv.id), []) # String key id for json.encode
             res[srv.type] = r
@@ -103,8 +103,7 @@ class Authenticator(object):
     def _get_services_id_type_idx(self, curs, env):
         f = ServiceFilter(env.id, {}, {}, None)
         srvs = f.filter_objs(curs)
-        # cjson can't encode dicts with non string keys
-        idx = dict([(str(s.id), s.type) for s in srvs])
+        idx = dict([(s.id, s.type) for s in srvs])
         return idx
 
     def check_access(self, session, service_type, property):
@@ -112,7 +111,7 @@ class Authenticator(object):
             raise UserAccessDenied(service_type, property)
 
     def has_access(self, session, service_type, property):
-        data = cjson.decode(session.serialized_data)
+        data = json.loads(session.serialized_data)
         rights = data['rights']
         if service_type in rights:
             return property in rights[service_type]
