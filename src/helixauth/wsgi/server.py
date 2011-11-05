@@ -20,6 +20,8 @@ class Server(object):
         sock = socket.socket() #@UndefinedVariable
         sock.bind((settings.server_host, settings.server_port))
         sock.listen(settings.server_connections)
+        logger.debug('Auth service started on %s:%s',
+            settings.server_host, settings.server_port)
         wsgi.server(
             sock,
             HelixauthApplication(handle_action, protocol, logger),
