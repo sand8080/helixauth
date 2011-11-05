@@ -166,6 +166,19 @@ class Handler(AbstractHandler):
         s_billing = Service(**d)
         mapping.save(curs, s_billing)
 
+        # adding default service tariff
+        actions_tariff = ['add_tariffication_object', 'modify_tariffication_object',
+            'delete_tariffication_object', 'get_tariffication_objects',
+            'add_tariff', 'modify_tariff', 'delete_tariff', 'get_tariffs',
+            'save_rule', 'delete_rule', 'apply_draft_rules',
+            'get_tariffs_prices', 'get_price', 'get_draft_price',
+            'add_user_tariff', 'delete_user_tariff', 'get_user_tariffs']
+        d = {'environment_id': env.id, 'name': 'Tariff',
+            'type': Service.TYPE_TARIFF, 'is_active': True,
+            'is_possible_deactiate': True, 'properties': actions_tariff}
+        s_tariff = Service(**d)
+        mapping.save(curs, s_tariff)
+
         # adding groups of administrators and users
         d = {'environment_id': env.id, 'name': 'Administrators', 'is_active': True,
             'rights': [
@@ -179,6 +192,14 @@ class Handler(AbstractHandler):
             'rights': [
                 {'service_id': s_auth.id, 'properties': ['check_user_exist']},
                 {'service_id': s_billing.id, 'properties': actions_billing}
+            ]}
+        g = Group(**d)
+        mapping.save(curs, g)
+
+        d = {'environment_id': env.id, 'name': 'Tariff Administrators', 'is_active': True,
+            'rights': [
+                {'service_id': s_auth.id, 'properties': ['check_user_exist']},
+                {'service_id': s_tariff.id, 'properties': actions_tariff}
             ]}
         g = Group(**d)
         mapping.save(curs, g)
