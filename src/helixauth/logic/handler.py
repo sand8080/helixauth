@@ -4,7 +4,7 @@ from functools import wraps
 
 from helixcore import mapping
 from helixcore.actions.handler import (detalize_error, AbstractHandler,
-    set_subject_users_ids)
+    set_subject_users_ids, execution_time)
 from helixcore.db.wrapper import ObjectCreationError
 from helixcore.error import DataIntegrityError
 from helixcore.server.response import response_ok
@@ -95,6 +95,7 @@ class Handler(AbstractHandler):
         trans = HtmlTransformer()
         return response_ok(scheme=trans.process_protocol(protocol))
 
+    @execution_time
     @transaction()
     @detalize_error(EnvironmentNotFound, 'environment_name')
     @detalize_error(UserAuthError, ['login', 'password'])
