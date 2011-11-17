@@ -74,21 +74,24 @@ class Handler(AbstractHandler):
     '''
     Handles all API actions. Method names are called like actions.
     '''
-
+    @execution_time
     def ping(self, data): #IGNORE:W0613
         return response_ok()
 
+    @execution_time
     def get_api_actions(self, data):
         a = Authenticator()
         actions = a.get_auth_api_actions()
         return response_ok(actions=actions)
 
+    @execution_time
     def get_authorized_api_actions(self, data):
         resp = self.get_api_actions(data)
         a = resp['actions']
         auth_a = filter(lambda x: x not in unauthorized_actions, a)
         return response_ok(actions=auth_a)
 
+    @execution_time
     @transaction()
     @authenticate
     def get_api_scheme(self, data, session, curs=None):
@@ -130,6 +133,7 @@ class Handler(AbstractHandler):
         return response_ok(session_id=session.session_id,
             user_id=session.user_id, environment_id=session.environment_id)
 
+    @execution_time
     @transaction()
     @detalize_error(HelixauthError, 'session_id')
     def logout(self, data, curs=None):
@@ -224,6 +228,7 @@ class Handler(AbstractHandler):
         g = Group(**d)
         mapping.save(curs, g)
 
+    @execution_time
     @transaction()
     @detalize_error(HelixauthObjectAlreadyExists, ['name', 'su_login', 'su_password'])
     def add_environment(self, data, curs=None):
@@ -255,6 +260,7 @@ class Handler(AbstractHandler):
         return response_ok(session_id=session.session_id,
             environment_id=env.id, user_id=session.user_id)
 
+    @execution_time
     @transaction()
     @authenticate
     def get_environment(self, data, session, curs=None):
@@ -262,6 +268,7 @@ class Handler(AbstractHandler):
         env = f.filter_one_obj(curs)
         return response_ok(environment=env.to_dict())
 
+    @execution_time
     @transaction()
     @authenticate
     @detalize_error(HelixauthObjectAlreadyExists, 'new_name')
@@ -281,6 +288,7 @@ class Handler(AbstractHandler):
         g_ids = [g.id for g in groups]
         return filter(lambda x: x in g_ids, groups_ids)
 
+    @execution_time
     @set_subject_users_ids('id')
     @transaction()
     @authenticate
@@ -311,6 +319,7 @@ class Handler(AbstractHandler):
         data['id'] = [user.id]
         return response_ok(id=user.id)
 
+    @execution_time
     @transaction()
     @authenticate
     def get_users(self, data, session, curs=None):
@@ -325,6 +334,7 @@ class Handler(AbstractHandler):
             return result
         return response_ok(users=self.objects_info(users, viewer), total=total)
 
+    @execution_time
     @transaction()
     @authenticate
     @detalize_error(UserWrongOldPassword, 'old_password')
@@ -342,6 +352,7 @@ class Handler(AbstractHandler):
         self.update_obj(curs, d, loader)
         return response_ok()
 
+    @execution_time
     @set_subject_users_ids('ids')
     @transaction()
     @authenticate
@@ -366,6 +377,7 @@ class Handler(AbstractHandler):
         self.update_objs(curs, data, loader)
         return response_ok()
 
+    @execution_time
     @transaction()
     @authenticate
     @detalize_error(ObjectCreationError, 'type')
@@ -380,6 +392,7 @@ class Handler(AbstractHandler):
             raise HelixauthObjectAlreadyExists
         return response_ok(id=s.id)
 
+    @execution_time
     @transaction()
     @authenticate
     def get_services(self, data, session, curs=None):
@@ -394,6 +407,7 @@ class Handler(AbstractHandler):
         return response_ok(services=self.objects_info(ss, viewer),
             total=total)
 
+    @execution_time
     @transaction()
     @authenticate
     @detalize_error(HelixauthObjectAlreadyExists, 'new_name')
@@ -415,6 +429,7 @@ class Handler(AbstractHandler):
                 data.get('new_name'))
         return response_ok()
 
+    @execution_time
     @transaction()
     @authenticate
     @detalize_error(GroupAlreadyExists, 'name')
@@ -427,6 +442,7 @@ class Handler(AbstractHandler):
             raise GroupAlreadyExists('Group %s already exists' % group.name)
         return response_ok(id=group.id)
 
+    @execution_time
     @transaction()
     @authenticate
     @detalize_error(GroupAlreadyExists, 'name')
@@ -440,6 +456,7 @@ class Handler(AbstractHandler):
             raise GroupAlreadyExists(data.get('new_name'))
         return response_ok()
 
+    @execution_time
     @transaction()
     @authenticate
     @detalize_error(HelixauthObjectNotFound, 'id')
@@ -448,6 +465,7 @@ class Handler(AbstractHandler):
         mapping.delete(curs, f.filter_one_obj(curs))
         return response_ok()
 
+    @execution_time
     @transaction()
     @authenticate
     def get_groups(self, data, session, curs=None):
@@ -463,11 +481,13 @@ class Handler(AbstractHandler):
         return response_ok(groups=self.objects_info(ss, viewer),
             total=total)
 
+    @execution_time
     @transaction()
     @authenticate
     def get_action_logs(self, data, session, curs=None):
         return self._get_action_logs(data, session, curs)
 
+    @execution_time
     @transaction()
     @authenticate
     def get_action_logs_self(self, data, session, curs=None):
@@ -490,6 +510,7 @@ class Handler(AbstractHandler):
         return response_ok(action_logs=self.objects_info(ss, viewer),
             total=total)
 
+    @execution_time
     @transaction()
     @authenticate
     @detalize_error(UserAuthError, [])
@@ -505,6 +526,7 @@ class Handler(AbstractHandler):
                 'service_type': srv_type, 'properties': props})
         return response_ok(rights=rights)
 
+    @execution_time
     @transaction()
     @authenticate
     @detalize_error(UserAuthError, [])
@@ -520,6 +542,7 @@ class Handler(AbstractHandler):
             return response_ok(user_id=session.user_id,
                 environment_id=session.environment_id, access='denied')
 
+    @execution_time
     @transaction()
     @authenticate
     def check_user_exist(self, data, session, curs=None):
