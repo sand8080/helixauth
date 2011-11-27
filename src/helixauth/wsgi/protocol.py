@@ -1,5 +1,5 @@
-from helixcore.json_validator import (Optional, AnyOf, NonNegative,
-    Scheme, Text, NullableText, IsoDatetime)
+from helixcore.json_validator import (Optional, AnyOf, NON_NEGATIVE_INT,
+    Scheme, ISO_DATETIME, TEXT, NULLABLE_TEXT)
 from helixcore.server.api import ApiCall
 from helixcore.server.protocol_primitives import (REQUEST_PAGING_PARAMS,
     RESPONSE_STATUS_OK, RESPONSE_STATUS_ERROR, RESPONSE_STATUS_ONLY,
@@ -19,7 +19,7 @@ GET_API_ACTIONS_REQUEST = {}
 GET_API_ACTIONS_RESPONSE = AnyOf(
     dict(
         RESPONSE_STATUS_OK,
-        **{'actions': [Text()],}
+        **{'actions': [TEXT],}
     ),
     RESPONSE_STATUS_ERROR
 )
@@ -29,16 +29,16 @@ GET_API_SCHEME_REQUEST = AUTHORIZED_REQUEST_AUTH_INFO
 GET_API_SCHEME_RESPONSE = AnyOf(
     dict(
         RESPONSE_STATUS_OK,
-        **{'scheme': Text()}
+        **{'scheme': TEXT}
     ),
     RESPONSE_STATUS_ERROR
 )
 
 ADD_ENVIRONMENT_REQUEST = {
-    'name': Text(),
-    'su_login': Text(),
-    'su_password': Text(),
-    Optional('custom_actor_info'): NullableText(),
+    'name': TEXT,
+    'su_login': TEXT,
+    'su_password': TEXT,
+    Optional('custom_actor_info'): NULLABLE_TEXT,
 }
 
 ADD_ENVIRONMENT_RESPONSE = AnyOf(
@@ -56,7 +56,7 @@ GET_ENVIRONMENT_RESPONSE = AnyOf(
         RESPONSE_STATUS_OK,
         **{'environment': {
             'id': int,
-            'name': Text(),
+            'name': TEXT,
         }}
     ),
     RESPONSE_STATUS_ERROR
@@ -64,18 +64,18 @@ GET_ENVIRONMENT_RESPONSE = AnyOf(
 
 MODIFY_ENVIRONMENT_REQUEST = dict(
     {
-        'new_name': Text(),
+        'new_name': TEXT,
     },
     **AUTHORIZED_REQUEST_AUTH_INFO
 )
 
 MODIFY_ENVIRONMENT_RESPONSE = RESPONSE_STATUS_ONLY
 
-RIGHTS_SCHEME = [{'service_id': int, 'properties': [Text()]}]
+RIGHTS_SCHEME = [{'service_id': int, 'properties': [TEXT]}]
 
 ADD_GROUP_REQUEST = dict(
     {
-        'name': Text(),
+        'name': TEXT,
         Optional('is_active'): bool,
         'rights': RIGHTS_SCHEME,
     },
@@ -88,7 +88,7 @@ MODIFY_GROUP_REQUEST = dict(
     {
         'id': int,
         Optional('new_is_active'): bool,
-        Optional('new_name'): Text(),
+        Optional('new_name'): TEXT,
         Optional('new_rights'): RIGHTS_SCHEME,
     },
     **AUTHORIZED_REQUEST_AUTH_INFO
@@ -105,7 +105,7 @@ DELETE_GROUP_RESPONSE = RESPONSE_STATUS_ONLY
 
 GROUP_INFO = {
     'id': int,
-    'name': Text(),
+    'name': TEXT,
     'is_active': bool,
     'rights': RIGHTS_SCHEME,
 }
@@ -114,7 +114,7 @@ GET_GROUPS_REQUEST = dict(
     {
         'filter_params': {
             Optional('ids'): [int],
-            Optional('name'): Text(),
+            Optional('name'): TEXT,
             Optional('is_active'): bool
         },
         'paging_params': REQUEST_PAGING_PARAMS,
@@ -128,7 +128,7 @@ GET_GROUPS_RESPONSE = AnyOf(
         RESPONSE_STATUS_OK,
         **{
             'groups': [GROUP_INFO],
-            'total': NonNegative(int),
+            'total': NON_NEGATIVE_INT,
         }
     ),
     RESPONSE_STATUS_ERROR
@@ -136,8 +136,8 @@ GET_GROUPS_RESPONSE = AnyOf(
 
 ADD_USER_REQUEST = dict(
     {
-        'login': Text(),
-        'password': Text(),
+        'login': TEXT,
+        'password': TEXT,
         Optional('role'): AnyOf(dataobject.User.ROLE_USER),
         Optional('is_active'): bool,
         Optional('groups_ids'): [int],
@@ -153,8 +153,8 @@ ADD_USER_RESPONSE = AnyOf(
 MODIFY_USERS_REQUEST = dict(
     {
         'ids': [int],
-        Optional('new_login'): Text(),
-        Optional('new_password'): Text(),
+        Optional('new_login'): TEXT,
+        Optional('new_password'): TEXT,
         Optional('new_is_active'): bool,
         Optional('new_groups_ids'): [int],
     },
@@ -165,8 +165,8 @@ MODIFY_USERS_RESPONSE = RESPONSE_STATUS_ONLY
 
 MODIFY_USER_SELF_REQUEST = dict(
     {
-        'old_password': Text(),
-        'new_password': Text(),
+        'old_password': TEXT,
+        'new_password': TEXT,
     },
     **AUTHORIZED_REQUEST_AUTH_INFO
 )
@@ -179,7 +179,7 @@ GET_USERS_REQUEST = dict(
             Optional('id'): int,
             Optional('ids'): [int],
             Optional('roles'): [AnyOf(dataobject.User.ROLE_SUPER, dataobject.User.ROLE_USER),],
-            Optional('login'): Text(),
+            Optional('login'): TEXT,
             Optional('groups_ids'): [int],
             Optional('is_active'): bool
         },
@@ -191,7 +191,7 @@ GET_USERS_REQUEST = dict(
 
 USER_INFO = {
     'id': int,
-    'login': Text(),
+    'login': TEXT,
     'role': AnyOf(dataobject.User.ROLE_SUPER, dataobject.User.ROLE_USER),
     'is_active': bool,
     'groups_ids': [int],
@@ -202,7 +202,7 @@ GET_USERS_RESPONSE = AnyOf(
         RESPONSE_STATUS_OK,
         **{
             'users': [USER_INFO],
-            'total': NonNegative(int),
+            'total': NON_NEGATIVE_INT,
         }
     ),
     RESPONSE_STATUS_ERROR
@@ -210,9 +210,9 @@ GET_USERS_RESPONSE = AnyOf(
 
 ADD_SERVICE_REQUEST = dict(
     {
-        'name': Text(),
-        'type': Text(),
-        'properties': [Text()],
+        'name': TEXT,
+        'type': TEXT,
+        'properties': [TEXT],
         Optional('is_active'): bool,
     },
     **AUTHORIZED_REQUEST_AUTH_INFO
@@ -222,9 +222,9 @@ ADD_SERVICE_RESPONSE = ADDING_OBJECT_RESPONSE
 
 SERVICE_INFO = {
     'id': int,
-    'name': Text(),
-    'type': Text(),
-    'properties': [Text()],
+    'name': TEXT,
+    'type': TEXT,
+    'properties': [TEXT],
     'is_active': bool,
     'is_possible_deactiate': bool,
 }
@@ -233,8 +233,8 @@ GET_SERVICES_REQUEST = dict(
     {
         'filter_params': {
             Optional('ids'): [int],
-            Optional('types'): [Text()],
-            Optional('type'): Text(),
+            Optional('types'): [TEXT],
+            Optional('type'): TEXT,
             Optional('is_active'): bool
         },
         'paging_params': REQUEST_PAGING_PARAMS,
@@ -248,7 +248,7 @@ GET_SERVICES_RESPONSE = AnyOf(
         RESPONSE_STATUS_OK,
         **{
             'services': [SERVICE_INFO],
-            'total': NonNegative(int),
+            'total': NON_NEGATIVE_INT,
         }
     ),
     RESPONSE_STATUS_ERROR
@@ -257,8 +257,8 @@ GET_SERVICES_RESPONSE = AnyOf(
 MODIFY_SERVICE_REQUEST = dict(
     {
         'id': int,
-        Optional('new_name'): Text(),
-        Optional('new_properties'): [Text()],
+        Optional('new_name'): TEXT,
+        Optional('new_properties'): [TEXT],
         Optional('new_is_active'): bool,
     },
     **AUTHORIZED_REQUEST_AUTH_INFO
@@ -268,24 +268,24 @@ MODIFY_SERVICE_RESPONSE = RESPONSE_STATUS_ONLY
 
 ACTION_LOG_INFO = {
     'id': int,
-    'session_id': NullableText(),
-    'custom_actor_info': NullableText(),
+    'session_id': NULLABLE_TEXT,
+    'custom_actor_info': NULLABLE_TEXT,
     'actor_user_id': AnyOf(int, None),
     'subject_users_ids': [int],
-    'action': Text(),
-    'request_date': IsoDatetime(),
-    'remote_addr': Text(),
-    'request': Text(),
-    'response': Text(),
+    'action': TEXT,
+    'request_date': ISO_DATETIME,
+    'remote_addr': TEXT,
+    'request': TEXT,
+    'response': TEXT,
 }
 
 GET_ACTION_LOGS_REQUEST = dict(
     {
         'filter_params': {
-            Optional('from_request_date'): IsoDatetime(),
-            Optional('to_request_date'): IsoDatetime(),
-            Optional('action'): Text(),
-            Optional('session_id'): Text(),
+            Optional('from_request_date'): ISO_DATETIME,
+            Optional('to_request_date'): ISO_DATETIME,
+            Optional('action'): TEXT,
+            Optional('session_id'): TEXT,
             Optional('user_id'): int,
         },
         'paging_params': REQUEST_PAGING_PARAMS,
@@ -299,7 +299,7 @@ GET_ACTION_LOGS_RESPONSE = AnyOf(
         RESPONSE_STATUS_OK,
         **{
             'action_logs': [ACTION_LOG_INFO],
-            'total': NonNegative(int),
+            'total': NON_NEGATIVE_INT,
         }
     ),
     RESPONSE_STATUS_ERROR
@@ -308,10 +308,10 @@ GET_ACTION_LOGS_RESPONSE = AnyOf(
 GET_ACTION_LOGS_SELF_REQUEST = dict(
     {
         'filter_params': {
-            Optional('from_request_date'): IsoDatetime(),
-            Optional('to_request_date'): IsoDatetime(),
-            Optional('action'): Text(),
-            Optional('session_id'): Text(),
+            Optional('from_request_date'): ISO_DATETIME,
+            Optional('to_request_date'): ISO_DATETIME,
+            Optional('action'): TEXT,
+            Optional('session_id'): TEXT,
         },
         'paging_params': REQUEST_PAGING_PARAMS,
         Optional('ordering_params'): [AnyOf('request_date', '-request_date', 'id', '-id')]
@@ -327,8 +327,8 @@ GET_USER_RIGHTS_RESPONSE = AnyOf(
     dict(
         RESPONSE_STATUS_OK,
         **{
-            'rights': [{'service_id': int, 'service_type': Text(),
-                'properties': [Text()]}],
+            'rights': [{'service_id': int, 'service_type': TEXT,
+                'properties': [TEXT]}],
         }
     ),
     RESPONSE_STATUS_ERROR
