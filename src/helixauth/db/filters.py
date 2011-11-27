@@ -1,9 +1,9 @@
-from helixcore.db.sql import Eq, MoreEq, LessEq, In, Like, Any, AnyOf
+from helixcore.db.sql import Eq, LessEq, In, Like, AnyOf
 from helixcore.db.wrapper import SelectedMoreThanOneRow, ObjectNotFound
 from helixcore.db.filters import (ObjectsFilter, InSessionFilter,
-    EnvironmentObjectsFilter)
+    EnvironmentObjectsFilter, ActionLogFilter) #@UnusedImport
 
-from helixauth.db.dataobject import (Environment, ActionLog, Session,
+from helixauth.db.dataobject import (Environment, Session,
     Service, User, Group)
 from helixauth.error import (UserNotFound, EnvironmentNotFound,
     SessionNotFound, GroupNotFound)
@@ -108,23 +108,6 @@ class GroupFilter(EnvironmentObjectsFilter):
             return super(GroupFilter, self).filter_one_obj(curs, for_update=for_update)
         except (ObjectNotFound, SelectedMoreThanOneRow):
             raise GroupNotFound(**self.filter_params)
-
-
-class ActionLogFilter(EnvironmentObjectsFilter):
-    cond_map = [
-        ('action', 'action', Eq),
-        ('session_id', 'session_id', Eq),
-        ('actor_user_id', 'actor_user_id', Eq),
-        ('from_request_date', 'request_date', MoreEq),
-        ('to_request_date', 'request_date', LessEq),
-        # OR condition
-        (('subject_users_ids', 'actor_user_id'),
-            ('subject_users_ids', 'actor_user_id'), (Any, Eq)),
-    ]
-
-    def __init__(self, environment_id, filter_params, paging_params, ordering_params):
-        super(ActionLogFilter, self).__init__(environment_id,
-            filter_params, paging_params, ordering_params, ActionLog)
 
 
 class ServiceFilter(EnvironmentObjectsFilter):
