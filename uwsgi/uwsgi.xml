@@ -1,0 +1,12 @@
+<uwsgi>
+    <!--socket>127.0.0.1:10999</socket-->
+    <http>127.0.0.1:10999</http>
+    <chdir>/home/sand/test_uwsgi</chdir>
+    <master/>
+    <plugins>python</plugins>
+    <pythonpath>/home/sand/test_uwsgi</pythonpath>
+    <virtualenv>/home/sand/test_uwsgi/venv</virtualenv>
+    <!--touch-reload>/home/iauth/project/src/app/django_wsgi.py</touch-reload-->
+    <workers>1</workers>
+    <module>w</module>
+</uwsgi>
