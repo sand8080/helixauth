@@ -1,12 +1,11 @@
 <uwsgi>
     <!--socket>127.0.0.1:10999</socket-->
     <http>127.0.0.1:10999</http>
-    <chdir>/home/sand/test_uwsgi</chdir>
+    <chdir>/home/sand/workspace_indigo/helixauth/src</chdir>
     <master/>
     <plugins>python</plugins>
-    <pythonpath>/home/sand/test_uwsgi</pythonpath>
-    <virtualenv>/home/sand/test_uwsgi/venv</virtualenv>
-    <!--touch-reload>/home/iauth/project/src/app/django_wsgi.py</touch-reload-->
-    <workers>1</workers>
-    <module>w</module>
+    <pythonpath>.</pythonpath>
+    <pythonpath>../../helixcore/src</pythonpath>
+    <workers>10</workers>
+    <module>helixauth.wsgi.uwsgi_app_test</module>
 </uwsgi>

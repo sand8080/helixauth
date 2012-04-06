@@ -38,3 +38,6 @@ class HelixauthApplication(Application):
             'response': s_resp,
         }
         mapping.insert(curs, ActionLog(**data))
+
+
+#application = HelixauthApplication(handle_action, protocol, logger)
