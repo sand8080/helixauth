@@ -4,7 +4,7 @@ from helixcore.test.utils_for_testing import (ClientSimpleApplication, make_api_
 from helixauth.conf.log import logger
 from helixauth.logic.actions import handle_action
 from helixauth.wsgi.protocol import protocol
-from helixauth.wsgi.server import HelixauthApplication
+from helixauth.wsgi.application import HelixauthApplication
 
 
 class Client(ClientSimpleApplication):

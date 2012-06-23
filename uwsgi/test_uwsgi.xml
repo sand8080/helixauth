@@ -1,10 +1,10 @@
 <uwsgi>
-    <socket>127.0.0.1:10999</socket>
-    <chdir>/home/sand/workspace_indigo/helixauth/src</chdir>
+    <http>127.0.0.1:10999</http>
+    <!--chdir>../../helixauth/src</chdir-->
     <master/>
     <plugins>python</plugins>
     <pythonpath>.</pythonpath>
     <pythonpath>../../helixcore/src</pythonpath>
-    <workers>10</workers>
+    <workers>2</workers>
     <module>helixauth.wsgi.uwsgi_app_test</module>
 </uwsgi>
