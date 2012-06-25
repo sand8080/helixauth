@@ -1,6 +1,0 @@
-Template: helixbilling/hostname
-Type: string
-Default: localhost
-Description: Helixbilling hostname:
- Hostname will be added into nginx config.
- It proxies external requests to helixbilling.

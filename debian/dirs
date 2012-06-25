@@ -1,8 +1,0 @@
-etc/supervisor/process-available
-etc/supervisor/process-enabled
-etc/nginx/sites-available
-etc/nginx/sites-enabled
-usr/bin
-usr/share/python-support/helixbilling
-usr/share/helixbilling
-var/log/helixbilling

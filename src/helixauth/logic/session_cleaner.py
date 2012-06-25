@@ -1,5 +1,5 @@
 import datetime
-import eventlet
+from time import sleep
 
 from helixcore import mapping
 
@@ -25,4 +25,4 @@ def clean(curs=None):
 def run():
     while True:
         clean()
-        eventlet.sleep(seconds=settings.session_cleaning_minutes * 60)
+        sleep(seconds=settings.session_cleaning_minutes * 60)
