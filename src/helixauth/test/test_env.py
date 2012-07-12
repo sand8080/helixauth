@@ -16,10 +16,13 @@ settings.server_port = 10999
 
 settings.log_filename = os.path.join(os.path.realpath(os.path.dirname(__file__)),
     '..', '..', '..', 'log', 'helixauth_test.log')
+settings.sess_log_filename = os.path.join(os.path.realpath(os.path.dirname(__file__)),
+    '..', '..', '..', 'log', 'helixauth-sess_test.log')
 settings.log_level = logging.DEBUG
 settings.log_console = True
 
 settings.session_valid_minutes = 500
 settings.session_cleaning_minutes = 1
 
-patches_path = os.path.join(os.path.realpath(os.path.dirname(__file__)), '..', '..', 'patches')
+patches_path = os.path.join(os.path.realpath(os.path.dirname(__file__)),
+    '..', '..', 'patches')

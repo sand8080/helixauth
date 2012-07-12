@@ -7,4 +7,7 @@
     <virtualenv>PATH_TO_HELIXPROJECT_VIRTUALEVN</virtualenv>
     <workers>1</workers>
     <module>helixauth.wsgi.uwsgi_app</module>
+    <mule/>
+    <mule/>
+    <mule/>
 </uwsgi>

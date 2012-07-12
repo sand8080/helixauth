@@ -3,9 +3,9 @@ from time import sleep
 
 from helixcore import mapping
 
-from helixauth.conf.db import transaction
 from helixauth.conf import settings
-from helixauth.conf.log import logger
+from helixauth.conf.db import transaction
+from helixauth.conf.log import sess_logger as logger
 from helixauth.db.filters import SessionFilter
 
 
@@ -14,7 +14,8 @@ def clean(curs=None):
     to_d = datetime.datetime.now()
     logger.info('Sessions cleaning initiated %s', to_d)
     to_d = to_d - datetime.timedelta(minutes=settings.session_valid_minutes)
-    logger.debug('Removing session older %s', to_d)
+    logger.debug('Removing session older %s. Session valid period: %s minutes',
+        to_d, settings.session_valid_minutes)
     f = SessionFilter({'to_update_date': to_d}, {}, None)
     sessions = f.filter_objs(curs)
     logger.info('Deleting %s sessions', len(sessions))
@@ -25,4 +26,10 @@ def clean(curs=None):
 def run():
     while True:
         clean()
-        sleep(seconds=settings.session_cleaning_minutes * 60)
+        logger.debug('Sleeping %s minutes', settings.session_cleaning_minutes)
+        sleep(settings.session_cleaning_minutes * 60)
+
+
+if __name__=='__main__':
+    logger.info('Sessions cleaner started')
+    run()

@@ -17,6 +17,7 @@ session_cleaning_minutes = 5
 
 import logging
 log_filename = '/var/log/helixproject/helixauth.log'
+sess_log_filename = '/var/log/helixproject/helixauth-sess.log'
 log_level = logging.DEBUG
 log_format = "%(asctime)s [%(levelname)s] - %(message)s"
 log_console = False
