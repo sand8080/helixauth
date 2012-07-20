@@ -229,6 +229,7 @@ SERVICE_INFO = {
 
 GET_SERVICES_REQUEST = authorized_req({
     'filter_params': {
+        Optional('id'): ID,
         Optional('ids'): [ID],
         Optional('types'): [TEXT],
         Optional('type'): TEXT,

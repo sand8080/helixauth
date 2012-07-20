@@ -201,7 +201,7 @@ class ProtocolTestCase(RootTestCase, ProtocolTester):
             'paging_params': {'limit': 0, 'offset': 0,},
             'ordering_params': ['name', '-id']})
         self.api.validate_request(a_name, {'session_id': 's',
-            'filter_params': {'type': 't'},
+            'filter_params': {'id': 4, 'type': 't'},
             'paging_params': {'limit': 0, 'offset': 0,},
             'ordering_params': ['name', '-id']})
 

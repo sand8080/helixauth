@@ -14,7 +14,8 @@ from helixauth.error import (EnvironmentNotFound,
     HelixauthObjectAlreadyExists, SessionNotFound, UserNotFound, SessionExpired,
     HelixauthError, UserInactive, ServiceDeactivationError, UserAuthError,
     GroupAlreadyExists, HelixauthObjectNotFound, UserWrongOldPassword,
-    SuperUserCreationDenied, SuperUserModificationDenied, UserAccessDenied)
+    SuperUserCreationDenied, SuperUserModificationDenied, UserAccessDenied,
+    ServiceDeletionError, ServiceNotFound)
 from helixauth.db.filters import (EnvironmentFilter, UserFilter, ServiceFilter,
     SubjectUserFilter, GroupFilter, SessionFilter, ActionLogFilter)
 from helixauth.db.dataobject import (Environment, User, Service,
@@ -427,6 +428,19 @@ class Handler(AbstractHandler):
         except DataIntegrityError:
             raise HelixauthObjectAlreadyExists('Service %s already exists' %
                 data.get('new_name'))
+        return response_ok()
+
+    @execution_time
+    @transaction()
+    @authenticate
+    @detalize_error(ServiceNotFound, 'id')
+    @detalize_error(ServiceDeletionError, 'id')
+    def delete_service(self, data, session, curs=None):
+        f = ServiceFilter(session.environment_id, {'id': data.get('id')}, {}, None)
+        s = f.filter_one_obj(curs)
+        if s.type == Service.TYPE_AUTH:
+            raise ServiceDeletionError(Service.TYPE_AUTH)
+        mapping.delete(curs, s)
         return response_ok()
 
     @execution_time

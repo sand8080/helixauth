@@ -6,7 +6,7 @@ from helixcore.db.filters import (ObjectsFilter, InSessionFilter,
 from helixauth.db.dataobject import (Environment, Session,
     Service, User, Group)
 from helixauth.error import (UserNotFound, EnvironmentNotFound,
-    SessionNotFound, GroupNotFound)
+    SessionNotFound, GroupNotFound, ServiceNotFound)
 
 
 class SessionFilter(ObjectsFilter):
@@ -113,8 +113,8 @@ class GroupFilter(EnvironmentObjectsFilter):
 class ServiceFilter(EnvironmentObjectsFilter):
     cond_map = [
         ('id', 'id', Eq),
-        ('name', 'name', Eq),
         ('ids', 'id', In),
+        ('name', 'name', Eq),
         ('types', 'type', In),
         ('is_active', 'is_active', Eq),
         ('type', 'type', Like),
@@ -127,3 +127,9 @@ class ServiceFilter(EnvironmentObjectsFilter):
     def indexed_by_id(self, curs):
         ss = self.filter_objs(curs)
         return dict([(s.id, s) for s in ss])
+
+    def filter_one_obj(self, curs, for_update=False):
+        try:
+            return super(ServiceFilter, self).filter_one_obj(curs, for_update=for_update)
+        except (ObjectNotFound, SelectedMoreThanOneRow):
+            raise ServiceNotFound(**self.filter_params)

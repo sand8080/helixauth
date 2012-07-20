@@ -159,6 +159,38 @@ class ServiceTestCase(ActorLogicTestCase):
         resp = self.modify_service(**req)
         self.check_response_ok(resp)
 
+    def test_deleting_unknown_service_failed(self, curs=None):
+        session_id = self.login_actor()
+        req = {'session_id': session_id, 'id': 99999}
+        self.assertRaises(RequestProcessingError, self.delete_service, **req)
+
+    def test_deleting_auth_service_failed(self, curs=None):
+        session_id = self.login_actor()
+        env = self.get_environment_by_name(self.actor_env_name)
+        srv = self.load_auth_service(env.id)
+        req = {'session_id': session_id, 'id': srv.id}
+        self.assertRaises(RequestProcessingError, self.delete_service, **req)
+
+    def test_delete_service(self, curs=None):
+        session_id = self.login_actor()
+
+        req = {'session_id': session_id, 'filter_params': {'type': Service.TYPE_BILLING},
+            'paging_params': {}}
+        resp = self.get_services(**req)
+        self.check_response_ok(resp)
+        self.assertTrue(resp['total'] > 0)
+
+        srv_id = resp['services'][0]['id']
+        req = {'session_id': session_id, 'id': srv_id}
+        resp = self.delete_service(**req)
+        self.check_response_ok(resp)
+
+        req = {'session_id': session_id, 'filter_params': {'id': srv_id},
+            'paging_params': {}}
+        resp = self.get_services(**req)
+        self.check_response_ok(resp)
+        self.assertEquals(0, resp['total'])
+
 
 if __name__ == '__main__':
     unittest.main()

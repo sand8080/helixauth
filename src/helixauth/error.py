@@ -45,11 +45,23 @@ class UserWrongOldPassword(HelixauthError):
         self.code = error_code.HELIXAUTH_USER_WRONG_OLD_PASSWORD
 
 
+class ServiceNotFound(HelixauthObjectNotFound):
+    def __init__(self, **kwargs):
+        super(ServiceNotFound, self).__init__('Service', **kwargs)
+        self.code = error_code.HELIXAUTH_SERVICE_NOT_FOUND
+
 class ServiceDeactivationError(HelixauthError):
     def __init__(self, service_name):
         super(ServiceDeactivationError, self).__init__(
             'Service %s can\'t be deactivated' % service_name)
         self.code = error_code.HELIXAUTH_SERVICE_DEACTIVATION_ERROR
+
+
+class ServiceDeletionError(HelixauthError):
+    def __init__(self, service_type):
+        super(ServiceDeletionError, self).__init__(
+            'Service of type %s can\'t be deleted' % service_type)
+        self.code = error_code.HELIXAUTH_SERVICE_DELETION_ERROR
 
 
 class SessionNotFound(HelixauthObjectNotFound):
@@ -71,9 +83,9 @@ class UserAuthError(HelixauthError):
 
 
 class UserAccessDenied(HelixauthError):
-    def __init__(self, service_type, property):
+    def __init__(self, service_type, prop):
         super(UserAccessDenied, self).__init__('Access denied to service %s property %s' %
-            (service_type, property))
+            (service_type, prop))
         self.code = error_code.HELIXAUTH_USER_ACCESS_DENIED
 
 
