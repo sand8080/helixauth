@@ -242,6 +242,11 @@ class ProtocolTestCase(RootTestCase, ProtocolTester):
 
         self.validate_status_response(a_name)
 
+    def test_delete_service(self):
+        a_name = 'delete_service'
+        self.api.validate_request(a_name, {'session_id': 'i', 'id': 1})
+        self.validate_status_response(a_name)
+
     def test_add_group(self):
         a_name = 'add_group'
         self.api.validate_request(a_name, {'session_id': 'i', 'name': 'n',

@@ -1,5 +1,5 @@
 from helixcore.json_validator import (Optional, AnyOf, NON_NEGATIVE_INT,
-    Scheme, ISO_DATETIME, TEXT, NULLABLE_TEXT)
+    Scheme, ISO_DATETIME, TEXT, NULLABLE_TEXT, ID, BOOLEAN)
 from helixcore.server.api import ApiCall
 from helixcore.server.protocol_primitives import (REQUEST_PAGING_PARAMS,
     RESPONSE_STATUS_OK, RESPONSE_STATUS_ERROR, RESPONSE_STATUS_ONLY,
@@ -9,7 +9,8 @@ from helixcore.server.protocol_primitives import (REQUEST_PAGING_PARAMS,
     PING_REQUEST, PING_RESPONSE,
     LOGIN_REQUEST, LOGIN_RESPONSE,
     LOGOUT_REQUEST, LOGOUT_RESPONSE,
-    CHECK_ACCESS_REQUEST, CHECK_ACCESS_RESPONSE)
+    CHECK_ACCESS_REQUEST, CHECK_ACCESS_RESPONSE,
+    authorized_req, resp)
 
 from helixauth.db import dataobject
 
@@ -208,63 +209,52 @@ GET_USERS_RESPONSE = AnyOf(
     RESPONSE_STATUS_ERROR
 )
 
-ADD_SERVICE_REQUEST = dict(
-    {
-        'name': TEXT,
-        'type': TEXT,
-        'properties': [TEXT],
-        Optional('is_active'): bool,
-    },
-    **AUTHORIZED_REQUEST_AUTH_INFO
-)
+ADD_SERVICE_REQUEST = authorized_req({
+    'name': TEXT,
+    'type': TEXT,
+    'properties': [TEXT],
+    Optional('is_active'): BOOLEAN,
+})
 
 ADD_SERVICE_RESPONSE = ADDING_OBJECT_RESPONSE
 
 SERVICE_INFO = {
-    'id': int,
+    'id': ID,
     'name': TEXT,
     'type': TEXT,
     'properties': [TEXT],
-    'is_active': bool,
-    'is_possible_deactiate': bool,
+    'is_active': BOOLEAN,
+    'is_possible_deactiate': BOOLEAN,
 }
 
-GET_SERVICES_REQUEST = dict(
-    {
-        'filter_params': {
-            Optional('ids'): [int],
-            Optional('types'): [TEXT],
-            Optional('type'): TEXT,
-            Optional('is_active'): bool
-        },
-        'paging_params': REQUEST_PAGING_PARAMS,
-        Optional('ordering_params'): [AnyOf('id', '-id', 'name', '-name')]
+GET_SERVICES_REQUEST = authorized_req({
+    'filter_params': {
+        Optional('ids'): [ID],
+        Optional('types'): [TEXT],
+        Optional('type'): TEXT,
+        Optional('is_active'): BOOLEAN
     },
-    **AUTHORIZED_REQUEST_AUTH_INFO
-)
+    'paging_params': REQUEST_PAGING_PARAMS,
+    Optional('ordering_params'): [AnyOf('id', '-id', 'name', '-name')]
+})
 
-GET_SERVICES_RESPONSE = AnyOf(
-    dict(
-        RESPONSE_STATUS_OK,
-        **{
-            'services': [SERVICE_INFO],
-            'total': NON_NEGATIVE_INT,
-        }
-    ),
-    RESPONSE_STATUS_ERROR
-)
+GET_SERVICES_RESPONSE = resp({
+    'services': [SERVICE_INFO],
+    'total': NON_NEGATIVE_INT,
+})
 
-MODIFY_SERVICE_REQUEST = dict(
-    {
-        'id': int,
-        Optional('new_name'): TEXT,
-        Optional('new_properties'): [TEXT],
-        Optional('new_is_active'): bool,
-    },
-    **AUTHORIZED_REQUEST_AUTH_INFO
-)
+MODIFY_SERVICE_REQUEST = authorized_req({
+    'id': ID,
+    Optional('new_name'): TEXT,
+    Optional('new_properties'): [TEXT],
+    Optional('new_is_active'): BOOLEAN,
+})
 
 MODIFY_SERVICE_RESPONSE = RESPONSE_STATUS_ONLY
+
+DELETE_SERVICE_REQUEST = authorized_req({'id': ID})
+
+DELETE_SERVICE_RESPONSE = RESPONSE_STATUS_ONLY
 
 ACTION_LOG_INFO = {
     'id': int,
@@ -395,6 +385,9 @@ protocol = [
 
     ApiCall('modify_service_request', Scheme(MODIFY_SERVICE_REQUEST)),
     ApiCall('modify_service_response', Scheme(MODIFY_SERVICE_RESPONSE)),
+
+    ApiCall('delete_service_request', Scheme(DELETE_SERVICE_REQUEST)),
+    ApiCall('delete_service_response', Scheme(DELETE_SERVICE_RESPONSE)),
 
     ApiCall('get_services_request', Scheme(GET_SERVICES_REQUEST)),
     ApiCall('get_services_response', Scheme(GET_SERVICES_RESPONSE)),
