@@ -9,7 +9,7 @@ class HelixauthApplication(Application):
     def __init__(self, h, p, l):
         tracking_api_calls = ('login', 'logout',
             'add_environment', 'modify_environment',
-            'add_service', 'modify_service', 'delete_service'
+            'add_service', 'modify_service', 'delete_service',
             'add_group', 'modify_group', 'delete_group',
             'add_user', 'modify_user_self', 'modify_users')
         super(HelixauthApplication, self).__init__(h, p, l, tracking_api_calls)
