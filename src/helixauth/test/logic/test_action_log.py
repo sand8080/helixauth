@@ -123,6 +123,24 @@ class ActionLogTestCase(ActorLogicTestCase, ActionsLogTester):
         sess_id = self.login_actor()
         self._not_logged_filtering_action(action, sess_id)
 
+    def test_delete_service(self):
+        sess_id = self.login_actor()
+        req = {'session_id': sess_id, 'name': 'n', 'type': 't',
+            'properties': ['a', 'b', 'c']}
+        resp = self.cli.add_service(**req)
+        self.check_response_ok(resp)
+        srv_id = resp['id']
+
+        action = 'delete_service'
+        req = {'session_id': sess_id, 'id': srv_id}
+        self._logged_action(action, req)
+
+    def test_delete_unknown_service(self):
+        sess_id = self.login_actor()
+        action = 'delete_service'
+        req = {'session_id': sess_id, 'id': 88888}
+        self._logged_action(action, req, check_resp=False)
+
     def test_add_group(self):
         action = 'add_group'
         sess_id = self.login_actor()
