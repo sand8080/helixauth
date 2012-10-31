@@ -327,11 +327,17 @@ class Handler(AbstractHandler):
         f = UserFilter(session, data['filter_params'],
             data['paging_params'], data.get('ordering_params'))
         users, total = f.filter_counted(curs)
+
+        f = GroupFilter(session.environment_id, {}, {}, None)
+        groups = f.filter_objs(curs)
+        g_ids = [g.id for g in groups]
+
         def viewer(obj):
             result = obj.to_dict()
             result.pop('password')
             result.pop('salt')
             result.pop('environment_id')
+            result['groups_ids'] = filter(lambda x: x in g_ids, result['groups_ids'])
             return result
         return response_ok(users=self.objects_info(users, viewer), total=total)
 

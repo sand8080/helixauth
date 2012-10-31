@@ -278,6 +278,42 @@ class UserTestCase(ActorLogicTestCase):
                     'get_action_logs_self', 'check_access']),
                     sorted(rights['properties']))
 
+    def test_removed_group_user_not_in_groups_ids(self):
+        sess_id = self.login_actor()
+        grp_name = 'grp_0'
+        req = {'session_id': sess_id, 'name': grp_name,
+            'rights': [{'service_id': 1, 'properties': ['one', 'two']}]
+        }
+        resp = self.add_group(**req)
+        self.check_response_ok(resp)
+
+        req = {'session_id': sess_id, 'filter_params': {'name': grp_name},
+            'paging_params': {}}
+        resp = self.get_groups(**req)
+        self.check_response_ok(resp)
+
+        grps = resp['groups']
+        self.assertEqual(1, len(grps))
+        grp = grps[0]
+        self.assertEqual(grp_name, grp['name'])
+
+        # adding user
+        req = {'session_id': sess_id, 'login': 'u0', 'password': 'p0',
+            'groups_ids': [grp['id']]}
+        resp = self.add_user(**req)
+        self.check_response_ok(resp)
+        u_id = resp['id']
+
+        # deleting group
+        req = {'session_id': sess_id, 'id': grp['id']}
+        resp = self.delete_group(**req)
+        self.check_response_ok(resp)
+
+        users = self._get_users(sess_id, [u_id])
+        self.assertEquals(1, len(users))
+        user = users[0]
+        self.assertTrue(grp['id'] not in user['groups_ids'])
+
 
 if __name__ == '__main__':
     unittest.main()
