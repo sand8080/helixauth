@@ -1,13 +1,18 @@
 <uwsgi>
-    <socket>127.0.0.1:10999</socket>
+    <socket>/var/run/uwsgi/helixauth.sock</socket>
+    <pidfile>/var/run/uwsgi/helixauth.pid</pidfile>
+    <chmod-socket>660</chmod-socket>
+    <chown-socket>helixauth:nginx</chown-socket>
+
     <auto-procname/>
     <procname-prefix>helixauth</procname-prefix>
     <master/>
     <plugins>python</plugins>
-    <virtualenv>PATH_TO_HELIXPROJECT_VIRTUALEVN</virtualenv>
+    <pythonpath>/home/helixauth/project/helixauth-malina/src/</pythonpath>
+    <virtualenv>/home/helixauth/project/helixauth-malina/.env</virtualenv>
+    <touch-reload>/home/helixauth/project/helixauth-malina/uwsgi/uwsgi.xml</touch-reload>
     <workers>1</workers>
     <module>helixauth.wsgi.uwsgi_app</module>
-    <mule/>
-    <mule/>
-    <mule/>
+    <mule>/home/helixauth/project/helixauth-malina/uwsgi/scripts/mule_sessions_cleaner.py</mule>
+
 </uwsgi>
