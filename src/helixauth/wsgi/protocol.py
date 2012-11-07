@@ -344,7 +344,7 @@ CHECK_USER_EXIST_RESPONSE = AnyOf(
 
 
 unauthorized_actions = ('ping', 'get_api_actions', 'add_environment',
-    'get_authorized_api_actions')
+    'get_authorized_api_actions', 'login', 'logout')
 
 
 protocol = [
