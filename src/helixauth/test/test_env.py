@@ -11,9 +11,6 @@ settings.DSN = {
     'password': 'qazwsx'
 }
 
-settings.server_host = 'localhost'
-settings.server_port = 10999
-
 settings.log_filename = os.path.join(os.path.realpath(os.path.dirname(__file__)),
     '..', '..', '..', 'log', 'helixauth_test.log')
 settings.sess_log_filename = os.path.join(os.path.realpath(os.path.dirname(__file__)),

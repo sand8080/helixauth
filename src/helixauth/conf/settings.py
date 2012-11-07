@@ -8,10 +8,6 @@ DSN = {
 
 patch_table_name = 'patch'
 
-server_host = 'localhost'
-server_port = 9999
-server_connections = 50
-
 session_valid_minutes = 60
 session_cleaning_minutes = 5
 
