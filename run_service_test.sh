@@ -2,7 +2,7 @@
 
 BASENAME=`basename $0`
 CUR_DIR=`dirname $0`
-VENV_DIR=`readlink -f $CUR_DIR/../.venv_helix`
+VENV_DIR=`readlink -f $CUR_DIR/.env`
 echo $VENV_DIR
 
 pushd "$CUR_DIR/uwsgi"

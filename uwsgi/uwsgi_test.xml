@@ -4,7 +4,9 @@
     <procname-prefix>helixauth</procname-prefix>
     <master/>
     <plugins>python</plugins>
-    <virtualenv>../../.venv_helix</virtualenv>
+    <virtualenv>../.env</virtualenv>
+    <pythonpath>../src</pythonpath>
+    <pythonpath>../../helixcore/src</pythonpath>
     <workers>1</workers>
     <module>helixauth.wsgi.uwsgi_app_test</module>
     <mule>./scripts/mule_sessions_cleaner.py</mule>

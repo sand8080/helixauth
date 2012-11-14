@@ -1,5 +1,4 @@
-#http://srv-integration.loyalty-partners.ru/media/dists/helixcore-0.1.1.0.tar.gz
-iso8601==0.1.4
-psycopg2==2.4.5
-pytz==2012d
+iso8601
+psycopg2
+pytz
 uwsgi
