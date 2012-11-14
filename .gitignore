@@ -1,4 +1,5 @@
 *.pyc
+.env
 .project
 .settings
 .pydevproject
