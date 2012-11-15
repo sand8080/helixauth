@@ -1,11 +1,10 @@
 import os
 
-from fabric.api import env, cd, run, settings, local
-from fabric.context_managers import prefix
+from fabric.api import env, run
 from fabric.colors import green, red, yellow
-from fabric.contrib.console import confirm
 from fabric.contrib.files import exists
 from fabric.contrib.project import rsync_project
+from fabric.context_managers import prefix
 from fabric.utils import abort
 
 
@@ -15,84 +14,90 @@ def _project_dir():
 
 def _get_env():
     p_dir = _project_dir()
-    ci_path = os.path.join(p_dir, '.env')
-    dev_path = os.path.join(p_dir, '..', '.venv_helix')
-    if os.path.exists(ci_path):
-        return ci_path
-    elif os.path.exists(dev_path):
-        return dev_path
+    env_path = os.path.join(p_dir, '.env')
+    if os.path.exists(env_path):
+        return env_path
     else:
-        print red('Environment not found')
+        print red("Environment not found")
+        raise Exception("Environment not found")
 
 
-print green('Configuring production environment')
-env.hosts = ['hostinghost']
-env.activate = '. %s/bin/activate' % _get_env()
-env.remote_dir = '/home/helixauth/project/helixauth-malina/'
-env.remote_project_env = os.path.join(env.remote_dir, '.env', 'bin')
-#env.remote_virtualenv = '/home/irs/bin/virtualenv'
-#env.remote_uwsgi = '/export/home/irs/bin/uwsgi'
-env.rsync_exclude = ['*.pyc', '.env', 'log', '.settings', '.*',
-    'fabfile.py', '*.sh', 'uwsgi/uwsgi_test.xml']
-print green('Production environment configured')
+print green("Configuring production environment")
+env.hosts = ['helixauth@78.47.11.201']
+env.r_proj_dir = '/opt/helixproject'
+env.r_proj_dir_owner = 'root'
+env.r_proj_dir_group = 'helixproject'
+env.r_proj_dir_perms = '750'
 
+env.r_app_dir = os.path.join(env.r_proj_dir, 'helixauth')
+env.r_app_activate = '%s/.env/bin/activate' % env.r_app_dir
 
-def run_tests():
-    with prefix(env.activate):
-        print green('Starting tests')
-        with settings(warn_only=True):
-            t_run = os.path.join(_get_env(), 'bin', 'nosetests')
-            result = local('%s %s' % (t_run, _project_dir()))
-        if result.failed and not confirm(red('Tests failed. Continue anyway?')):
-            print red("Aborting at user request.")
-            abort()
-        print green('Tests passed')
-
-
-def sync():
-    print green('Files syncronization started')
-    print green('Project dir creation')
-    run('mkdir -p %s' % env.remote_dir)
-
-    print green('Project files syncronization')
-    rsync_project(env.remote_dir, local_dir='%s/' % _project_dir(),
-        exclude=env.rsync_exclude, delete=True, extra_opts='-q')
-
-    r_log_dir = os.path.join(env.remote_dir, 'log')
-    if not exists(r_log_dir):
-        print green('Log directory creation')
-        run('mkdir -p %s' % r_log_dir)
-
-    print green('Files syncronization complete')
+#env.remote_uwsgi = '~/opt/bin/uwsgi'
+#env.rsync_exclude = ['.*', '*.sh', '*.pyc',
+#    'reports', 'fabfile.py', 'requirements-ci.txt',
+#    'uwsgi/*_ci.*']
+print green("Production environment configured")
 
 
 def config_virt_env():
     r_env_dir = os.path.join(env.remote_dir, '.env')
     if not exists(r_env_dir):
         print green('Virtualenv creation')
-        run('%s --no-site-packages %s' %
-            (env.remote_virtualenv, r_env_dir))
+        run('virtualenv %s' % r_env_dir)
 
     print green('Installing packages')
     r_pip = os.path.join(env.remote_dir, '.env', 'bin', 'pip')
-    with settings(warn_only=True):
-        print green('Removing helixcore')
-        run('%s uninstall --yes helixcore' % r_pip)
 
-    print green('Workaround with uwsgi')
+    print green("Workaround with uwsgi")
     r_uwsgi_dst = os.path.join(r_env_dir, 'bin', 'uwsgi')
     run('ln -sf %s %s' % (env.remote_uwsgi, r_uwsgi_dst))
 
     print green('Installing requires')
-    run('%s install -r %s/pip-requirements.txt' % (r_pip, env.remote_dir))
+    run('%s install -r %s/requirements.txt' % (r_pip, env.remote_dir))
 
 
-def update_db():
-    print green('Installing db packages')
+def collectstatic():
+    print green('Collecting static')
+    with prefix('. %s' % env.remote_activate):
+        manage_p = os.path.join(env.remote_dir, 'manage.py')
+        cmd = '%s collectstatic --noinput --settings=msite.settings_prod' % manage_p
+        run(cmd)
+    print green('Static collected')
 
-    run('export PYTHONPATH="%s/src" && %s/python %s/src/helixauth_install update' %
-        (env.remote_dir, env.remote_project_env, env.remote_dir))
-    print green('Db packages installed')
+
+def _check_rd_owner(rd, owner_exp):
+    owner_act = run('stat -c %%U %s' % rd)
+    if owner_act != owner_exp:
+        abort(red("Owner of %s is %s. Expected %s" % (
+            rd, owner_act, owner_exp)))
+
+
+def _check_rd_group(rd, group_exp):
+    group_act = run('stat -c %%G %s' % rd)
+    if group_act != group_exp:
+        abort(red("Group of %s is %s. Expected %s" % (
+            rd, group_act, group_exp)))
+
+
+def check_proj_dirs():
+    print green("Checking project dir is created")
+    if exists(env.r_proj_dir):
+        _check_rd_owner(env.r_proj_dir, env.r_proj_dir_owner)
+        _check_rd_group(env.r_proj_dir, env.r_proj_dir_group)
+        print green("ok")
+    else:
+        abort(red("Directory %s is not exists" % env.remote_project_dir))
+    abort(yellow("Stopped"))
+
+
+def sync():
+    print green("Files syncronization started")
+    print green("Project files syncronization")
+    rsync_project(env.remote_dir, local_dir='%s/' % _project_dir(),
+        exclude=env.rsync_exclude, delete=True, extra_opts='-q -L')
+    run('chmod 700 %s' % env.r88888888emote_dir)
+    run('mkdir -p %s' % os.path.join(env.remote_dir, 'log'))
+    print green("Files syncronization complete")
 
 
 def restart_uwsgi():
@@ -102,11 +107,10 @@ def restart_uwsgi():
 
 
 def deploy():
-    print yellow('Welcome back, commander!')
-    print green('Deployment started')
-    run_tests()
+    print yellow("Welcome back, commander!")
+    print green("Deployment started")
     sync()
     config_virt_env()
-    update_db()
+    collectstatic()
     restart_uwsgi()
-    print green('Deployment complete')
+    print green("Deployment complete")
