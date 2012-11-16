@@ -78,12 +78,19 @@ def _check_rd_group(rd, group_exp):
         abort(red("Group of %s is %s. Expected %s" % (
             rd, group_act, group_exp)))
 
+def _check_rd_perms(rd, perms_exp):
+    perms_act = run('stat -c %%a %s' % rd)
+    if perms_act != perms_exp:
+        abort(red("Permissions of %s is %s. Expected %s" % (
+            rd, perms_act, perms_exp)))
+
 
 def check_proj_dirs():
     print green("Checking project dir is created")
     if exists(env.r_proj_dir):
         _check_rd_owner(env.r_proj_dir, env.r_proj_dir_owner)
         _check_rd_group(env.r_proj_dir, env.r_proj_dir_group)
+        _check_rd_perms(env.r_proj_dir, env.r_proj_dir_perms)
         print green("ok")
     else:
         abort(red("Directory %s is not exists" % env.remote_project_dir))
