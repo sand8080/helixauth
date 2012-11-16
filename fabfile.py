@@ -65,32 +65,19 @@ def collectstatic():
     print green('Static collected')
 
 
-def _check_rd_owner(rd, owner_exp):
-    owner_act = run('stat -c %%U %s' % rd)
-    if owner_act != owner_exp:
-        abort(red("Owner of %s is %s. Expected %s" % (
-            rd, owner_act, owner_exp)))
-
-
-def _check_rd_group(rd, group_exp):
-    group_act = run('stat -c %%G %s' % rd)
-    if group_act != group_exp:
-        abort(red("Group of %s is %s. Expected %s" % (
-            rd, group_act, group_exp)))
-
-def _check_rd_perms(rd, perms_exp):
-    perms_act = run('stat -c %%a %s' % rd)
-    if perms_act != perms_exp:
-        abort(red("Permissions of %s is %s. Expected %s" % (
-            rd, perms_act, perms_exp)))
+def _check_rd(rd, u_exp, g_exp, p_exp):
+    res = run('stat -c %%U,%%G,%%a %s' % rd)
+    u_act, g_act, p_act = map(str.strip, res.split(','))
+    if u_act != u_exp or g_act != g_exp or p_act != p_exp:
+        abort(red("Directory %s params: %s. Expected: %s" % (
+            rd, (u_act, g_act, p_act), (u_exp, g_exp, p_exp))))
 
 
 def check_proj_dirs():
     print green("Checking project dir is created")
     if exists(env.r_proj_dir):
-        _check_rd_owner(env.r_proj_dir, env.r_proj_dir_owner)
-        _check_rd_group(env.r_proj_dir, env.r_proj_dir_group)
-        _check_rd_perms(env.r_proj_dir, env.r_proj_dir_perms)
+        _check_rd(env.r_proj_dir, env.r_proj_dir_owner,
+            env.r_proj_dir_group, env.r_proj_dir_perms)
         print green("ok")
     else:
         abort(red("Directory %s is not exists" % env.remote_project_dir))
