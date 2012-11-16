@@ -24,18 +24,18 @@ def _get_env():
 
 print green("Configuring production environment")
 env.hosts = ['helixauth@78.47.11.201']
-env.r_proj_dir = '/opt/helixproject'
-env.r_proj_dir_owner = 'root'
-env.r_proj_dir_group = 'helixproject'
-env.r_proj_dir_perms = '750'
+env.proj_dir = '/opt/helixproject/helixauth'
+env.proj_dir_owner = 'helixauth'
+env.proj_dir_group = 'helixproject'
+env.proj_dir_perms = '750'
 
-env.r_app_dir = os.path.join(env.r_proj_dir, 'helixauth')
-env.r_app_activate = '%s/.env/bin/activate' % env.r_app_dir
+env.activate = os.path.join(env.proj_dir, '.env',
+    'bin', 'activate')
 
 #env.remote_uwsgi = '~/opt/bin/uwsgi'
-#env.rsync_exclude = ['.*', '*.sh', '*.pyc',
-#    'reports', 'fabfile.py', 'requirements-ci.txt',
-#    'uwsgi/*_ci.*']
+env.rsync_exclude = ['.*', '*.log*', '*.sh', '*.pyc',
+    'fabfile.py', 'pip-requirements-dev.txt',
+    'uwsgi/*_dev.*']
 print green("Production environment configured")
 
 
@@ -66,32 +66,36 @@ def collectstatic():
 
 
 def _check_rd(rd, u_exp, g_exp, p_exp):
-    res = run('stat -c %%U,%%G,%%a %s' % rd)
-    u_act, g_act, p_act = map(str.strip, res.split(','))
-    if u_act != u_exp or g_act != g_exp or p_act != p_exp:
-        abort(red("Directory %s params: %s. Expected: %s" % (
-            rd, (u_act, g_act, p_act), (u_exp, g_exp, p_exp))))
+    if exists(rd):
+        res = run('stat -c %%U,%%G,%%a %s' % rd)
+        u_act, g_act, p_act = map(str.strip, res.split(','))
+        if u_act != u_exp or g_act != g_exp or p_act != p_exp:
+            abort(red("Directory %s params: %s. Expected: %s" % (
+                rd, (u_act, g_act, p_act), (u_exp, g_exp, p_exp))))
+        print green("Directory %s checking passed" % rd)
+    else:
+        abort(red("Directory %s is not exists" % env.proj_dir))
 
 
 def check_proj_dirs():
     print green("Checking project dir is created")
-    if exists(env.r_proj_dir):
-        _check_rd(env.r_proj_dir, env.r_proj_dir_owner,
-            env.r_proj_dir_group, env.r_proj_dir_perms)
-        print green("ok")
-    else:
-        abort(red("Directory %s is not exists" % env.remote_project_dir))
-    abort(yellow("Stopped"))
+    _check_rd(env.proj_dir, env.proj_dir_owner,
+        env.proj_dir_group, env.proj_dir_perms)
 
 
 def sync():
-    print green("Files syncronization started")
-    print green("Project files syncronization")
-    rsync_project(env.remote_dir, local_dir='%s/' % _project_dir(),
+    print green("Files synchronization started")
+    print green("Project files synchronization")
+    rsync_project(env.proj_dir, local_dir='%s/' % _project_dir(),
         exclude=env.rsync_exclude, delete=True, extra_opts='-q -L')
-    run('chmod 700 %s' % env.r88888888emote_dir)
-    run('mkdir -p %s' % os.path.join(env.remote_dir, 'log'))
-    print green("Files syncronization complete")
+    print green("Setting project directory parameters")
+    run('chown %s:%s %s' % (env.proj_dir_owner, env.proj_dir_group,
+        env.proj_dir))
+    run('chmod %s %s' % (env.proj_dir_perms, env.proj_dir))
+    print green("Checking project directory parameters")
+    _check_rd(env.proj_dir, env.proj_dir_owner,
+        env.proj_dir_group, env.proj_dir_perms)
+    print green("Files synchronization complete")
 
 
 def restart_uwsgi():
@@ -103,6 +107,7 @@ def restart_uwsgi():
 def deploy():
     print yellow("Welcome back, commander!")
     print green("Deployment started")
+    check_proj_dirs()
     sync()
     config_virt_env()
     collectstatic()
