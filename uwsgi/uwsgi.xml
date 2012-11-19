@@ -1,18 +1,18 @@
 <uwsgi>
-    <socket>/var/run/uwsgi/helixauth.sock</socket>
-    <pidfile>/var/run/uwsgi/helixauth.pid</pidfile>
+    <socket>/opt/helixproject/helixauth/run/helixauth.sock</socket>
+    <pidfile>/opt/helixproject/helixauth/run/helixauth.pid</pidfile>
     <chmod-socket>660</chmod-socket>
-    <chown-socket>helixauth:nginx</chown-socket>
+    <chown-socket>helixauth:www-data</chown-socket>
 
     <auto-procname/>
     <procname-prefix>helixauth</procname-prefix>
     <master/>
     <plugins>python</plugins>
-    <pythonpath>/home/helixauth/project/helixauth-malina/src/</pythonpath>
-    <virtualenv>/home/helixauth/project/helixauth-malina/.env</virtualenv>
-    <touch-reload>/home/helixauth/project/helixauth-malina/uwsgi/uwsgi.xml</touch-reload>
-    <workers>1</workers>
+    <virtualenv>/opt/helixproject/helixauth/.env</virtualenv>
+    <pythonpath>/opt/helixproject/helixauth/helixcore/src/</pythonpath>
+    <pythonpath>/opt/helixproject/helixauth/helixauth/src/</pythonpath>
+    <touch-reload>/opt/helixproject/helixauth/helixauth/uwsgi/uwsgi.xml</touch-reload>
+    <workers>5</workers>
     <module>helixauth.wsgi.uwsgi_app</module>
-    <mule>/home/helixauth/project/helixauth-malina/uwsgi/scripts/mule_sessions_cleaner.py</mule>
-
+    <mule>/opt/helixproject/helixauth/helixauth/uwsgi/scripts/mule_sessions_cleaner.py</mule>
 </uwsgi>
