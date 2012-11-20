@@ -1,6 +1,6 @@
 import os
 
-from fabric.api import env, run
+from fabric.api import env, run, local
 from fabric.colors import green, red, yellow
 from fabric.contrib.files import exists
 from fabric.contrib.project import rsync_project
@@ -30,10 +30,9 @@ env.proj_dir_owner = 'helixauth'
 env.proj_dir_group = 'helixproject'
 env.proj_dir_perms = '750'
 
-env.activate = os.path.join(env.proj_dir, '.env',
-    'bin', 'activate')
+#env.activate = os.path.join(env.proj_dir, '.env',
+#    'bin', 'activate')
 
-#env.remote_uwsgi = '~/opt/bin/uwsgi'
 env.rsync_exclude = ['.*', '*.log*', '*.sh', '*.pyc',
     'fabfile.py', 'pip-requirements-dev.txt',
     'uwsgi/*_dev.*']
@@ -41,29 +40,16 @@ print green("Production environment configured")
 
 
 def config_virt_env():
-    r_env_dir = os.path.join(env.remote_dir, '.env')
-    if not exists(r_env_dir):
+    proj_env_dir = os.path.join(env.proj_dir, '.env')
+    if not exists(proj_env_dir):
         print green('Virtualenv creation')
-        run('virtualenv %s' % r_env_dir)
+        run('virtualenv %s --no-site-packages' % proj_env_dir)
 
     print green('Installing packages')
-    r_pip = os.path.join(env.remote_dir, '.env', 'bin', 'pip')
-
-    print green("Workaround with uwsgi")
-    r_uwsgi_dst = os.path.join(r_env_dir, 'bin', 'uwsgi')
-    run('ln -sf %s %s' % (env.remote_uwsgi, r_uwsgi_dst))
+    proj_pip = os.path.join(env.proj_dir, '.env', 'bin', 'pip')
 
     print green('Installing requires')
-    run('%s install -r %s/requirements.txt' % (r_pip, env.remote_dir))
-
-
-def collectstatic():
-    print green('Collecting static')
-    with prefix('. %s' % env.remote_activate):
-        manage_p = os.path.join(env.remote_dir, 'manage.py')
-        cmd = '%s collectstatic --noinput --settings=msite.settings_prod' % manage_p
-        run(cmd)
-    print green('Static collected')
+    run('%s install -r %s/pip-requirements.txt' % (proj_pip, env.proj_dir))
 
 
 def _check_rd(rd, o_exp, g_exp, p_exp):
@@ -92,7 +78,7 @@ def sync():
     print green("Files synchronization started")
     print green("Project files synchronization")
     print green("Files synchronization complete")
-    rsync_project(env.proj_dir, local_dir=_project_dir(),
+    rsync_project(env.proj_dir, local_dir='%s/' % _project_dir(),
         exclude=env.rsync_exclude, delete=True, extra_opts='-q -L')
     _fix_rd(env.proj_dir, env.proj_dir_owner,
         env.proj_dir_group, env.proj_dir_perms)
@@ -107,10 +93,19 @@ def restart_uwsgi():
     print green('Uwsgi restarted')
 
 
+def deploy_helixcore():
+    print green("Deploying helixcore")
+    helixcore_fab = os.path.join(_project_dir(), '..', 'helixcore', 'fabfile.py')
+    local_fab = os.path.join(_get_env(), 'bin', 'fab')
+    local('%s -f %s sync_helixauth' % (local_fab, helixcore_fab))
+    print green("Helixcore deployment finished")
+
+
 def deploy():
     print yellow("Welcome back, commander!")
     print green("Deployment started")
     check_proj_dirs()
+    deploy_helixcore()
     sync()
     config_virt_env()
     collectstatic()
