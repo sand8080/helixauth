@@ -4,7 +4,7 @@ from fabric.api import env, run, local
 from fabric.colors import green, red, yellow
 from fabric.contrib.files import exists
 from fabric.contrib.project import rsync_project
-from fabric.context_managers import prefix
+from fabric.context_managers import prefix, settings
 from fabric.utils import abort
 
 
@@ -29,10 +29,9 @@ env.proj_dir = os.path.join(env.proj_root_dir, 'helixauth')
 env.proj_dir_owner = 'helixauth'
 env.proj_dir_group = 'helixproject'
 env.proj_dir_perms = '750'
-
-#env.activate = os.path.join(env.proj_dir, '.env',
-#    'bin', 'activate')
-
+env.activate = '. %s/bin/activate' % _get_env()
+env.pythonpath = 'export PYTHONPATH="%s:%s"' % (_project_dir(),
+    os.path.join(_project_dir(), '..', 'helixcore', 'src'))
 env.rsync_exclude = ['.*', '*.log*', '*.sh', '*.pyc',
     'fabfile.py', 'pip-requirements-dev.txt',
     'uwsgi/*_dev.*']
@@ -89,7 +88,7 @@ def sync():
 
 def restart_uwsgi():
     print green('Restarting uwsgi')
-    run('touch %s/uwsgi/uwsgi.xml' % env.remote_dir)
+    run('touch %s/uwsgi/uwsgi.xml' % env.proj_dir)
     print green('Uwsgi restarted')
 
 
@@ -101,13 +100,25 @@ def deploy_helixcore():
     print green("Helixcore deployment finished")
 
 
+def run_tests():
+    with prefix(env.pythonpath):
+        print green("Starting tests")
+        with settings(warn_only=True):
+            t_run = os.path.join(_get_env(), 'bin', 'nosetests')
+            t_dir = os.path.join(_project_dir(), 'src', 'helixauth', 'test')
+            result = local('%s %s' % (t_run, t_dir))
+        if result.failed:
+            abort(red("Tests failed"))
+        else:
+            print green("Tests passed")
+
+
 def deploy():
     print yellow("Welcome back, commander!")
     print green("Deployment started")
-    check_proj_dirs()
+    run_tests()
     deploy_helixcore()
     sync()
     config_virt_env()
-    collectstatic()
     restart_uwsgi()
     print green("Deployment complete")
