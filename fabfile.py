@@ -25,11 +25,17 @@ def _get_env():
 print green("Configuring production environment")
 env.hosts = ['helixauth@78.47.11.201']
 env.proj_root_dir = '/opt/helixproject/helixauth'
+env.proj_root_dir_owner = 'helixauth'
+env.proj_root_dir_group = 'helixproject'
+env.proj_root_dir_perms = '750'
 env.proj_dir = os.path.join(env.proj_root_dir, 'helixauth')
 env.proj_dir_owner = 'helixauth'
 env.proj_dir_group = 'helixproject'
-env.proj_dir_perms = '750'
-env.activate = '. %s/bin/activate' % _get_env()
+env.proj_dir_perms = '700'
+env.run_dir = os.path.join(env.proj_root_dir, 'run')
+env.run_dir_owner = 'helixauth'
+env.run_dir_group = 'helixproject'
+env.run_dir_perms = '770'
 env.pythonpath = 'export PYTHONPATH="%s:%s"' % (_project_dir(),
     os.path.join(_project_dir(), '..', 'helixcore', 'src'))
 env.rsync_exclude = ['.*', '*.log*', '*.sh', '*.pyc',
@@ -39,19 +45,21 @@ print green("Production environment configured")
 
 
 def config_virt_env():
-    proj_env_dir = os.path.join(env.proj_dir, '.env')
+    proj_env_dir = os.path.join(env.proj_root_dir, '.env')
     if not exists(proj_env_dir):
         print green('Virtualenv creation')
         run('virtualenv %s --no-site-packages' % proj_env_dir)
 
     print green('Installing packages')
-    proj_pip = os.path.join(env.proj_dir, '.env', 'bin', 'pip')
+    proj_pip = os.path.join(proj_env_dir, 'bin', 'pip')
 
     print green('Installing requires')
     run('%s install -r %s/pip-requirements.txt' % (proj_pip, env.proj_dir))
 
 
 def _check_rd(rd, o_exp, g_exp, p_exp):
+    print green("Checking directory %s owner, group, permissions. "
+        "Expected: %s, %s, %s" % (rd, o_exp, g_exp, p_exp))
     if exists(rd):
         res = run('stat -c %%U,%%G,%%a %s' % rd)
         o_act, g_act, p_act = map(str.strip, res.split(','))
@@ -71,18 +79,24 @@ def _fix_rd(rd, o, g, p):
 
 
 def sync():
-    _check_rd(env.proj_root_dir, env.proj_dir_owner,
-        env.proj_dir_group, env.proj_dir_perms)
-
     print green("Files synchronization started")
+    _check_rd(env.proj_root_dir, env.proj_root_dir_owner,
+        env.proj_root_dir_group, env.proj_root_dir_perms)
+
     print green("Project files synchronization")
-    print green("Files synchronization complete")
     rsync_project(env.proj_dir, local_dir='%s/' % _project_dir(),
         exclude=env.rsync_exclude, delete=True, extra_opts='-q -L')
+    # project directory
     _fix_rd(env.proj_dir, env.proj_dir_owner,
         env.proj_dir_group, env.proj_dir_perms)
     _check_rd(env.proj_dir, env.proj_dir_owner,
         env.proj_dir_group, env.proj_dir_perms)
+    # run directory
+    run('mkdir -p %s' % env.run_dir)
+    _fix_rd(env.run_dir, env.run_dir_owner,
+        env.run_dir_group, env.run_dir_perms)
+    _check_rd(env.run_dir, env.run_dir_owner,
+        env.run_dir_group, env.run_dir_perms)
     print green("Files synchronization complete")
 
 
@@ -120,5 +134,8 @@ def deploy():
     deploy_helixcore()
     sync()
     config_virt_env()
+    # TODO: patches installation
+    # install_db_patches()
     restart_uwsgi()
     print green("Deployment complete")
+    print yellow("Helixauth operational!")

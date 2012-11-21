@@ -2,7 +2,7 @@
     <socket>/opt/helixproject/helixauth/run/helixauth.sock</socket>
     <pidfile>/opt/helixproject/helixauth/run/helixauth.pid</pidfile>
     <chmod-socket>660</chmod-socket>
-    <chown-socket>helixauth:www-data</chown-socket>
+    <chown-socket>helixauth:helixproject</chown-socket>
 
     <auto-procname/>
     <procname-prefix>helixauth</procname-prefix>

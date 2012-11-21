@@ -1,7 +1,7 @@
 DSN = {
-    'user': '_DBC_DBUSER_',
-    'database': '_DBC_DBNAME_',
-    'host': '_DBC_DBSERVER_',
+    'user': 'helixauth',
+    'database': 'helixauth',
+    'host': 'localhost',
     'password': '_DBC_DBPASS_'
 }
 
@@ -12,8 +12,8 @@ session_valid_minutes = 60
 session_cleaning_minutes = 5
 
 import logging
-log_filename = '/var/log/helixproject/helixauth.log'
-sess_log_filename = '/var/log/helixproject/helixauth-sess.log'
+log_filename = '/opt/helixproject/helixauth/helixauth/log/helixauth.log'
+sess_log_filename = '/opt/helixproject/helixauth/helixauth/log/helixauth-sess.log'
 log_level = logging.DEBUG
 log_format = "%(asctime)s [%(levelname)s] - %(message)s"
 log_console = False
