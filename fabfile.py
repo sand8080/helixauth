@@ -4,7 +4,7 @@ from fabric.api import env, run, local
 from fabric.colors import green, red, yellow
 from fabric.contrib.files import exists
 from fabric.contrib.project import rsync_project
-from fabric.context_managers import prefix, settings
+from fabric.context_managers import prefix, settings, hide, show
 from fabric.utils import abort
 
 
@@ -36,11 +36,15 @@ env.run_dir = os.path.join(env.proj_root_dir, 'run')
 env.run_dir_owner = 'helixauth'
 env.run_dir_group = 'helixproject'
 env.run_dir_perms = '770'
-env.pythonpath = 'export PYTHONPATH="%s:%s"' % (_project_dir(),
+env.proj_pythonpath = 'export PYTHONPATH="%s:%s"' % (
+    os.path.join(env.proj_dir, 'src'),
+    os.path.join(env.proj_dir, '..', 'helixcore', 'src'))
+env.local_pythonpath = 'export PYTHONPATH="%s:%s"' % (_project_dir(),
     os.path.join(_project_dir(), '..', 'helixcore', 'src'))
 env.rsync_exclude = ['.*', '*.log*', '*.sh', '*.pyc',
     'fabfile.py', 'pip-requirements-dev.txt',
     'uwsgi/*_dev.*']
+env.activate = '. %s/.env/bin/activate' % env.proj_root_dir
 print green("Production environment configured")
 
 
@@ -50,11 +54,9 @@ def config_virt_env():
         print green('Virtualenv creation')
         run('virtualenv %s --no-site-packages' % proj_env_dir)
 
-    print green('Installing packages')
-    proj_pip = os.path.join(proj_env_dir, 'bin', 'pip')
-
-    print green('Installing requires')
-    run('%s install -r %s/pip-requirements.txt' % (proj_pip, env.proj_dir))
+    with prefix(env.activate):
+        print green('Installing required python packages')
+        run('pip install -r %s/pip-requirements.txt' % env.proj_dir)
 
 
 def _check_rd(rd, o_exp, g_exp, p_exp):
@@ -115,7 +117,7 @@ def deploy_helixcore():
 
 
 def run_tests():
-    with prefix(env.pythonpath):
+    with prefix(env.local_pythonpath):
         print green("Starting tests")
         with settings(warn_only=True):
             t_run = os.path.join(_get_env(), 'bin', 'nosetests')
@@ -127,15 +129,24 @@ def run_tests():
             print green("Tests passed")
 
 
+def install_db_patches():
+    with prefix(env.activate):
+        with prefix(env.proj_pythonpath):
+            with show('stdout'):
+                print green("Installing db_patches")
+                src = os.path.join(env.proj_dir, 'src', 'install_db_patches.py')
+                run('python %s update' % src)
+
+
 def deploy():
-    print yellow("Welcome back, commander!")
-    print green("Deployment started")
-    run_tests()
-    deploy_helixcore()
-    sync()
-    config_virt_env()
-    # TODO: patches installation
-    # install_db_patches()
-    restart_uwsgi()
-    print green("Deployment complete")
-    print yellow("Helixauth operational!")
+    with hide('running', 'stdout'):
+        print yellow("Welcome back, commander!")
+        print green("Deployment started")
+        run_tests()
+        deploy_helixcore()
+        sync()
+        config_virt_env()
+        install_db_patches()
+        restart_uwsgi()
+        print green("Deployment complete")
+        print yellow("Helixauth operational!")

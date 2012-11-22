@@ -2,7 +2,7 @@ DSN = {
     'user': 'helixauth',
     'database': 'helixauth',
     'host': 'localhost',
-    'password': '_DBC_DBPASS_'
+    'password': 'gbd0hs,fr0k,fcf'
 }
 
 
