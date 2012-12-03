@@ -1,4 +1,5 @@
 import os
+import sys
 
 from fabric.api import env, run, local
 from fabric.colors import green, red, yellow
@@ -10,6 +11,10 @@ from fabric.utils import abort
 
 def _project_dir():
     return os.path.realpath(os.path.dirname(__file__))
+
+
+sys.path.append(os.path.join(_project_dir(), '..', 'helixcore', 'src'))
+from helixcore.deploy import _fix_rd, _check_rd
 
 
 def _get_env():
@@ -57,27 +62,6 @@ def config_virt_env():
     with prefix(env.activate):
         print green('Installing required python packages')
         run('pip install -r %s/pip-requirements.txt' % env.proj_dir)
-
-
-def _check_rd(rd, o_exp, g_exp, p_exp):
-    print green("Checking directory %s owner, group, permissions. "
-        "Expected: %s, %s, %s" % (rd, o_exp, g_exp, p_exp))
-    if exists(rd):
-        res = run('stat -c %%U,%%G,%%a %s' % rd)
-        o_act, g_act, p_act = map(str.strip, res.split(','))
-        if o_act != o_exp or g_act != g_exp or p_act != p_exp:
-            abort(red("Directory %s params: %s. Expected: %s" % (
-                rd, (o_act, g_act, p_act), (o_exp, g_exp, p_exp))))
-        print green("Directory %s checking passed" % rd)
-    else:
-        abort(red("Directory %s is not exists" % env.proj_dir))
-
-
-def _fix_rd(rd, o, g, p):
-    print green("Setting project directory parameters")
-    run('chown %s:%s %s' % (o, g, rd))
-    run('chmod %s %s' % (p, rd))
-    print green("Checking project directory parameters")
 
 
 def sync():
