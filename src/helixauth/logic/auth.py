@@ -106,14 +106,14 @@ class Authenticator(object):
         idx = dict([(s.id, s.type) for s in srvs])
         return idx
 
-    def check_access(self, session, service_type, property):
-        if not self.has_access(session, service_type, property):
-            raise UserAccessDenied(service_type, property)
+    def check_access(self, session, service_type, prop):
+        if not self.has_access(session, service_type, prop):
+            raise UserAccessDenied(service_type, prop)
 
-    def has_access(self, session, service_type, property):
+    def has_access(self, session, service_type, prop):
         data = json.loads(session.serialized_data)
         rights = data['rights']
         if service_type in rights:
-            return property in rights[service_type]
+            return prop in rights[service_type]
         else:
             return False

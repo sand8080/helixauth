@@ -4,7 +4,7 @@ from helixauth.logic.handler import Handler
 from helixcore.error import UnknownActionError, DataIntegrityError
 
 
-def handle_action(action_name, data):
+def handle_action(action_name, data, req_info):
     '''
     Handles API action.
     @param action_name: name of API action
@@ -19,6 +19,6 @@ def handle_action(action_name, data):
         raise UnknownActionError('Cannot handle action %s: unknown action' % action_name)
 
     try:
-        return method(data)
+        return method(data, req_info)
     except IntegrityError, e:
         raise DataIntegrityError('Cannot handle action %s: %s' % (action_name, e.message))

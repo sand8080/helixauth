@@ -3,6 +3,7 @@ from datetime import timedelta
 
 from helixcore import mapping
 from helixcore.server.api import Api
+from helixcore.server.wsgi_application import RequestInfo
 from helixcore.test.utils_for_testing import get_api_calls
 
 # must be imported first in helixauth set
@@ -17,11 +18,11 @@ from helixauth.wsgi.protocol import protocol
 
 
 class LogicTestCase(DbBasedTestCase):
-    def handle_action(self, action, data):
+    def handle_action(self, action, data, req_info):
         api = Api(protocol)
         request = dict(data, action=action)
         action_name, data = api.handle_request(json.dumps(request))
-        response = actions.handle_action(action_name, dict(data))
+        response = actions.handle_action(action_name, dict(data), req_info)
         api.handle_response(action_name, dict(response))
         return response
 
@@ -70,7 +71,8 @@ class LogicTestCase(DbBasedTestCase):
 
 def make_api_call(f_name):
     def m(self, **kwargs):
-        return self.handle_action(f_name, kwargs)
+        req_info = RequestInfo(remote_addr='helixauth.test.ip')
+        return self.handle_action(f_name, kwargs, req_info)
     m.__name__ = f_name
     return m
 
