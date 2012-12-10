@@ -54,7 +54,7 @@ class UserFilter(InSessionFilter):
         ('id', 'id', Eq),
         ('ids', 'id', In),
         ('roles', 'role', In),
-        ('login', 'login', Like),
+        ('email', 'email', Like),
         ('password', 'password', Eq),
         ('groups_ids', 'groups_ids', AnyOf),
         ('is_active', 'is_active', Eq),
@@ -75,7 +75,7 @@ class UserFilter(InSessionFilter):
 class SubjectUserFilter(EnvironmentObjectsFilter):
     cond_map = [
         ('id', 'id', Eq),
-        ('login', 'login', Eq),
+        ('email', 'email', Eq),
         ('password', 'password', Eq),
     ]
 

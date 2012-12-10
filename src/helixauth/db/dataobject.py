@@ -10,7 +10,7 @@ class Environment(Mapped):
 class User(Mapped):
     ROLE_SUPER = 'super'
     ROLE_USER = 'user'
-    __slots__ = ['id', 'environment_id', 'login', 'password', 'salt',
+    __slots__ = ['id', 'environment_id', 'email', 'password', 'salt',
         'is_active', 'role', 'groups_ids']
     table = 'user_data'
 

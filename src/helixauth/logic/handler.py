@@ -102,8 +102,8 @@ class Handler(AbstractHandler):
     @execution_time
     @transaction()
     @detalize_error(EnvironmentNotFound, 'environment_name')
-    @detalize_error(UserAuthError, ['login', 'password'])
-    @detalize_error(UserInactive, ['login', 'password'])
+    @detalize_error(UserAuthError, ['email', 'password'])
+    @detalize_error(UserInactive, ['email', 'password'])
     def login(self, data, req_info, curs=None):
         f = EnvironmentFilter(data, {}, None)
         env = f.filter_one_obj(curs)
@@ -111,7 +111,7 @@ class Handler(AbstractHandler):
         # Required for proper logging action
         data['environment_id'] = env.id
 
-        f_params = {'environment_id': env.id, 'login': data.get('login')}
+        f_params = {'environment_id': env.id, 'email': data.get('email')}
         f = SubjectUserFilter(env.id, f_params, {}, None)
         try:
             user = f.filter_one_obj(curs)
@@ -231,7 +231,7 @@ class Handler(AbstractHandler):
 
     @execution_time
     @transaction()
-    @detalize_error(HelixauthObjectAlreadyExists, ['name', 'su_login', 'su_password'])
+    @detalize_error(HelixauthObjectAlreadyExists, ['name', 'su_email', 'su_password'])
     def add_environment(self, data, req_info, curs=None):
         env_data = {'name': data.get('name')}
         env = Environment(**env_data)
@@ -243,7 +243,7 @@ class Handler(AbstractHandler):
         # creating user
         a = Authenticator()
         salt = a.salt()
-        u_data = {'environment_id': env.id, 'login': data.get('su_login'),
+        u_data = {'environment_id': env.id, 'email': data.get('su_email'),
             'password': a.encrypt_password(data.get('su_password'), salt),
             'salt': salt, 'role': User.ROLE_SUPER}
         user = User(**u_data)
@@ -293,13 +293,13 @@ class Handler(AbstractHandler):
     @set_subject_users_ids('id')
     @transaction()
     @authenticate
-    @detalize_error(HelixauthObjectAlreadyExists, 'login')
+    @detalize_error(HelixauthObjectAlreadyExists, 'email')
     @detalize_error(SuperUserCreationDenied, 'role')
     def add_user(self, data, req_info, session, curs=None):
         a = Authenticator()
         env_id = session.environment_id
         salt = a.salt()
-        u_data = {'environment_id': env_id, 'login': data.get('login'),
+        u_data = {'environment_id': env_id, 'email': data.get('email'),
             'role': data.get('role', User.ROLE_USER),
             'password': a.encrypt_password(data.get('password'), salt),
             'salt': salt, 'is_active': data.get('is_active', True),

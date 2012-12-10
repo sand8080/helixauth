@@ -13,7 +13,7 @@ class ActionLogTestCase(ActorLogicTestCase, ActionsLogTester):
         super(ActionLogTestCase, self).setUp()
         self.cli = Client()
         req = {'name': self.actor_env_name,
-            'su_login': self.actor_login, 'su_password': self.actor_password}
+            'su_email': self.actor_login, 'su_password': self.actor_password}
         self.cli.add_environment(**req)
 
     def login_actor(self):

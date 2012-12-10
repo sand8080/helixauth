@@ -15,9 +15,9 @@ class ProtocolTestCase(RootTestCase, ProtocolTester):
 
     def test_login(self):
         a_name = 'login'
-        self.api.validate_request(a_name, {'login': 'l', 'password': 'p',
+        self.api.validate_request(a_name, {'email': 'l@h.com', 'password': 'p',
             'environment_name': 'e', 'custom_actor_info': 'i'})
-        self.api.validate_request(a_name, {'login': 'l', 'password': 'p',
+        self.api.validate_request(a_name, {'email': 'l@h.com', 'password': 'p',
             'environment_name': 'n'})
 
         self.api.validate_response(a_name, {'status': 'ok', 'session_id': 'i',
@@ -50,11 +50,11 @@ class ProtocolTestCase(RootTestCase, ProtocolTester):
 
     def test_add_environment(self):
         a_name = 'add_environment'
-        self.api.validate_request(a_name, {'name': 'n', 'su_login': 'l',
+        self.api.validate_request(a_name, {'name': 'n', 'su_email': 'l@h.com',
             'su_password': 'p'})
-        self.api.validate_request(a_name, {'name': 'n', 'su_login': 'l',
+        self.api.validate_request(a_name, {'name': 'n', 'su_email': 'l@h.com',
             'su_password': 'p', 'custom_actor_info': 'i'})
-        self.api.validate_request(a_name, {'name': 'n', 'su_login': 'l',
+        self.api.validate_request(a_name, {'name': 'n', 'su_email': 'l@h.com',
             'su_password': 'p', 'custom_actor_info': None})
 
         self.api.validate_response(a_name,
@@ -81,14 +81,14 @@ class ProtocolTestCase(RootTestCase, ProtocolTester):
     def test_add_user(self):
         a_name = 'add_user'
         self.api.validate_request(a_name, {'session_id': 'i',
-            'login': 'l', 'password': 'p', 'role': 'user'})
+            'email': 'l@h.com', 'password': 'p', 'role': 'user'})
         self.api.validate_request(a_name, {'session_id': 'i',
-            'login': 'l', 'password': 'p', 'role': 'user', 'is_active': False})
+            'email': 'l@h.com', 'password': 'p', 'role': 'user', 'is_active': False})
         self.api.validate_request(a_name, {'session_id': 'i',
-            'login': 'l', 'password': 'p', 'is_active': False,
+            'email': 'l@h.com', 'password': 'p', 'is_active': False,
             'groups_ids': []})
         self.api.validate_request(a_name, {'session_id': 'i',
-            'login': 'l', 'password': 'p', 'is_active': False,
+            'email': 'l@h.com', 'password': 'p', 'is_active': False,
             'groups_ids': [1, 2, 3]})
 
         self.api.validate_response(a_name,
@@ -109,7 +109,7 @@ class ProtocolTestCase(RootTestCase, ProtocolTester):
         self.api.validate_request(a_name, {'session_id': 'i',
             'ids': [1]})
         self.api.validate_request(a_name, {'session_id': 'i',
-            'ids': [1, 2], 'new_login': 'l'})
+            'ids': [1, 2], 'new_email': 'l@h.com'})
         self.api.validate_request(a_name, {'session_id': 'i',
             'ids': [1, 2], 'new_password': 'p'})
         self.api.validate_request(a_name, {'session_id': 'i',
@@ -142,7 +142,7 @@ class ProtocolTestCase(RootTestCase, ProtocolTester):
             'paging_params': {'limit': 0, 'offset': 0,},
             'ordering_params': ['-id']})
         self.api.validate_request(a_name, {'session_id': 's',
-            'filter_params': {'groups_ids': [3, 4], 'login': 'jack'},
+            'filter_params': {'groups_ids': [3, 4], 'email': 'ja*@h.com'},
             'paging_params': {'limit': 0, 'offset': 0,},
             'ordering_params': ['-id']})
         self.api.validate_request(a_name, {'session_id': 's',
@@ -157,13 +157,13 @@ class ProtocolTestCase(RootTestCase, ProtocolTester):
         self.api.validate_response(a_name, {'status': 'ok', 'total': 2, 'users': []})
         self.api.validate_response(a_name, {'status': 'ok', 'total': 4,
             'users': [
-                {'id': 42, 'login': 'l', 'is_active': True, 'role': 'user', 'groups_ids': [],},
+                {'id': 42, 'email': 'l@h.com', 'is_active': True, 'role': 'user', 'groups_ids': [],},
             ]
         })
         self.api.validate_response(a_name, {'status': 'ok', 'total': 4,
             'users': [
-                {'id': 42, 'login': 'l', 'is_active': True, 'role': 'user', 'groups_ids': [],},
-                {'id': 24, 'login': 'l', 'is_active': True, 'role': 'user', 'groups_ids': [1, 2],},
+                {'id': 42, 'email': 'l@h.com', 'is_active': True, 'role': 'user', 'groups_ids': [],},
+                {'id': 24, 'email': 'l@h.com', 'is_active': True, 'role': 'user', 'groups_ids': [1, 2],},
             ]
         })
         self.validate_error_response(a_name)

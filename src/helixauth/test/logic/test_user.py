@@ -20,11 +20,11 @@ class UserTestCase(ActorLogicTestCase):
 
     def test_add_user_by_super(self):
         sess_id = self.login_actor()
-        req = {'session_id': sess_id, 'login': 'user_1',
+        req = {'session_id': sess_id, 'email': 'user_1@h.com',
             'password': '1', 'role': User.ROLE_USER}
         resp = self.add_user(**req)
         self.check_response_ok(resp)
-        req = {'session_id': sess_id, 'login': 'user_2',
+        req = {'session_id': sess_id, 'email': 'user_2@h.com',
             'password': '2', 'role': User.ROLE_USER}
         resp = self.add_user(**req)
         self.check_response_ok(resp)
@@ -43,14 +43,14 @@ class UserTestCase(ActorLogicTestCase):
         self.check_response_ok(resp)
         # checking password changed
         req = {'environment_name': self.actor_env_name,
-            'login': self.actor_login, 'password': new_pw}
+            'email': self.actor_login, 'password': new_pw}
         resp = self.login(**req)
         self.check_response_ok(resp)
 
     def test_modify_super_users_failed(self):
         sess_id = self.login_actor()
         req = {'session_id': sess_id, 'paging_params': {},
-            'filter_params': {'login': self.actor_login}}
+            'filter_params': {'email': self.actor_login}}
         resp = self.get_users(**req)
         self.check_response_ok(resp)
         users = resp['users']
@@ -64,7 +64,7 @@ class UserTestCase(ActorLogicTestCase):
         # adding users
         u_ids = []
         for i in range(2):
-            req = {'session_id': sess_id, 'login': 'user_%s' % i,
+            req = {'session_id': sess_id, 'email': 'user_%s@h.com' % i,
                 'password': 'p', 'role': User.ROLE_USER, 'groups_ids': []}
             resp = self.add_user(**req)
             self.check_response_ok(resp)
@@ -76,14 +76,14 @@ class UserTestCase(ActorLogicTestCase):
         for i, u_id in enumerate(u_ids):
             users = self._get_users(sess_id, [u_id])
             u = users[0]
-            self.assertEquals('user_%s' % i, u['login'])
+            self.assertEquals('user_%s@h.com' % i, u['email'])
 
     def test_deactivated_user_actions_denied(self):
         sess_id = self.login_actor()
         # adding user
-        u0_login = 'u0'
+        u0_email = 'u0@h.com'
         u0_password = 'p0'
-        req = {'session_id': sess_id, 'login': u0_login,
+        req = {'session_id': sess_id, 'email': u0_email,
             'password': u0_password, 'role': User.ROLE_USER,
             'groups_ids': []}
         resp = self.add_user(**req)
@@ -93,14 +93,14 @@ class UserTestCase(ActorLogicTestCase):
         users = self._get_users(sess_id, [u0_id])
         self.assertEquals(1, len(users))
         u = users[0]
-        self.assertEquals(u0_login, u['login'])
+        self.assertEquals(u0_email, u['email'])
         self.assertEquals(True, u['is_active'])
         self.assertEquals([], u['groups_ids'])
         self.assertEquals(User.ROLE_USER, u['role'])
 
         # login user
         req = {'environment_name': self.actor_env_name,
-            'login': u0_login, 'password': u0_password}
+            'email': u0_email, 'password': u0_password}
         resp = self.login(**req)
         self.check_response_ok(resp)
         s0_id = resp['session_id']
@@ -116,7 +116,8 @@ class UserTestCase(ActorLogicTestCase):
     def test_modify_users(self):
         sess_id = self.login_actor()
         # adding user
-        req = {'session_id': sess_id, 'login': 'user_0',
+        email = 'user_0@h.com'
+        req = {'session_id': sess_id, 'email': email,
             'password': 'p', 'role': User.ROLE_USER, 'groups_ids': []}
         resp = self.add_user(**req)
         self.check_response_ok(resp)
@@ -125,7 +126,7 @@ class UserTestCase(ActorLogicTestCase):
         users = self._get_users(sess_id, [u_id])
         self.assertEquals(1, len(users))
         u = users[0]
-        self.assertEquals('user_0', u['login'])
+        self.assertEquals(email, u['email'])
         self.assertEquals(True, u['is_active'])
         self.assertEquals([], u['groups_ids'])
         self.assertEquals(User.ROLE_USER, u['role'])
@@ -140,7 +141,8 @@ class UserTestCase(ActorLogicTestCase):
         g_id = resp['id']
 
         # users modification
-        req = {'session_id': sess_id, 'ids': [u_id], 'new_login': 'n_l',
+        new_email = 'n_l@h.com'
+        req = {'session_id': sess_id, 'ids': [u_id], 'new_email': new_email,
             'new_password': 'n_p', 'new_is_active': False,
             'new_groups_ids': [g_id, 10000]}
         resp = self.modify_users(**req)
@@ -149,7 +151,7 @@ class UserTestCase(ActorLogicTestCase):
         users = self._get_users(sess_id, [u_id])
         self.assertEquals(1, len(users))
         u = users[0]
-        self.assertEquals('n_l', u['login'])
+        self.assertEquals(new_email, u['email'])
         self.assertEquals(False, u['is_active'])
         self.assertEquals([g_id], u['groups_ids'])
         self.assertEquals(User.ROLE_USER, u['role'])
@@ -164,22 +166,24 @@ class UserTestCase(ActorLogicTestCase):
         self.check_response_ok(resp)
 
         # adding users
-        req = {'session_id': sess_id, 'login': 'user_0',
+        u0_email = 'user_0@h.com'
+        req = {'session_id': sess_id, 'email': u0_email,
             'password': '1', 'role': User.ROLE_USER, 'groups_ids': [1]}
         resp = self.add_user(**req)
         self.check_response_ok(resp)
-        req['login'] = 'user_1'
+        u1_email = 'user_1@h.com'
+        req['email'] = u1_email
         resp = self.add_user(**req)
         self.check_response_ok(resp)
 
         # checking filtering by login
-        req = {'session_id': sess_id, 'filter_params': {'login': '*_1'},
+        req = {'session_id': sess_id, 'filter_params': {'email': '*_1@h.com'},
             'paging_params': {}}
         resp = self.get_users(**req)
         self.check_response_ok(resp)
         users = resp['users']
         self.assertEqual(1, len(users))
-        self.assertEqual('user_1', users[0]['login'])
+        self.assertEqual(u1_email, users[0]['email'])
 
         # checking filtering by groups_ids
         req = {'session_id': sess_id, 'filter_params': {'groups_ids': [1, 2, 3]},
@@ -188,8 +192,8 @@ class UserTestCase(ActorLogicTestCase):
         self.check_response_ok(resp)
         users = resp['users']
         self.assertEqual(2, len(users))
-        self.assertEqual('user_0', users[0]['login'])
-        self.assertEqual('user_1', users[1]['login'])
+        self.assertEqual(u0_email, users[0]['email'])
+        self.assertEqual(u1_email, users[1]['email'])
 
         # checking filtering by roles
         req = {'session_id': sess_id, 'filter_params': {'roles': [User.ROLE_SUPER]},
@@ -217,7 +221,7 @@ class UserTestCase(ActorLogicTestCase):
 
         # checking only existed groups ids used for user
         self.check_response_ok(resp)
-        req = {'session_id': sess_id, 'login': 'user_1',
+        req = {'session_id': sess_id, 'email': 'user_1@h.com',
             'password': '1', 'role': User.ROLE_USER, 'groups_ids': [1, 7, 9]}
         resp = self.add_user(**req)
         self.check_response_ok(resp)
@@ -233,7 +237,7 @@ class UserTestCase(ActorLogicTestCase):
         self.assertEqual([1], user['groups_ids'])
 
         # checking groups ids ignored for super user
-        req = {'session_id': sess_id, 'filter_params': {'login': self.actor_login},
+        req = {'session_id': sess_id, 'filter_params': {'email': self.actor_login},
             'paging_params': {}}
         resp = self.get_users(**req)
         self.check_response_ok(resp)
@@ -257,14 +261,16 @@ class UserTestCase(ActorLogicTestCase):
         grp = groups[0]
 
         # adding limited user
-        req = {'session_id': sess_id, 'login': 'u0', 'password': 'p0',
+        u0_email = 'u0@h.com'
+        u0_pass = 'p0'
+        req = {'session_id': sess_id, 'email': u0_email, 'password': u0_pass,
             'groups_ids': [grp['id']]}
         resp = self.add_user(**req)
         self.check_response_ok(resp)
 
         # login limited user
         req = {'environment_name': self.actor_env_name,
-            'login': 'u0', 'password': 'p0'}
+            'email': u0_email, 'password': u0_pass}
         resp = self.login(**req)
         self.check_response_ok(resp)
         s0_id = resp['session_id']
@@ -298,7 +304,7 @@ class UserTestCase(ActorLogicTestCase):
         self.assertEqual(grp_name, grp['name'])
 
         # adding user
-        req = {'session_id': sess_id, 'login': 'u0', 'password': 'p0',
+        req = {'session_id': sess_id, 'email': 'u0@h.com', 'password': 'p0',
             'groups_ids': [grp['id']]}
         resp = self.add_user(**req)
         self.check_response_ok(resp)

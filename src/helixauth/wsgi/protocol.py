@@ -1,5 +1,5 @@
 from helixcore.json_validator import (Optional, AnyOf, NON_NEGATIVE_INT,
-    Scheme, ISO_DATETIME, TEXT, NULLABLE_TEXT, ID, BOOLEAN)
+    Scheme, ISO_DATETIME, TEXT, NULLABLE_TEXT, ID, BOOLEAN, EMAIL)
 from helixcore.server.api import ApiCall
 from helixcore.server.protocol_primitives import (REQUEST_PAGING_PARAMS,
     RESPONSE_STATUS_OK, RESPONSE_STATUS_ERROR, RESPONSE_STATUS_ONLY,
@@ -37,7 +37,7 @@ GET_API_SCHEME_RESPONSE = AnyOf(
 
 ADD_ENVIRONMENT_REQUEST = {
     'name': TEXT,
-    'su_login': TEXT,
+    'su_email': TEXT,
     'su_password': TEXT,
     Optional('custom_actor_info'): NULLABLE_TEXT,
 }
@@ -137,7 +137,7 @@ GET_GROUPS_RESPONSE = AnyOf(
 
 ADD_USER_REQUEST = dict(
     {
-        'login': TEXT,
+        'email': EMAIL,
         'password': TEXT,
         Optional('role'): AnyOf(dataobject.User.ROLE_USER),
         Optional('is_active'): bool,
@@ -154,7 +154,7 @@ ADD_USER_RESPONSE = AnyOf(
 MODIFY_USERS_REQUEST = dict(
     {
         'ids': [int],
-        Optional('new_login'): TEXT,
+        Optional('new_email'): TEXT,
         Optional('new_password'): TEXT,
         Optional('new_is_active'): bool,
         Optional('new_groups_ids'): [int],
@@ -180,7 +180,7 @@ GET_USERS_REQUEST = dict(
             Optional('id'): int,
             Optional('ids'): [int],
             Optional('roles'): [AnyOf(dataobject.User.ROLE_SUPER, dataobject.User.ROLE_USER),],
-            Optional('login'): TEXT,
+            Optional('email'): TEXT,
             Optional('groups_ids'): [int],
             Optional('is_active'): bool
         },
@@ -192,7 +192,7 @@ GET_USERS_REQUEST = dict(
 
 USER_INFO = {
     'id': int,
-    'login': TEXT,
+    'email': EMAIL,
     'role': AnyOf(dataobject.User.ROLE_SUPER, dataobject.User.ROLE_USER),
     'is_active': bool,
     'groups_ids': [int],
