@@ -18,7 +18,7 @@ class ActionLogTestCase(ActorLogicTestCase, ActionsLogTester):
 
     def login_actor(self):
         req = {'environment_name': self.actor_env_name,
-            'login': self.actor_login, 'password': self.actor_password}
+            'email': self.actor_login, 'password': self.actor_password}
         resp = self.cli.login(**req)
         self.check_response_ok(resp)
         return resp['session_id']
@@ -48,7 +48,7 @@ class ActionLogTestCase(ActorLogicTestCase, ActionsLogTester):
         logs_num = len(resp['action_logs'])
 
         req_login = {'environment_name': self.actor_env_name,
-            'login': 'l', 'password': 'fake'}
+            'email': 'l@h.com', 'password': 'fake'}
         resp = self.cli.login(**req_login)
         self.assertEquals('error', resp['status'])
         resp = self.get_action_logs(**req_al)
@@ -75,13 +75,13 @@ class ActionLogTestCase(ActorLogicTestCase, ActionsLogTester):
 
     def test_modify_environment_failure(self):
         sess_id = self.login_actor()
-        l, p = 'l', 'p'
-        req = {'session_id': sess_id, 'login': l, 'password': p}
+        l, p = 'l@h.com', 'p'
+        req = {'session_id': sess_id, 'email': l, 'password': p}
         resp = self.cli.add_user(**req)
         self.check_response_ok(resp)
 
         req = {'environment_name': self.actor_env_name,
-            'login': l, 'password': p}
+            'email': l, 'password': p}
         resp = self.cli.login(**req)
         self.check_response_ok(resp)
         u_sess_id = resp['session_id']
@@ -178,8 +178,8 @@ class ActionLogTestCase(ActorLogicTestCase, ActionsLogTester):
         sess_id = self.login_actor()
         self._not_logged_filtering_action(action, sess_id)
 
-    def _get_user_by_login(self, sess_id, login):
-        req = {'session_id': sess_id, 'filter_params': {'login': login},
+    def _get_user_by_login(self, sess_id, email):
+        req = {'session_id': sess_id, 'filter_params': {'email': email},
             'paging_params': {}}
         resp = self.get_users(**req)
         self.check_response_ok(resp)
@@ -190,12 +190,12 @@ class ActionLogTestCase(ActorLogicTestCase, ActionsLogTester):
     def test_add_user(self):
         action = 'add_user'
         sess_id = self.login_actor()
-        login = 'login'
-        req = {'session_id': sess_id, 'login': login, 'password': 'p'}
+        email = 'login@h.com'
+        req = {'session_id': sess_id, 'email': email, 'password': 'p'}
         self._logged_action(action, req)
 
         # checking subject user ids are set
-        user = self._get_user_by_login(sess_id, login)
+        user = self._get_user_by_login(sess_id, email)
         self._check_subject_users_ids_set(sess_id, action, user['id'])
 
     def test_get_users(self):
@@ -217,25 +217,25 @@ class ActionLogTestCase(ActorLogicTestCase, ActionsLogTester):
 
     def test_modify_users(self):
         sess_id = self.login_actor()
-        req = {'session_id': sess_id, 'login': 'u0', 'password': 'p'}
+        req = {'session_id': sess_id, 'email': 'u0@h.com', 'password': 'p'}
         resp = self.cli.add_user(**req)
         self.check_response_ok(resp)
         u_id = resp['id']
 
         action = 'modify_users'
-        new_login = 'n_u0'
+        new_email = 'n_u0@h.com'
         req = {'session_id': sess_id, 'ids': [u_id],
-            'new_login': new_login}
+            'new_email': new_email}
         self._logged_action(action, req)
 
         # checking subject user ids are set
-        user = self._get_user_by_login(sess_id, new_login)
+        user = self._get_user_by_login(sess_id, new_email)
         self._check_subject_users_ids_set(sess_id, action, user['id'])
 
     def test_modify_users_failure_logged(self):
         sess_id = self.login_actor()
         req = {'session_id': sess_id, 'paging_params': {},
-            'filter_params': {'login': self.actor_login}}
+            'filter_params': {'email': self.actor_login}}
         resp = self.cli.get_users(**req)
         self.check_response_ok(resp)
         users = resp['users']
@@ -263,9 +263,9 @@ class ActionLogTestCase(ActorLogicTestCase, ActionsLogTester):
         sess_id = self.login_actor()
         self._not_logged_filtering_action(action, sess_id)
         logins_num = self._count_self_records(sess_id, 'login')
-        req = {'session_id': sess_id, 'login': 'l', 'password': 'p'}
+        req = {'session_id': sess_id, 'email': 'l@h.com', 'password': 'p'}
         self._logged_action('add_user', req)
-        req = {'environment_name': self.actor_env_name, 'login': 'l',
+        req = {'environment_name': self.actor_env_name, 'email': 'l@h.com',
             'password': 'p'}
         resp = self.cli.login(**req)
         self.check_response_ok(resp)

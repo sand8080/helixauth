@@ -32,7 +32,7 @@ class AccessTestCase(ActorLogicTestCase):
         env = resp['environment']
         self.assertEquals(env_id, env['id'])
 
-        req = {'session_id': sess_id, 'filter_params': {'login': self.actor_login},
+        req = {'session_id': sess_id, 'filter_params': {'email': self.actor_login},
             'paging_params': {}}
         resp = self.get_users(**req)
         self.check_response_ok(resp)
@@ -70,14 +70,14 @@ class AccessTestCase(ActorLogicTestCase):
         self.assertEqual(1, len(groups))
         grp = groups[0]
 
-        req = {'session_id': sess_id, 'login': 'u0', 'password': 'p0',
+        req = {'session_id': sess_id, 'email': 'u0@h.com', 'password': 'p0',
             'groups_ids': [grp['id']]}
         resp = self.add_user(**req)
         self.check_response_ok(resp)
         env = self.get_environment_by_name(self.actor_env_name)
 
         # login limited user
-        req = {'environment_name': env.name, 'login': 'u0', 'password': 'p0'}
+        req = {'environment_name': env.name, 'email': 'u0@h.com', 'password': 'p0'}
         resp = self.login(**req)
         self.check_response_ok(resp)
         u_sess_id = resp['session_id']
@@ -113,14 +113,14 @@ class AccessTestCase(ActorLogicTestCase):
         grp = groups[0]
         self.assertEqual(True, grp['is_active'])
 
-        req = {'session_id': sess_id, 'login': 'u0', 'password': 'p0',
+        req = {'session_id': sess_id, 'email': 'u0@h.com', 'password': 'p0',
             'groups_ids': [grp['id']]}
         resp = self.add_user(**req)
         self.check_response_ok(resp)
         env = self.get_environment_by_name(self.actor_env_name)
 
         # login limited user
-        req = {'environment_name': env.name, 'login': 'u0', 'password': 'p0'}
+        req = {'environment_name': env.name, 'email': 'u0@h.com', 'password': 'p0'}
         resp = self.login(**req)
         self.check_response_ok(resp)
         u_sess_id = resp['session_id']
@@ -137,7 +137,7 @@ class AccessTestCase(ActorLogicTestCase):
         self.check_response_ok(resp)
 
         # checking access denied to service properties (in new session)
-        req = {'environment_name': env.name, 'login': 'u0', 'password': 'p0'}
+        req = {'environment_name': env.name, 'email': 'u0@h.com', 'password': 'p0'}
         resp = self.login(**req)
         self.check_response_ok(resp)
         u_sess_id = resp['session_id']

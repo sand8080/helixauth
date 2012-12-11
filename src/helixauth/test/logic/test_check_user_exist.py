@@ -15,7 +15,7 @@ class CheckUserExistTestCase(ActorLogicTestCase):
         self.check_response_ok(resp)
         self.assertFalse(resp['exist'])
 
-        req = {'session_id': sess_id, 'login': 'u0', 'password': 'p'}
+        req = {'session_id': sess_id, 'email': 'u0@h.com', 'password': 'p'}
         resp = self.add_user(**req)
         self.check_response_ok(resp)
         user_id = resp['id']

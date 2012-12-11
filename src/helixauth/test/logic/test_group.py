@@ -23,7 +23,7 @@ class GroupTestCase(ActorLogicTestCase):
             'rights': [{'service_id': 2, 'properties':['b']}]}
         self.assertRaises(RequestProcessingError, self.add_group, **req)
 
-        req = {'name': 'env_1', 'su_login': 'l', 'su_password': 'p'}
+        req = {'name': 'env_1', 'su_email': 'l@h.com', 'su_password': 'p'}
         resp = self.add_environment(**req)
         self.check_response_ok(resp)
 
