@@ -11,7 +11,7 @@ from helixauth.conf import settings
 from helixauth.conf.db import transaction
 from helixauth.db.dataobject import Session, User
 from helixauth.db.filters import SessionFilter, ServiceFilter, GroupFilter
-from helixauth.error import SessionExpired, UserAccessDenied
+from helixauth.error import SessionExpired, UserAccessDenied, SessionIpChanged
 from helixauth.wsgi.protocol import protocol
 
 
@@ -49,9 +49,11 @@ class Authenticator(object):
         valid_period = timedelta(minutes=settings.session_valid_minutes)
         return cur_date - valid_period
 
-    def create_session(self, curs, env, user):
+    def create_session(self, curs, env, user, req_info, bind_to_ip=False):
         d = datetime.now(pytz.utc)
         session_data = self._get_session_data(curs, env, user)
+        session_data['ip'] = req_info.remote_addr
+        session_data['bind_to_ip'] = bind_to_ip
         data = {
             'session_id': '%s' % uuid4(),
             'environment_id': env.id,
@@ -106,13 +108,15 @@ class Authenticator(object):
         idx = dict([(s.id, s.type) for s in srvs])
         return idx
 
-    def check_access(self, session, service_type, prop):
-        if not self.has_access(session, service_type, prop):
+    def check_access(self, session, service_type, prop, req_info):
+        sess_data = json.loads(session.serialized_data)
+        if sess_data.get('bind_to_ip') and sess_data.get('ip') != req_info.remote_addr:
+            raise SessionIpChanged()
+        if not self.has_access(sess_data, service_type, prop, req_info):
             raise UserAccessDenied(service_type, prop)
 
-    def has_access(self, session, service_type, prop):
-        data = json.loads(session.serialized_data)
-        rights = data['rights']
+    def has_access(self, sess_data, service_type, prop, req_info):
+        rights = sess_data['rights']
         if service_type in rights:
             return prop in rights[service_type]
         else:

@@ -15,7 +15,7 @@ from helixauth.error import (EnvironmentNotFound,
     HelixauthError, UserInactive, ServiceDeactivationError, UserAuthError,
     GroupAlreadyExists, HelixauthObjectNotFound, UserWrongOldPassword,
     SuperUserCreationDenied, SuperUserModificationDenied, UserAccessDenied,
-    ServiceDeletionError, ServiceNotFound)
+    ServiceDeletionError, ServiceNotFound, SessionIpChanged)
 from helixauth.db.filters import (EnvironmentFilter, UserFilter, ServiceFilter,
     SubjectUserFilter, GroupFilter, SessionFilter, ActionLogFilter)
 from helixauth.db.dataobject import (Environment, User, Service,
@@ -51,7 +51,7 @@ def authenticate(method):
                 raise HelixauthError('User and session from different environments')
             if not user.is_active:
                 raise UserInactive()
-            auth.check_access(session, Service.TYPE_AUTH, method.__name__)
+            auth.check_access(session, Service.TYPE_AUTH, method.__name__, req_info)
 
             data.pop('session_id', None)
             custom_actor_info = data.pop('custom_actor_info', None)
@@ -127,7 +127,9 @@ class Handler(AbstractHandler):
             raise UserAuthError
 
         # creating session
-        session = auth.create_session(curs, env, user)
+        bind_to_ip = data.get('bind_to_ip', False)
+        session = auth.create_session(curs, env, user, req_info,
+            bind_to_ip=bind_to_ip)
 
         _add_log_info(data, session)
 
@@ -254,7 +256,7 @@ class Handler(AbstractHandler):
 
         # creating session for super user
         auth = Authenticator()
-        session = auth.create_session(curs, env, user)
+        session = auth.create_session(curs, env, user, req_info)
 
         _add_log_info(data, session)
 
@@ -555,10 +557,10 @@ class Handler(AbstractHandler):
         srv_type = data.get('service_type', None)
         p = data.get('property', None)
         try:
-            a.check_access(session, srv_type, p)
+            a.check_access(session, srv_type, p, req_info)
             return response_ok(user_id=session.user_id,
                 environment_id=session.environment_id, access='granted')
-        except UserAccessDenied:
+        except (UserAccessDenied, SessionIpChanged):
             return response_ok(user_id=session.user_id,
                 environment_id=session.environment_id, access='denied')
 

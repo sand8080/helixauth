@@ -1,8 +1,14 @@
+import json
 import unittest
 
 from helixauth.test.logic.actor_logic_test import ActorLogicTestCase
-from helixauth.db.dataobject import Service
+
 from helixcore.error import RequestProcessingError
+from helixcore import mapping
+
+from helixauth.conf.db import transaction
+from helixauth.db.dataobject import Service
+from helixauth.db.filters import SessionFilter
 
 
 class AccessTestCase(ActorLogicTestCase):
@@ -143,6 +149,42 @@ class AccessTestCase(ActorLogicTestCase):
         u_sess_id = resp['session_id']
 
         req = {'session_id': u_sess_id, 'service_type': Service.TYPE_AUTH,
+            'property': 'check_access'}
+        self.assertRaises(RequestProcessingError, self.check_access, **req)
+
+    def test_access_granted_binded_to_ip(self):
+        self.create_actor_env()
+        sess_id = self.login_actor(bind_to_ip=True)
+
+        # checking access granted to service properties
+        req = {'session_id': sess_id, 'service_type': Service.TYPE_AUTH,
+            'property': 'check_access'}
+        resp = self.check_access(**req)
+        self.check_response_ok(resp)
+
+    @transaction()
+    def _change_session_ip(self, sess_id, curs=None):
+        # changing ip in session
+        f = SessionFilter({'session_id': sess_id}, {}, None)
+        s = f.filter_one_obj(curs)
+        data = json.loads(s.serialized_data)
+        data['ip'] = 'new_%s' % data['ip']
+        s.serialized_data = json.dumps(data)
+        mapping.save(curs, s)
+
+    def test_access_denied_binded_to_ip(self):
+        self.create_actor_env()
+        sess_id = self.login_actor(bind_to_ip=True)
+
+        # checking access granted to service properties
+        req = {'session_id': sess_id, 'service_type': Service.TYPE_AUTH,
+            'property': 'check_access'}
+        resp = self.check_access(**req)
+        self.check_response_ok(resp)
+
+        self._change_session_ip(sess_id)
+
+        req = {'session_id': sess_id, 'service_type': Service.TYPE_AUTH,
             'property': 'check_access'}
         self.assertRaises(RequestProcessingError, self.check_access, **req)
 

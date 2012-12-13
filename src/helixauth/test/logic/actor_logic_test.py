@@ -9,9 +9,10 @@ class ActorLogicTestCase(LogicTestCase):
         self.actor_password = 'actor_test_password'
         self.actor_env_name = 'actor_test_env'
 
-    def login_actor(self):
+    def login_actor(self, bind_to_ip=False):
         req = {'environment_name': self.actor_env_name,
-            'email': self.actor_login, 'password': self.actor_password}
+            'email': self.actor_login, 'password': self.actor_password,
+            'bind_to_ip': bind_to_ip}
         resp = self.login(**req)
         self.check_response_ok(resp)
         return resp['session_id']
