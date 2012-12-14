@@ -61,13 +61,17 @@ class Authenticator(object):
         if session is None:
             logger.debug("Session %s not found in memcached", str_sess_id)
             session = self._get_session(session_id)
-            self._save_session_to_cache(session)
             logger.debug("Session %s added into memcached", str_sess_id)
         else:
             logger.debug("Session %s got from memcached", str_sess_id)
+            session.update_date = datetime.now(pytz.utc)
+        self._save_session_to_cache(session)
         return session
 
     def get_session(self, session_id):
+        """
+        gets session and updates update_date
+        """
         if settings.session_caching_enabled:
             session = self._get_cached_session(session_id)
         else:
