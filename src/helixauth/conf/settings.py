@@ -10,6 +10,8 @@ patch_table_name = 'patch'
 
 session_valid_minutes = 60
 session_cleaning_minutes = 5
+session_caching_enabled = True
+session_memcached_addr = '127.0.0.1:11211'
 
 import logging
 log_filename = '/opt/helixproject/helixauth/helixauth/log/helixauth.log'
@@ -21,3 +23,4 @@ log_max_bytes = 2048000
 log_backup_count = 20
 
 import lock_order #IGNORE:W0611 @UnusedImport
+

@@ -20,6 +20,7 @@ settings.log_console = True
 
 settings.session_valid_minutes = 500
 settings.session_cleaning_minutes = 1
+settings.session_caching_enabled = True
 
 patches_path = os.path.join(os.path.realpath(os.path.dirname(__file__)),
     '..', '..', 'patches')

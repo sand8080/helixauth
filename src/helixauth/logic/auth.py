@@ -4,6 +4,7 @@ import pytz
 from datetime import datetime, timedelta
 from hashlib import sha512
 from random import randint
+import memcache
 
 from helixcore import mapping
 
@@ -13,9 +14,13 @@ from helixauth.db.dataobject import Session, User
 from helixauth.db.filters import SessionFilter, ServiceFilter, GroupFilter
 from helixauth.error import SessionExpired, UserAccessDenied, SessionIpChanged
 from helixauth.wsgi.protocol import protocol
+from helixauth.conf.log import logger
 
 
 class Authenticator(object):
+    def __init__(self):
+        self.mem_cache = memcache.Client([settings.session_memcached_addr])
+
     def encrypt_password(self, password, salt):
         if isinstance(password, unicode):
             password = password.encode('utf-8')
@@ -32,7 +37,7 @@ class Authenticator(object):
         return ''.join(res)
 
     @transaction()
-    def get_session(self, session_id, curs=None):
+    def _get_session(self, session_id, curs=None):
         f = SessionFilter({'session_id': session_id}, {}, {})
         session = f.filter_one_obj(curs, for_update=True)
 
@@ -42,6 +47,31 @@ class Authenticator(object):
             mapping.save(curs, session)
         else:
             raise SessionExpired()
+        return session
+
+    def _save_session_to_cache(self, session):
+        str_sess_id = session.session_id.encode('utf8')
+        self.mem_cache.set(str_sess_id, session,
+            time=settings.session_valid_minutes * 60)
+
+    def _get_cached_session(self, session_id):
+        logger.debug("Getting session from memcached")
+        str_sess_id = session_id.encode('utf8')
+        session = self.mem_cache.get(str_sess_id)
+        if session is None:
+            logger.debug("Session %s not found in memcached", str_sess_id)
+            session = self._get_session(session_id)
+            self._save_session_to_cache(session)
+            logger.debug("Session %s added into memcached", str_sess_id)
+        else:
+            logger.debug("Session %s got from memcached", str_sess_id)
+        return session
+
+    def get_session(self, session_id):
+        if settings.session_caching_enabled:
+            session = self._get_cached_session(session_id)
+        else:
+            session = self._get_session(session_id)
         return session
 
     def _session_expiration_date(self):
@@ -64,6 +94,11 @@ class Authenticator(object):
         }
         session = Session(**data)
         mapping.save(curs, session)
+
+        # adding session into memcached
+        if settings.session_caching_enabled:
+            self._save_session_to_cache(session)
+
         return session
 
     def get_auth_api_actions(self):

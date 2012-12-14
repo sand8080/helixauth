@@ -2,3 +2,4 @@ iso8601
 psycopg2
 pytz
 uwsgi
+python-memcached

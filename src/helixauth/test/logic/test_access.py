@@ -9,6 +9,7 @@ from helixcore import mapping
 from helixauth.conf.db import transaction
 from helixauth.db.dataobject import Service
 from helixauth.db.filters import SessionFilter
+from helixauth.logic.auth import Authenticator
 
 
 class AccessTestCase(ActorLogicTestCase):
@@ -171,6 +172,9 @@ class AccessTestCase(ActorLogicTestCase):
         data['ip'] = 'new_%s' % data['ip']
         s.serialized_data = json.dumps(data)
         mapping.save(curs, s)
+
+        a = Authenticator()
+        a._save_session_to_cache(s)
 
     def test_access_denied_binded_to_ip(self):
         self.create_actor_env()
