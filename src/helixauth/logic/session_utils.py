@@ -3,7 +3,6 @@ from time import sleep
 
 from helixcore import mapping
 
-from helixauth.conf.db import transaction
 from helixauth.conf import settings
 from helixauth.conf.log import logger
 from helixauth.db.filters import SessionFilter
