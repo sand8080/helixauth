@@ -12,6 +12,7 @@ session_valid_minutes = 60
 session_cleaning_minutes = 5
 session_caching_enabled = True
 session_memcached_addr = '127.0.0.1:11211'
+session_dump_to_db_minutes = 5
 
 import logging
 log_filename = '/opt/helixproject/helixauth/helixauth/log/helixauth.log'

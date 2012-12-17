@@ -33,7 +33,7 @@ class SessionUtilsTestCase(ActorLogicTestCase):
         self.assertTrue(sess_cnt > 0)
 
         sleep(settings.session_valid_minutes * 60)
-        session_utils.clean(curs)
+        session_utils.clean(transaction)
         sess_cnt = f.filter_objs_count(curs)
         self.assertEquals(0, sess_cnt)
 
@@ -51,6 +51,9 @@ class SessionUtilsTestCase(ActorLogicTestCase):
         sess_id = self.login_actor()
         str_sess_id = sess_id.encode('utf8')
         self.assertNotEquals(None, self.mem_cache.get(str_sess_id))
+
+    def test_dump_into_db(self):
+        pass
 
 
 if __name__ == '__main__':
