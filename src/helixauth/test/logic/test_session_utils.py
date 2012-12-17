@@ -45,6 +45,13 @@ class SessionUtilsTestCase(ActorLogicTestCase):
         sleep(settings.session_valid_minutes * 60 * 1)
         self.assertEquals(None, self.mem_cache.get(str_sess_id))
 
+    def test_session_caching(self):
+        settings.session_valid_minutes = 1
+        self.create_actor_env()
+        sess_id = self.login_actor()
+        str_sess_id = sess_id.encode('utf8')
+        self.assertNotEquals(None, self.mem_cache.get(str_sess_id))
+
 
 if __name__ == '__main__':
     unittest.main()
