@@ -52,8 +52,9 @@ class Authenticator(object):
     def _save_session_to_cache(self, session):
         str_sess_id = session.session_id.encode('utf8')
         expire_sec = settings.session_valid_minutes * 60
-        logger.debug("Saving session %s to cache. Expires after %s seconds",
-            session.session_id, expire_sec)
+        logger.debug("Saving session %s to cache. Expires after %s seconds. "\
+            "Session update date: %s",
+            session.session_id, expire_sec, session.update_date)
         self.mem_cache.set(str_sess_id, session,
             time=expire_sec)
 

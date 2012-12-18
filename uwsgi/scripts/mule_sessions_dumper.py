@@ -12,7 +12,7 @@ import helixcore.db.wrapper as wrapper
 from helixauth.conf.log import sess_logger as logger
 from helixauth.db.filters import SessionFilter
 from helixauth.conf import settings
-from helixauth.logic.session_utils import clean
+from helixauth.logic.session_utils import dump_into_db
 
 
 cp = pool.SimpleConnectionPool(1, 2, user=settings.DSN['user'],
@@ -26,11 +26,11 @@ transaction = partial(wrapper.transaction, get_connection, put_connection)
 
 def run():
     while True:
-        clean(transaction)
-        logger.debug('Sleeping %s minutes', settings.session_cleaning_minutes)
-        sleep(settings.session_cleaning_minutes * 60)
+        dump_into_db(transaction)
+        logger.debug('Sleeping %s minutes', settings.session_dump_to_db_minutes)
+        sleep(settings.session_dump_to_db_minutes * 60)
 
 
 if __name__=='__main__':
-    logger.info('Sessions cleaner started')
+    logger.info('Sessions dumper started')
     run()

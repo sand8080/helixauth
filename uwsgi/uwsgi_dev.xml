@@ -10,4 +10,5 @@
     <workers>1</workers>
     <module>helixauth.wsgi.uwsgi_app_test</module>
     <mule>./scripts/mule_sessions_cleaner.py</mule>
+    <mule>./scripts/mule_sessions_dumper.py</mule>
 </uwsgi>

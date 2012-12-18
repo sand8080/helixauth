@@ -7,6 +7,7 @@ from helixauth.conf import settings
 from helixauth.conf.log import sess_logger as logger
 from helixauth.db.filters import SessionFilter
 from helixauth.error import SessionNotFound
+import pytz
 
 
 def clean(trn_wrapper):
@@ -30,17 +31,9 @@ def dump_into_db(trn_wrapper):
         logger.debug("Sessions caching disabled. Nothing to dump")
         return
 
-    sessions = _get_sessions()
-
-    mem_cache = memcache.Client([settings.session_memcached_addr])
-    logger.info("Dumping %s sessions into db", len(sessions))
-    for s in sessions:
-        _dump_session(mem_cache, s)
-    logger.info("Sessions dumping complete")
-
     @trn_wrapper()
     def _get_sessions(curs=None):
-        from_d = datetime.datetime.now()
+        from_d = datetime.datetime.now(pytz.utc)
         logger.info("Sessions dumping into db initiated %s", from_d)
         from_d = from_d - datetime.timedelta(minutes=settings.session_valid_minutes)
         logger.debug("Fetching not expired sessions, newer %s. Session valid period: %s minutes",
@@ -50,7 +43,7 @@ def dump_into_db(trn_wrapper):
 
     @trn_wrapper()
     def _dump_session(mem_cache, session, curs=None):
-        f = SessionFilter({'id': session.id}, {}, None)
+        f = SessionFilter({'session_id': session.session_id}, {}, None)
         try:
             s = f.filter_one_obj(curs, for_update=True)
             sess_id = s.session_id.encode('utf8')
@@ -58,13 +51,24 @@ def dump_into_db(trn_wrapper):
             if cached_s is None:
                 logger.debug("Session %s not found in cache", sess_id)
             else:
+                logger.debug("Cached session %s update date: %s",
+                    cached_s.session_id, cached_s.update_date)
+                logger.debug("Db session %s update date: %s",
+                    s.session_id, s.update_date)
                 if cached_s.update_date > s.update_date:
                     s.update_date = cached_s.update_date
                     mapping.save(curs, s)
                     logger.debug("Session %s dumped from cache into db", sess_id)
                 else:
-                    logger.debug("Session %s update_date in db greater than in cache. " \
-                        "Noting to dump", sess_id)
+                    logger.debug("Session %s update_date in db greater or equal " \
+                        "cached value. Noting to dump", sess_id)
         except SessionNotFound, e:
-            logger.error("Dumping session failed: %s", e)
+            logger.debug("Dumping session failed: %s", e)
+
+    sessions = _get_sessions()
+    mem_cache = memcache.Client([settings.session_memcached_addr])
+    logger.info("Dumping %s sessions into db", len(sessions))
+    for s in sessions:
+        _dump_session(mem_cache, s)
+    logger.info("Sessions dumping complete")
 
