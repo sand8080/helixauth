@@ -23,6 +23,9 @@ class ProtocolTestCase(RootTestCase, ProtocolTester):
             'environment_name': 'n', 'bind_to_ip': False})
         self.api.validate_request(a_name, {'email': 'l@h.com', 'password': 'p',
             'environment_name': 'n', 'bind_to_ip': True})
+        self.api.validate_request(a_name, {'email': 'l@h.com', 'password': 'p',
+            'environment_name': 'n', 'bind_to_ip': True,
+            'fixed_lifetime_minutes': 21})
 
         self.api.validate_response(a_name, {'status': 'ok', 'session_id': 'i',
             'user_id': 5, 'environment_id': 7})
