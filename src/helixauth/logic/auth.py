@@ -12,7 +12,8 @@ from helixauth.conf import settings
 from helixauth.conf.db import transaction
 from helixauth.db.dataobject import Session, User
 from helixauth.db.filters import SessionFilter, ServiceFilter, GroupFilter
-from helixauth.error import SessionExpired, UserAccessDenied, SessionIpChanged
+from helixauth.error import SessionExpired, UserAccessDenied, SessionIpChanged,\
+    SessionTooLargeFixedLifetime
 from helixauth.wsgi.protocol import protocol
 from helixauth.conf.log import logger
 
@@ -43,7 +44,7 @@ class Authenticator(object):
 
         valid_date = self._session_expiration_date()
         if session.update_date > valid_date:
-            session.update_date = datetime.now(pytz.utc)
+            self._set_update_date(session)
             mapping.save(curs, session)
         else:
             raise SessionExpired()
@@ -58,6 +59,15 @@ class Authenticator(object):
         self.mem_cache.set(str_sess_id, session,
             time=expire_sec)
 
+    def _set_update_date(self, session):
+        sess_data = json.loads(session.serialized_data)
+        if not sess_data.get('fixed_lifetime'):
+            logger.debug("Updating session update date")
+            session.update_date = datetime.now(pytz.utc)
+        else:
+            logger.debug("Not updating update date of " \
+                "session with fixed lifetime")
+
     def _get_cached_session(self, session_id):
         logger.debug("Getting session from memcached")
         str_sess_id = session_id.encode('utf8')
@@ -68,7 +78,7 @@ class Authenticator(object):
             logger.debug("Session %s added into memcached", str_sess_id)
         else:
             logger.debug("Session %s got from memcached", str_sess_id)
-            session.update_date = datetime.now(pytz.utc)
+            self._set_update_date(session)
         self._save_session_to_cache(session)
         return session
 
@@ -87,18 +97,28 @@ class Authenticator(object):
         valid_period = timedelta(minutes=settings.session_valid_minutes)
         return cur_date - valid_period
 
-    def create_session(self, curs, env, user, req_info, bind_to_ip=False):
+    def create_session(self, curs, env, user, req_info,
+        bind_to_ip=False, lifetime_minutes=None):
         d = datetime.now(pytz.utc)
         session_data = self._get_session_data(curs, env, user)
         session_data['ip'] = req_info.remote_addr
         session_data['bind_to_ip'] = bind_to_ip
+        session_data['fixed_lifetime'] = lifetime_minutes is not None
+        if lifetime_minutes is not None:
+            if lifetime_minutes > settings.session_max_fixed_lifetime_minutes:
+                raise SessionTooLargeFixedLifetime()
+            session_data['fixed_lifetime'] = True
+            upd_d = d + timedelta(minutes=lifetime_minutes)
+        else:
+            session_data['fixed_lifetime'] = False
+            upd_d = d
         data = {
             'session_id': '%s' % uuid4(),
             'environment_id': env.id,
             'user_id': user.id,
             'serialized_data': json.dumps(session_data),
             'start_date': d,
-            'update_date': d,
+            'update_date': upd_d,
         }
         session = Session(**data)
         mapping.save(curs, session)

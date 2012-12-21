@@ -15,7 +15,8 @@ from helixauth.error import (EnvironmentNotFound,
     HelixauthError, UserInactive, ServiceDeactivationError, UserAuthError,
     GroupAlreadyExists, HelixauthObjectNotFound, UserWrongOldPassword,
     SuperUserCreationDenied, SuperUserModificationDenied, UserAccessDenied,
-    ServiceDeletionError, ServiceNotFound, SessionIpChanged)
+    ServiceDeletionError, ServiceNotFound, SessionIpChanged,
+    SessionTooLargeFixedLifetime)
 from helixauth.db.filters import (EnvironmentFilter, UserFilter, ServiceFilter,
     SubjectUserFilter, GroupFilter, SessionFilter, ActionLogFilter)
 from helixauth.db.dataobject import (Environment, User, Service,
@@ -104,6 +105,7 @@ class Handler(AbstractHandler):
     @detalize_error(EnvironmentNotFound, 'environment_name')
     @detalize_error(UserAuthError, ['email', 'password'])
     @detalize_error(UserInactive, ['email', 'password'])
+    @detalize_error(SessionTooLargeFixedLifetime, 'fixed_lifetime_minutes')
     def login(self, data, req_info, curs=None):
         f = EnvironmentFilter(data, {}, None)
         env = f.filter_one_obj(curs)
@@ -128,8 +130,9 @@ class Handler(AbstractHandler):
 
         # creating session
         bind_to_ip = data.get('bind_to_ip', False)
+        lt_minutes = data.get('fixed_lifetime_minutes')
         session = auth.create_session(curs, env, user, req_info,
-            bind_to_ip=bind_to_ip)
+            bind_to_ip=bind_to_ip, lifetime_minutes=lt_minutes)
 
         _add_log_info(data, session)
 

@@ -9,10 +9,12 @@ class ActorLogicTestCase(LogicTestCase):
         self.actor_password = 'actor_test_password'
         self.actor_env_name = 'actor_test_env'
 
-    def login_actor(self, bind_to_ip=False):
+    def login_actor(self, bind_to_ip=False, fixed_lt_minutes=None):
         req = {'environment_name': self.actor_env_name,
             'email': self.actor_login, 'password': self.actor_password,
             'bind_to_ip': bind_to_ip}
+        if fixed_lt_minutes is not None:
+            req['fixed_lifetime_minutes'] = fixed_lt_minutes
         resp = self.login(**req)
         self.check_response_ok(resp)
         return resp['session_id']
