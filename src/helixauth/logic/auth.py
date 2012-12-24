@@ -38,12 +38,11 @@ class Authenticator(object):
         return ''.join(res)
 
     @transaction()
-    def _get_session(self, session_id, curs=None):
+    def _get_session_db(self, session_id, curs=None):
         f = SessionFilter({'session_id': session_id}, {}, {})
         session = f.filter_one_obj(curs, for_update=True)
-
-        valid_date = self._session_expiration_date()
-        if session.update_date > valid_date:
+        valid_after_date = self._session_valid_after_update_date()
+        if session.update_date > valid_after_date:
             self._set_update_date(session)
             mapping.save(curs, session)
         else:
@@ -53,11 +52,18 @@ class Authenticator(object):
     def _save_session_to_cache(self, session):
         str_sess_id = session.session_id.encode('utf8')
         expire_sec = settings.session_valid_minutes * 60
-        logger.debug("Saving session %s to cache. Expires after %s seconds. "\
-            "Session update date: %s",
-            session.session_id, expire_sec, session.update_date)
-        self.mem_cache.set(str_sess_id, session,
-            time=expire_sec)
+        expire_dt = session.update_date + timedelta(seconds=expire_sec)
+        curr_dt = datetime.now(pytz.utc)
+        if expire_dt <= curr_dt:
+            logger.debug("Session %s expired. Not saving to cache", session.session_id)
+        else:
+            expire_delta = expire_dt - curr_dt
+            logger.debug("Saving session %s to cache. Current date: %s. " \
+                "Session update date: %s. " \
+                "Session in cache expired after %s seconds",
+                session.session_id, curr_dt, session.update_date, expire_delta.seconds)
+            self.mem_cache.set(str_sess_id, session,
+                time=expire_delta.seconds)
 
     def _set_update_date(self, session):
         sess_data = json.loads(session.serialized_data)
@@ -72,9 +78,9 @@ class Authenticator(object):
         logger.debug("Getting session from memcached")
         str_sess_id = session_id.encode('utf8')
         session = self.mem_cache.get(str_sess_id)
-        if session is None:
-            logger.debug("Session %s not found in memcached", str_sess_id)
-            session = self._get_session(session_id)
+        if session is None or session.update_date <= self._session_valid_after_update_date():
+            logger.debug("Valid session %s not found in memcached", str_sess_id)
+            session = self._get_session_db(session_id)
             logger.debug("Session %s added into memcached", str_sess_id)
         else:
             logger.debug("Session %s got from memcached", str_sess_id)
@@ -92,7 +98,7 @@ class Authenticator(object):
             session = self._get_session(session_id)
         return session
 
-    def _session_expiration_date(self):
+    def _session_valid_after_update_date(self):
         cur_date = datetime.now(pytz.utc)
         valid_period = timedelta(minutes=settings.session_valid_minutes)
         return cur_date - valid_period
