@@ -58,12 +58,14 @@ class Authenticator(object):
             logger.debug("Session %s expired. Not saving to cache", session.session_id)
         else:
             expire_delta = expire_dt - curr_dt
+            # Workaround for excluding creation non expiring sessions
+            cache_expire_sec = expire_delta.seconds if expire_delta.seconds else 1
             logger.debug("Saving session %s to cache. Current date: %s. " \
                 "Session update date: %s. " \
                 "Session in cache expired after %s seconds",
                 session.session_id, curr_dt, session.update_date, expire_delta.seconds)
             self.mem_cache.set(str_sess_id, session,
-                time=expire_delta.seconds)
+                time=cache_expire_sec)
 
     def _set_update_date(self, session):
         sess_data = json.loads(session.serialized_data)
