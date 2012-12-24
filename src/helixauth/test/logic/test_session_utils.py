@@ -10,6 +10,7 @@ from helixauth.error import SessionNotFound
 from helixauth.logic.session_utils import dump_into_db
 from helixcore import mapping
 from helixcore.error import RequestProcessingError
+import datetime
 origin_sess_valid_minutes = settings.session_valid_minutes
 
 from helixauth.conf.db import transaction
@@ -113,7 +114,8 @@ class SessionUtilsTestCase(ActorLogicTestCase):
     def test_fixed_lifetime_session_set(self):
         settings.session_valid_minutes = 1.0
         self.create_actor_env()
-        sess_id = self.login_actor(fixed_lt_minutes=3)
+        fixed_lt_minutes = 3
+        sess_id = self.login_actor(fixed_lt_minutes=fixed_lt_minutes)
         sess_cache_before = self.mem_cache.get(sess_id.encode('utf8'))
         sess_data = json.loads(sess_cache_before.serialized_data)
         self.assertTrue(sess_data['fixed_lifetime'])
@@ -123,6 +125,11 @@ class SessionUtilsTestCase(ActorLogicTestCase):
         sess_cache_after = self.mem_cache.get(sess_id.encode('utf8'))
         self.assertEquals(sess_cache_before.update_date,
             sess_cache_after.update_date)
+
+        # checking update time set correct
+        td = datetime.timedelta(minutes=(fixed_lt_minutes - settings.session_valid_minutes))
+        self.assertEquals(sess_cache_after.update_date,
+            sess_cache_after.start_date + td)
 
     def test_too_large_fixed_lifetime(self):
         self.create_actor_env()

@@ -10,12 +10,12 @@ from helixcore import mapping
 
 from helixauth.conf import settings
 from helixauth.conf.db import transaction
+from helixauth.conf.log import logger
 from helixauth.db.dataobject import Session, User
 from helixauth.db.filters import SessionFilter, ServiceFilter, GroupFilter
 from helixauth.error import SessionExpired, UserAccessDenied, SessionIpChanged,\
     SessionTooLargeFixedLifetime
 from helixauth.wsgi.protocol import protocol
-from helixauth.conf.log import logger
 
 
 class Authenticator(object):
@@ -108,7 +108,8 @@ class Authenticator(object):
             if lifetime_minutes > settings.session_max_fixed_lifetime_minutes:
                 raise SessionTooLargeFixedLifetime()
             session_data['fixed_lifetime'] = True
-            upd_d = d + timedelta(minutes=lifetime_minutes)
+            td = lifetime_minutes - settings.session_valid_minutes
+            upd_d = d + timedelta(minutes=td)
         else:
             session_data['fixed_lifetime'] = False
             upd_d = d
