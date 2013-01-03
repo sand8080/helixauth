@@ -44,3 +44,11 @@ class Service(Mapped):
     def __init__(self, **kwargs):
         d = serialize_field(kwargs, 'properties', 'serialized_properties')
         super(Service, self).__init__(**d)
+
+
+class Notification(Mapped):
+    REGISTER_USER = 'REGISTER_USER'
+    RESTORE_PASSWORD = 'RESTORE_PASSWORD'
+    __slots__ = ['id', 'environment_id', 'lang', 'is_active',
+        'name', 'message']
+    table = 'notification'
