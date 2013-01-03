@@ -47,8 +47,11 @@ class Service(Mapped):
 
 
 class Notification(Mapped):
+    DEFAULT_MESSAGE_LANG = 'en'
+    LANG_EN = 'en'
+    LANG_RU = 'ru'
     REGISTER_USER = 'REGISTER_USER'
     RESTORE_PASSWORD = 'RESTORE_PASSWORD'
     __slots__ = ['id', 'environment_id', 'lang', 'is_active',
-        'name', 'message']
+        'name', 'subject', 'message']
     table = 'notification'

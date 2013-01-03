@@ -20,7 +20,7 @@ from helixauth.error import (EnvironmentNotFound,
 from helixauth.db.filters import (EnvironmentFilter, UserFilter, ServiceFilter,
     SubjectUserFilter, GroupFilter, SessionFilter, ActionLogFilter)
 from helixauth.db.dataobject import (Environment, User, Service,
-    Group)
+    Group, Notification)
 from helixauth.logic.auth import Authenticator
 from helixauth.wsgi.protocol import unauthorized_actions, protocol
 from helixcore.json_validator.html_transformer import HtmlTransformer
@@ -154,7 +154,7 @@ class Handler(AbstractHandler):
             pass
         return response_ok()
 
-    def _create_default_objects(self, req_info, curs, env):
+    def _create_default_services(self, req_info, curs, env):
         # adding default service auth
         a_data = self.get_authorized_api_actions({}, req_info)
         actions_auth = a_data['actions']
@@ -233,6 +233,27 @@ class Handler(AbstractHandler):
             ]}
         g = Group(**d)
         mapping.save(curs, g)
+
+    def _create_default_notifications(self, curs, env):
+        # adding register user notifications
+        en_subj = "Helixproject user regisered"
+        en_msg = """Hi!
+
+You has been registered at https://helixproject.
+For complete registration follow the link: https://helixproject/?json_req=%(json_req)s
+Link is valid until %(valid_till)s.
+
+If you have this message by mistake - just remove it. Thanks!
+"""
+        d = {'environment_id': env.id, 'lang': Notification.LANG_EN,
+            'is_active': True, 'name': Notification.REGISTER_USER,
+            'subject': en_subj, 'message': en_msg}
+        en_reg_n = Notification(**d)
+        mapping.save(curs, en_reg_n)
+
+    def _create_default_objects(self, req_info, curs, env):
+        self._create_default_services(req_info, curs, env)
+        self._create_default_notifications(curs, env)
 
     @execution_time
     @transaction()

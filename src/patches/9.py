@@ -10,6 +10,7 @@ def apply(curs):
             lang varchar NOT NULL CHECK(lang in ('en', 'ru')),
             is_active boolean NOT NULL DEFAULT True,
             name varchar NOT NULL,
+            subject varchar NOT NULL,
             message varchar NOT NULL
         )
     ''')
