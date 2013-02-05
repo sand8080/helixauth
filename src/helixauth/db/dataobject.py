@@ -50,8 +50,7 @@ class Notification(Mapped):
     DEFAULT_MESSAGE_LANG = 'en'
     LANG_EN = 'en'
     LANG_RU = 'ru'
-    REGISTER_USER = 'REGISTER_USER'
-    RESTORE_PASSWORD = 'RESTORE_PASSWORD'
-    __slots__ = ['id', 'environment_id', 'lang', 'is_active',
-        'name', 'subject', 'message']
+#    EVENT_REGISTER_USER = 'REGISTER_USER'
+    EVENT_RESTORE_PASSWORD = 'RESTORE_PASSWORD'
+    __slots__ = ['id', 'environment_id', 'event', 'is_active', 'serialized_messages']
     table = 'notification'

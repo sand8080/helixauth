@@ -235,21 +235,22 @@ class Handler(AbstractHandler):
         mapping.save(curs, g)
 
     def _create_default_notifications(self, curs, env):
-        # adding register user notifications
-        en_subj = "Helixproject user regisered"
-        en_msg = """Hi!
-
-You has been registered at https://helixproject.
-For complete registration follow the link: https://helixproject/?json_req=%(json_req)s
-Link is valid until %(valid_till)s.
-
-If you have this message by mistake - just remove it. Thanks!
-"""
-        d = {'environment_id': env.id, 'lang': Notification.LANG_EN,
-            'is_active': True, 'name': Notification.REGISTER_USER,
-            'subject': en_subj, 'message': en_msg}
-        en_reg_n = Notification(**d)
-        mapping.save(curs, en_reg_n)
+#        # adding register user notifications
+#        en_subj = "Helixproject user regisered"
+#        en_msg = """Hi!
+#
+#You has been registered at https://helixproject.
+#For complete registration follow the link: https://helixproject/?json_req=%(json_req)s
+#Link is valid until %(valid_till)s.
+#
+#If you have this message by mistake - just remove it. Thanks!
+#"""
+#        d = {'environment_id': env.id, 'lang': Notification.LANG_EN,
+#            'is_active': True, 'name': Notification.REGISTER_USER,
+#            'subject': en_subj, 'message': en_msg}
+#        en_reg_n = Notification(**d)
+#        mapping.save(curs, en_reg_n)
+        pass
 
     def _create_default_objects(self, req_info, curs, env):
         self._create_default_services(req_info, curs, env)

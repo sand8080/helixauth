@@ -133,3 +133,7 @@ class ServiceFilter(EnvironmentObjectsFilter):
             return super(ServiceFilter, self).filter_one_obj(curs, for_update=for_update)
         except (ObjectNotFound, SelectedMoreThanOneRow):
             raise ServiceNotFound(**self.filter_params)
+
+
+class NotificatonFilter(InSessionFilter):
+    pass

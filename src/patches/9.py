@@ -7,11 +7,9 @@ def apply(curs):
             PRIMARY KEY(id),
             environment_id integer NOT NULL,
             FOREIGN KEY (environment_id) REFERENCES environment(id),
-            lang varchar NOT NULL CHECK(lang in ('en', 'ru')),
+            event varchar NOT NULL,
             is_active boolean NOT NULL DEFAULT True,
-            name varchar NOT NULL,
-            subject varchar NOT NULL,
-            message varchar NOT NULL
+            serialized_messages varchar
         )
     ''')
 
@@ -21,16 +19,16 @@ def apply(curs):
         CREATE INDEX notification_environment_id_idx ON notification(environment_id);
     ''')
 
-    print 'Creating unique index notification_environment_id_name_lang_idx on notification'
+    print 'Creating unique index notification_environment_id_event_idx on notification'
     curs.execute(
     '''
-        CREATE UNIQUE INDEX notification_environment_id_name_lang_idx ON notification(environment_id, name, lang);
+        CREATE UNIQUE INDEX notification_environment_id_event_idx ON notification(environment_id, event);
     ''')
 
 
 def revert(curs):
-    print 'Dropping unique index notification_environment_id_name_lang_idx on notification'
-    curs.execute('DROP INDEX IF EXISTS notification_environment_id_name_lang_idx')
+    print 'Dropping unique index notification_environment_id_event_idx on notification'
+    curs.execute('DROP INDEX IF EXISTS notification_environment_id_event_idx')
 
     print 'Dropping index notification_environment_id_idx on notification'
     curs.execute('DROP INDEX IF EXISTS notification_environment_id_idx')
