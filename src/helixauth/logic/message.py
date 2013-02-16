@@ -1,20 +1,15 @@
-from helixauth.conf.db import transaction
-from helixauth.db.dataobject import Notification
+# coding=utf-8
+REGISTER_USER_SUBJ_EN = "Thanks for registration"
+REGISTER_USER_MSG_EN = """Hi!
 
+You are registered as user %(login)s at http://localhost:8000
 
-class MessageComposer(object):
-#    LANGS = (Notification.LANG_EN, Notification.LANG_RU)
-#    DEFAULT_LANG = LANGS[0]
+Thank you for registration and have a happy usage.
+"""
+REGISTER_USER_SUBJ_RU = "Благодарим за регистрацию"
+REGISTER_USER_MSG_RU = """Добрый день!
 
-    def _compose_message(self, tpl, params):
-        tpl % params
+Вы зарегистрировались на ресурсе http://localhost:8000 как пользователь %(login)s
 
-    def reset_password(self, lang='en'):
-        pass
-
-    def _add_reset_password(self, curs):
-        n_ru = Notification
-
-    @transaction()
-    def create_messages_in_db(self, curs=None):
-        self._add_reset_password()
+Бдагодарим за регистрацию. Приятного пользования!
+"""
