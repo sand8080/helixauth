@@ -4,9 +4,9 @@ from helixcore.db.filters import (ObjectsFilter, InSessionFilter,
     EnvironmentObjectsFilter, ActionLogFilter) #@UnusedImport
 
 from helixauth.db.dataobject import (Environment, Session,
-    Service, User, Group)
+    Service, User, Group, Notification)
 from helixauth.error import (UserNotFound, EnvironmentNotFound,
-    SessionNotFound, GroupNotFound, ServiceNotFound)
+    SessionNotFound, GroupNotFound, ServiceNotFound, NotificatonNotFound)
 
 
 class SessionFilter(ObjectsFilter):
@@ -135,5 +135,20 @@ class ServiceFilter(EnvironmentObjectsFilter):
             raise ServiceNotFound(**self.filter_params)
 
 
-class NotificatonFilter(InSessionFilter):
-    pass
+class NotificatonFilter(EnvironmentObjectsFilter):
+    cond_map = [
+        ('id', 'id', Eq),
+        ('ids', 'id', In),
+        ('event', 'event', Eq),
+        ('is_active', 'is_active', Eq),
+    ]
+
+    def __init__(self, environment_id, filter_params, paging_params, ordering_params):
+        super(NotificatonFilter, self).__init__(environment_id,
+            filter_params, paging_params, ordering_params, Notification)
+
+    def filter_one_obj(self, curs, for_update=False):
+        try:
+            return super(NotificatonFilter, self).filter_one_obj(curs, for_update=for_update)
+        except (ObjectNotFound, SelectedMoreThanOneRow):
+            raise NotificatonNotFound(**self.filter_params)

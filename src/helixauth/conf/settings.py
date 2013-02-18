@@ -26,3 +26,5 @@ log_backup_count = 20
 
 import lock_order #IGNORE:W0611 @UnusedImport
 
+default_messages_lang = 'en'
+notifications_enabled = False

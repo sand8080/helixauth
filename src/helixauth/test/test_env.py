@@ -25,3 +25,6 @@ settings.session_dump_to_db_minutes = 1
 
 patches_path = os.path.join(os.path.realpath(os.path.dirname(__file__)),
     '..', '..', 'patches')
+
+
+settings.notifications_enabled = True
