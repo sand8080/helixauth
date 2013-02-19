@@ -49,3 +49,7 @@ class Service(Mapped):
 class Notification(Mapped):
     __slots__ = ['id', 'environment_id', 'event', 'is_active', 'serialized_messages']
     table = 'notification'
+
+    def __init__(self, **kwargs):
+        d = serialize_field(kwargs, 'messages', 'serialized_messages')
+        super(Notification, self).__init__(**d)
