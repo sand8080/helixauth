@@ -32,4 +32,8 @@ REGISTER_USER_EMAIL_MSG_RU = """Добрый день!
 #RESTORE_PASSWORD = 'RESTORE_PASSWORD'
 
 
-EVENTS = filter(lambda x: x.startswith('EVENT_'), dir())
+# Auto fetching event names and values
+import sys
+EVENTS_NAMES = filter(lambda x: x.startswith('EVENT_'), dir())
+__cur_module = sys.modules[__name__]
+EVENTS = [getattr(__cur_module, e_name) for e_name in EVENTS_NAMES]
