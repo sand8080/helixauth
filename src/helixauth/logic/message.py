@@ -12,7 +12,7 @@ EMAIL_SUBJ_FIELD_NAME = 'email_subj'
 EMAIL_MSG_FIELD_NAME = 'email_msg'
 
 # Register user
-REGISTER_USER = 'REGISTER_USER'
+EVENT_REGISTER_USER = 'REGISTER_USER'
 REGISTER_USER_EMAIL_SUBJ_EN = "Thanks for registration"
 REGISTER_USER_EMAIL_MSG_EN = """Hi!
 
@@ -30,3 +30,6 @@ REGISTER_USER_EMAIL_MSG_RU = """Добрый день!
 
 # Restore password
 #RESTORE_PASSWORD = 'RESTORE_PASSWORD'
+
+
+EVENTS = filter(lambda x: x.startswith('EVENT_'), dir())
