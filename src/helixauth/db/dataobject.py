@@ -47,7 +47,9 @@ class Service(Mapped):
 
 
 class Notification(Mapped):
-    __slots__ = ['id', 'environment_id', 'event', 'is_active', 'serialized_messages']
+    TYPE_EMAIL = 'email'
+    __slots__ = ['id', 'environment_id', 'event', 'is_active',
+        'type', 'serialized_messages']
     table = 'notification'
 
     def __init__(self, **kwargs):
