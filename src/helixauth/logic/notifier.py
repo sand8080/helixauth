@@ -2,7 +2,7 @@ from helixauth.logic import message as m
 
 
 class Notifier(object):
-    def _default_notif_struct(self, event):
+    def default_email_notif_struct(self, event):
         res = {}
         for l in (m.LANG_EN, m.LANG_RU):
             subj = '%s_EMAIL_SUBJ_%s' % (event, l.upper())
@@ -12,4 +12,4 @@ class Notifier(object):
         return res
 
     def default_register_user_notif(self, environment_id):
-        return self._default_notif_struct(m.EVENT_REGISTER_USER)
+        return self.default_email_notif_struct(m.EVENT_REGISTER_USER)

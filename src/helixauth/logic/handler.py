@@ -7,6 +7,7 @@ from helixcore.actions.handler import (detalize_error, AbstractHandler,
     set_subject_users_ids, execution_time)
 from helixcore.db.wrapper import ObjectCreationError
 from helixcore.error import DataIntegrityError
+from helixcore.json_validator.html_transformer import HtmlTransformer
 from helixcore.server.response import response_ok
 
 from helixauth.conf.db import transaction
@@ -23,8 +24,8 @@ from helixauth.db.dataobject import (Environment, User, Service,
     Group, Notification)
 from helixauth.logic.auth import Authenticator
 from helixauth.wsgi.protocol import unauthorized_actions, protocol
-from helixcore.json_validator.html_transformer import HtmlTransformer
 from helixauth.logic import message
+from helixauth.logic.notifier import Notifier
 
 
 def _add_log_info(data, session, custom_actor_info=None):
@@ -236,7 +237,13 @@ class Handler(AbstractHandler):
         mapping.save(curs, g)
 
     def _create_default_notifications(self, curs, env):
-        pass
+        notifier = Notifier()
+        for event in message.EVENTS:
+            e_msgs = notifier.default_email_notif_struct(event)
+            n = Notification(environment_id=env.id, event=event,
+                is_active=True, type=Notification.TYPE_EMAIL,
+                messages=e_msgs)
+            mapping.save(curs, n)
 
     def _create_default_objects(self, req_info, curs, env):
         self._create_default_services(req_info, curs, env)
