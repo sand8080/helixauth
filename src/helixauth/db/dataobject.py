@@ -11,7 +11,7 @@ class User(Mapped):
     ROLE_SUPER = 'super'
     ROLE_USER = 'user'
     __slots__ = ['id', 'environment_id', 'email', 'password', 'salt',
-        'is_active', 'role', 'groups_ids']
+        'is_active', 'role', 'groups_ids', 'lang']
     table = 'user_data'
 
     def __repr__(self, except_attrs=()):
