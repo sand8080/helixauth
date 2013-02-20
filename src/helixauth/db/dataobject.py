@@ -10,6 +10,9 @@ class Environment(Mapped):
 class User(Mapped):
     ROLE_SUPER = 'super'
     ROLE_USER = 'user'
+    LANG_EN = 'en'
+    LANG_RU = 'ru'
+    LANGS = (LANG_EN, LANG_RU)
     __slots__ = ['id', 'environment_id', 'email', 'password', 'salt',
         'is_active', 'role', 'groups_ids', 'lang']
     table = 'user_data'

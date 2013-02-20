@@ -97,6 +97,9 @@ class ProtocolTestCase(RootTestCase, ProtocolTester):
         self.api.validate_request(a_name, {'session_id': 'i',
             'email': 'l@h.com', 'password': 'p', 'is_active': False,
             'groups_ids': [1, 2, 3]})
+        self.api.validate_request(a_name, {'session_id': 'i',
+            'email': 'l@h.com', 'password': 'p', 'is_active': False,
+            'groups_ids': [1, 2, 3], 'lang': 'en'})
 
         self.api.validate_response(a_name,
             {'status': 'ok', 'id': 1})

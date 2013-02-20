@@ -142,6 +142,7 @@ ADD_USER_REQUEST = dict(
         Optional('role'): AnyOf(dataobject.User.ROLE_USER),
         Optional('is_active'): bool,
         Optional('groups_ids'): [int],
+        Optional('lang'): AnyOf(*dataobject.User.LANGS),
     },
     **AUTHORIZED_REQUEST_AUTH_INFO
 )
