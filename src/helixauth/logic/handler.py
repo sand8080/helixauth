@@ -265,7 +265,8 @@ class Handler(AbstractHandler):
         salt = a.salt()
         u_data = {'environment_id': env.id, 'email': data.get('su_email'),
             'password': a.encrypt_password(data.get('su_password'), salt),
-            'salt': salt, 'role': User.ROLE_SUPER}
+            'salt': salt, 'role': User.ROLE_SUPER,
+            'lang': User.DEFAULT_LANG}
         user = User(**u_data)
         mapping.save(curs, user)
 

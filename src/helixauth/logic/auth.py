@@ -148,7 +148,7 @@ class Authenticator(object):
         f = ServiceFilter(env.id, {'is_active': True}, {}, None)
         srvs = f.filter_objs(curs)
         srvs_id_type_idx = dict([(str(s.id), s.type) for s in srvs])
-        return {'services_id_type_idx': srvs_id_type_idx,
+        return {'services_id_type_idx': srvs_id_type_idx, 'lang': user.lang,
             'rights': self._get_user_rights(curs, env, user, srvs)}
 
     def _get_user_rights(self, curs, env, user, srvs):
