@@ -17,7 +17,7 @@ from helixauth.error import (EnvironmentNotFound,
     GroupAlreadyExists, HelixauthObjectNotFound, UserWrongOldPassword,
     SuperUserCreationDenied, SuperUserModificationDenied, UserAccessDenied,
     ServiceDeletionError, ServiceNotFound, SessionIpChanged,
-    SessionTooLargeFixedLifetime)
+    SessionTooLargeFixedLifetime, UserNewPasswordNotSet)
 from helixauth.db.filters import (EnvironmentFilter, UserFilter, ServiceFilter,
     SubjectUserFilter, GroupFilter, SessionFilter, ActionLogFilter)
 from helixauth.db.dataobject import (Environment, User, Service,
@@ -366,17 +366,25 @@ class Handler(AbstractHandler):
     @transaction()
     @authenticate
     @detalize_error(UserWrongOldPassword, 'old_password')
+    @detalize_error(UserNewPasswordNotSet, 'new_password')
     def modify_user_self(self, data, req_info, session, curs=None):
         f = UserFilter(session, {'id': session.user_id}, {}, None)
         user = f.filter_one_obj(curs)
-        old_password = data['old_password']
-        a = Authenticator()
-        if user.password != a.encrypt_password(old_password, user.salt):
-            raise UserWrongOldPassword()
+        old_password = data.get('old_password')
+        new_password = data.get('new_password')
+        d = {}
+        if 'new_lang' in data:
+            d['new_lang'] = data['new_lang']
+        if old_password is not None:
+            if new_password is None or len(new_password) == 0:
+                raise UserNewPasswordNotSet("Empty new password can't be set")
+            a = Authenticator()
+            if user.password != a.encrypt_password(old_password, user.salt):
+                raise UserWrongOldPassword()
+            salt = a.salt()
+            d['new_salt'] = salt
+            d['new_password'] = a.encrypt_password(data['new_password'], salt)
         loader = partial(f.filter_one_obj, curs, for_update=True)
-        salt = a.salt()
-        d = {'new_salt': salt,
-            'new_password': a.encrypt_password(data['new_password'], salt)}
         self.update_obj(curs, d, loader)
         return response_ok()
 

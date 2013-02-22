@@ -45,10 +45,17 @@ class UserWrongOldPassword(HelixauthError):
         self.code = error_code.HELIXAUTH_USER_WRONG_OLD_PASSWORD
 
 
+class UserNewPasswordNotSet(HelixauthError):
+    def __init__(self, *args, **kwargs):
+        super(UserNewPasswordNotSet, self).__init__(*args, **kwargs)
+        self.code = error_code.HELIXAUTH_NEW_PASSWORD_NOT_SET
+
+
 class ServiceNotFound(HelixauthObjectNotFound):
     def __init__(self, **kwargs):
         super(ServiceNotFound, self).__init__("Service", **kwargs)
         self.code = error_code.HELIXAUTH_SERVICE_NOT_FOUND
+
 
 class ServiceDeactivationError(HelixauthError):
     def __init__(self, service_name):

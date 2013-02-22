@@ -170,8 +170,8 @@ MODIFY_USERS_RESPONSE = RESPONSE_STATUS_ONLY
 
 MODIFY_USER_SELF_REQUEST = dict(
     {
-        'old_password': TEXT,
-        'new_password': TEXT,
+        Optional('old_password'): TEXT,
+        Optional('new_password'): TEXT,
         Optional('new_lang'): USER_LANGS,
     },
     **AUTHORIZED_REQUEST_AUTH_INFO

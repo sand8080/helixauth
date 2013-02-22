@@ -18,6 +18,13 @@ class UserTestCase(ActorLogicTestCase):
         self.check_response_ok(resp)
         return resp['users']
 
+    def _get_user(self, sess_id, email):
+        req = {'session_id': sess_id, 'filter_params': {'email': email},
+            'paging_params': {}}
+        resp = self.get_users(**req)
+        self.check_response_ok(resp)
+        return resp['users'][0]
+
     def test_add_user_by_super(self):
         sess_id = self.login_actor()
         req = {'session_id': sess_id, 'email': 'user_1@h.com',
@@ -46,6 +53,36 @@ class UserTestCase(ActorLogicTestCase):
             'email': self.actor_login, 'password': new_pw}
         resp = self.login(**req)
         self.check_response_ok(resp)
+        # checking password changed
+        req = {'environment_name': self.actor_env_name,
+            'email': self.actor_login, 'password': new_pw}
+        resp = self.login(**req)
+        self.check_response_ok(resp)
+
+    def test_modify_user_self_empty_new_password(self):
+        sess_id = self.login_actor()
+        # checking empty password
+        req = {'session_id': sess_id, 'old_password': self.actor_password,
+            'new_password': ''}
+        self.assertRaises(RequestProcessingError, self.modify_user_self, **req)
+
+        # checking no password
+        req = {'session_id': sess_id, 'old_password': self.actor_password}
+        self.assertRaises(RequestProcessingError, self.modify_user_self, **req)
+
+    def test_modify_user_self_new_lang(self):
+        sess_id = self.login_actor()
+        req = {'session_id': sess_id, 'new_lang': User.LANG_EN}
+        resp = self.modify_user_self(**req)
+        self.check_response_ok(resp)
+        user = self._get_user(sess_id, self.actor_login)
+        self.assertEquals(User.LANG_EN, user['lang'])
+
+        req = {'session_id': sess_id, 'new_lang': User.LANG_RU}
+        resp = self.modify_user_self(**req)
+        self.check_response_ok(resp)
+        user = self._get_user(sess_id, self.actor_login)
+        self.assertEquals(User.LANG_RU, user['lang'])
 
     def test_modify_super_users_failed(self):
         sess_id = self.login_actor()
