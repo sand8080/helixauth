@@ -323,6 +323,7 @@ class Handler(AbstractHandler):
             'role': data.get('role', User.ROLE_USER),
             'password': a.encrypt_password(data.get('password'), salt),
             'salt': salt, 'is_active': data.get('is_active', True),
+            'lang': data.get('lang', User.DEFAULT_LANG)
         }
         if u_data['role'] == User.ROLE_SUPER:
             raise SuperUserCreationDenied

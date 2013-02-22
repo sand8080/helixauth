@@ -108,7 +108,8 @@ class ProtocolTestCase(RootTestCase, ProtocolTester):
     def test_modify_user_self(self):
         a_name = 'modify_user_self'
         self.api.validate_request(a_name, {'session_id': 'i',
-            'old_password': 'p', 'new_password': 'pp'})
+            'old_password': 'p', 'new_password': 'pp',
+            'new_lang': 'en'})
 
         self.validate_status_response(a_name)
 
@@ -130,6 +131,9 @@ class ProtocolTestCase(RootTestCase, ProtocolTester):
             'ids': [1, 2], 'new_groups_ids': [1]})
         self.api.validate_request(a_name, {'session_id': 'i',
             'ids': [1, 2], 'new_groups_ids': [1, 2]})
+        self.api.validate_request(a_name, {'session_id': 'i',
+            'ids': [1, 2], 'new_groups_ids': [1, 2],
+            'new_lang': 'ru'})
 
         self.validate_status_response(a_name)
 
@@ -167,13 +171,16 @@ class ProtocolTestCase(RootTestCase, ProtocolTester):
         self.api.validate_response(a_name, {'status': 'ok', 'total': 2, 'users': []})
         self.api.validate_response(a_name, {'status': 'ok', 'total': 4,
             'users': [
-                {'id': 42, 'email': 'l@h.com', 'is_active': True, 'role': 'user', 'groups_ids': [],},
+                {'id': 42, 'email': 'l@h.com', 'is_active': True,
+                    'role': 'user', 'groups_ids': [], 'lang': 'ru'},
             ]
         })
         self.api.validate_response(a_name, {'status': 'ok', 'total': 4,
             'users': [
-                {'id': 42, 'email': 'l@h.com', 'is_active': True, 'role': 'user', 'groups_ids': [],},
-                {'id': 24, 'email': 'l@h.com', 'is_active': True, 'role': 'user', 'groups_ids': [1, 2],},
+                {'id': 42, 'email': 'l@h.com', 'is_active': True,
+                    'role': 'user', 'groups_ids': [], 'lang': 'en'},
+                {'id': 24, 'email': 'l@h.com', 'is_active': True,
+                    'role': 'user', 'groups_ids': [1, 2], 'lang': 'ru'},
             ]
         })
         self.validate_error_response(a_name)

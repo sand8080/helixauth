@@ -135,6 +135,8 @@ GET_GROUPS_RESPONSE = AnyOf(
     RESPONSE_STATUS_ERROR
 )
 
+USER_LANGS = AnyOf(*dataobject.User.LANGS)
+
 ADD_USER_REQUEST = dict(
     {
         'email': EMAIL,
@@ -142,7 +144,7 @@ ADD_USER_REQUEST = dict(
         Optional('role'): AnyOf(dataobject.User.ROLE_USER),
         Optional('is_active'): bool,
         Optional('groups_ids'): [int],
-        Optional('lang'): AnyOf(*dataobject.User.LANGS),
+        Optional('lang'): USER_LANGS,
     },
     **AUTHORIZED_REQUEST_AUTH_INFO
 )
@@ -159,6 +161,7 @@ MODIFY_USERS_REQUEST = dict(
         Optional('new_password'): TEXT,
         Optional('new_is_active'): bool,
         Optional('new_groups_ids'): [int],
+        Optional('new_lang'): USER_LANGS,
     },
     **AUTHORIZED_REQUEST_AUTH_INFO
 )
@@ -169,6 +172,7 @@ MODIFY_USER_SELF_REQUEST = dict(
     {
         'old_password': TEXT,
         'new_password': TEXT,
+        Optional('new_lang'): USER_LANGS,
     },
     **AUTHORIZED_REQUEST_AUTH_INFO
 )
@@ -197,6 +201,7 @@ USER_INFO = {
     'role': AnyOf(dataobject.User.ROLE_SUPER, dataobject.User.ROLE_USER),
     'is_active': bool,
     'groups_ids': [int],
+    'lang': USER_LANGS,
 }
 
 GET_USERS_RESPONSE = AnyOf(

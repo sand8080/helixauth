@@ -12,6 +12,7 @@ class User(Mapped):
     ROLE_USER = 'user'
     LANG_EN = 'en'
     LANG_RU = 'ru'
+    DEFAULT_LANG = LANG_EN
     LANGS = (LANG_EN, LANG_RU)
     __slots__ = ['id', 'environment_id', 'email', 'password', 'salt',
         'is_active', 'role', 'groups_ids', 'lang']

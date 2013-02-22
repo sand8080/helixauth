@@ -130,6 +130,7 @@ class UserTestCase(ActorLogicTestCase):
         self.assertEquals(True, u['is_active'])
         self.assertEquals([], u['groups_ids'])
         self.assertEquals(User.ROLE_USER, u['role'])
+        self.assertEquals(User.DEFAULT_LANG, u['lang'])
 
         # adding group
         sess_id = self.login_actor()
@@ -142,9 +143,10 @@ class UserTestCase(ActorLogicTestCase):
 
         # users modification
         new_email = 'n_l@h.com'
+        new_lang = 'ru'
         req = {'session_id': sess_id, 'ids': [u_id], 'new_email': new_email,
             'new_password': 'n_p', 'new_is_active': False,
-            'new_groups_ids': [g_id, 10000]}
+            'new_groups_ids': [g_id, 10000], 'new_lang': new_lang}
         resp = self.modify_users(**req)
         self.check_response_ok(resp)
         # checking modification
@@ -155,6 +157,7 @@ class UserTestCase(ActorLogicTestCase):
         self.assertEquals(False, u['is_active'])
         self.assertEquals([g_id], u['groups_ids'])
         self.assertEquals(User.ROLE_USER, u['role'])
+        self.assertEquals(new_lang, u['lang'])
 
     def test_get_users(self):
         # adding group
