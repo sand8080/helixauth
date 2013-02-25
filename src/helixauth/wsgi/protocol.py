@@ -356,7 +356,8 @@ GET_NOTIFICATIONS_REQUEST = dict(
             Optional('id'): ID,
             Optional('ids'): [ID],
             Optional('type'): NOTIFICATIONS_TYPES,
-            Optional('is_active'): BOOLEAN
+            Optional('event'): TEXT,
+            Optional('is_active'): BOOLEAN,
         },
         'paging_params': REQUEST_PAGING_PARAMS,
         Optional('ordering_params'): [AnyOf('id', '-id')]

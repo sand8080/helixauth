@@ -19,7 +19,8 @@ from helixauth.error import (EnvironmentNotFound,
     ServiceDeletionError, ServiceNotFound, SessionIpChanged,
     SessionTooLargeFixedLifetime, UserNewPasswordNotSet)
 from helixauth.db.filters import (EnvironmentFilter, UserFilter, ServiceFilter,
-    SubjectUserFilter, GroupFilter, SessionFilter, ActionLogFilter)
+    SubjectUserFilter, GroupFilter, SessionFilter, ActionLogFilter,
+    NotificatonFilter)
 from helixauth.db.dataobject import (Environment, User, Service,
     Group, Notification)
 from helixauth.logic.auth import Authenticator
@@ -604,3 +605,20 @@ class Handler(AbstractHandler):
         except UserNotFound:
             pass
         return response_ok(exist=exist)
+
+    @execution_time
+    @transaction()
+    @authenticate
+    def get_notifications(self, data, req_info, session, curs=None):
+        f = NotificatonFilter(session.environment_id,
+            data['filter_params'], data['paging_params'],
+            data.get('ordering_params'))
+        notifs, total = f.filter_counted(curs)
+
+        def viewer(obj):
+            result = obj.to_dict()
+            result.pop('environment_id')
+            result = mapping.objects.deserialize_field(result,
+                'serialized_messages', 'messages')
+            return result
+        return response_ok(notifications=self.objects_info(notifs, viewer), total=total)

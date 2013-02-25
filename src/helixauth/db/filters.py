@@ -139,6 +139,7 @@ class NotificatonFilter(EnvironmentObjectsFilter):
     cond_map = [
         ('id', 'id', Eq),
         ('ids', 'id', In),
+        ('type', 'type', Eq),
         ('event', 'event', Eq),
         ('is_active', 'is_active', Eq),
     ]
