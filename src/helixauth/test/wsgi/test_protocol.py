@@ -493,6 +493,48 @@ class ProtocolTestCase(RootTestCase, ProtocolTester):
             'exist': False})
         self.validate_error_response(a_name)
 
+    def test_get_notifications(self):
+        a_name = 'get_notifications'
+        self.api.validate_request(a_name, {'session_id': 's',
+            'filter_params': {}, 'paging_params': {},})
+        self.api.validate_request(a_name, {'session_id': 's',
+            'filter_params': {}, 'paging_params': {'limit': 0,},})
+        self.api.validate_request(a_name, {'session_id': 's',
+            'filter_params': {}, 'paging_params': {'limit': 0, 'offset': 0,},})
+        self.api.validate_request(a_name, {'session_id': 's',
+            'filter_params': {'ids': []},
+            'paging_params': {'limit': 0, 'offset': 0,},})
+        self.api.validate_request(a_name, {'session_id': 's',
+            'filter_params': {'ids': [1, 2, 3]},
+            'paging_params': {'limit': 0, 'offset': 0,},})
+        self.api.validate_request(a_name, {'session_id': 's',
+            'filter_params': {'ids': [1, 2, 3]},
+            'paging_params': {'limit': 0, 'offset': 0,},
+            'ordering_params': ['-id']})
+        self.api.validate_request(a_name, {'session_id': 's',
+            'filter_params': {'id': 3, 'is_active': True, 'type': 'email'},
+            'paging_params': {'limit': 0, 'offset': 0,},
+            'ordering_params': ['-id']})
+
+        self.api.validate_response(a_name, {'status': 'ok', 'total': 2,
+            'notifications': []})
+        self.api.validate_response(a_name, {'status': 'ok', 'total': 4,
+            'notifications': [
+                {'id': 42, 'event': 'e', 'is_active': True,
+                    'type': 'email', 'messages': {}},
+            ]
+        })
+        self.api.validate_response(a_name, {'status': 'ok', 'total': 4,
+            'notifications': [
+                {'id': 42, 'event': 'e', 'is_active': True,
+                    'type': 'email', 'messages': {}},
+                {'id': 42, 'event': 'e', 'is_active': True,
+                    'type': 'email', 'messages': {'subj': 's',
+                    'message': 'm'}},
+            ]
+        })
+        self.validate_error_response(a_name)
+
 
 if __name__ == '__main__':
     unittest.main()

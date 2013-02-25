@@ -1,5 +1,5 @@
 from helixcore.json_validator import (Optional, AnyOf, NON_NEGATIVE_INT,
-    Scheme, ISO_DATETIME, TEXT, NULLABLE_TEXT, ID, BOOLEAN, EMAIL)
+    Scheme, ISO_DATETIME, TEXT, NULLABLE_TEXT, ID, BOOLEAN, EMAIL, DICT)
 from helixcore.server.api import ApiCall
 from helixcore.server.protocol_primitives import (REQUEST_PAGING_PARAMS,
     RESPONSE_STATUS_OK, RESPONSE_STATUS_ERROR, RESPONSE_STATUS_ONLY,
@@ -196,11 +196,11 @@ GET_USERS_REQUEST = dict(
 )
 
 USER_INFO = {
-    'id': int,
+    'id': ID,
     'email': EMAIL,
     'role': AnyOf(dataobject.User.ROLE_SUPER, dataobject.User.ROLE_USER),
-    'is_active': bool,
-    'groups_ids': [int],
+    'is_active': BOOLEAN,
+    'groups_ids': [ID],
     'lang': USER_LANGS,
 }
 
@@ -324,7 +324,7 @@ GET_USER_RIGHTS_RESPONSE = AnyOf(
     dict(
         RESPONSE_STATUS_OK,
         **{
-            'rights': [{'service_id': int, 'service_type': TEXT,
+            'rights': [{'service_id': ID, 'service_type': TEXT,
                 'properties': [TEXT]}],
         }
     ),
@@ -333,7 +333,7 @@ GET_USER_RIGHTS_RESPONSE = AnyOf(
 
 CHECK_USER_EXIST_REQUEST = dict(
     {
-        'id': int,
+        'id': ID,
     },
     **AUTHORIZED_REQUEST_AUTH_INFO
 )
@@ -342,12 +342,46 @@ CHECK_USER_EXIST_RESPONSE = AnyOf(
     dict(
         RESPONSE_STATUS_OK,
         **{
-            'exist': bool,
+            'exist': BOOLEAN,
         }
     ),
     RESPONSE_STATUS_ERROR
 )
 
+NOTIFICATIONS_TYPES = AnyOf(dataobject.Notification.TYPE_EMAIL)
+
+GET_NOTIFICATIONS_REQUEST = dict(
+    {
+        'filter_params': {
+            Optional('id'): ID,
+            Optional('ids'): [ID],
+            Optional('type'): NOTIFICATIONS_TYPES,
+            Optional('is_active'): BOOLEAN
+        },
+        'paging_params': REQUEST_PAGING_PARAMS,
+        Optional('ordering_params'): [AnyOf('id', '-id')]
+    },
+    **AUTHORIZED_REQUEST_AUTH_INFO
+)
+
+NOTIFICATION_INFO = {
+    'id': ID,
+    'event': TEXT,
+    'is_active': BOOLEAN,
+    'type': NOTIFICATIONS_TYPES,
+    'messages': DICT,
+}
+
+GET_NOTIFICATIONS_RESPONSE = AnyOf(
+    dict(
+        RESPONSE_STATUS_OK,
+        **{
+            'notifications': [NOTIFICATION_INFO],
+            'total': NON_NEGATIVE_INT,
+        }
+    ),
+    RESPONSE_STATUS_ERROR
+)
 
 unauthorized_actions = ('ping', 'get_api_actions', 'add_environment',
     'get_authorized_api_actions', 'login', 'logout')
@@ -442,4 +476,8 @@ protocol = [
     # check user
     ApiCall('check_user_exist_request', Scheme(CHECK_USER_EXIST_REQUEST)),
     ApiCall('check_user_exist_response', Scheme(CHECK_USER_EXIST_RESPONSE)),
+
+    # notifications
+    ApiCall('get_notifications_request', Scheme(GET_NOTIFICATIONS_REQUEST)),
+    ApiCall('get_notifications_response', Scheme(GET_NOTIFICATIONS_RESPONSE)),
 ]
