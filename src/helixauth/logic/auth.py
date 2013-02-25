@@ -79,7 +79,12 @@ class Authenticator(object):
     def _get_cached_session(self, session_id):
         logger.debug("Getting session from memcached")
         str_sess_id = session_id.encode('utf8')
-        session = self.mem_cache.get(str_sess_id)
+        session = None
+        try:
+            session = self.mem_cache.get(str_sess_id)
+        except Exception, e:
+            logger.info("Session %s not found in memcached: %s",
+                str_sess_id, e)
         if session is None or session.update_date <= self._session_valid_after_update_date():
             logger.debug("Valid session %s not found in memcached", str_sess_id)
             session = self._get_session_db(session_id)
