@@ -8,6 +8,7 @@ Structure of serialized message:
 LANG_EN = 'en'
 LANG_RU = 'ru'
 
+LANG_FIELD_NAME = 'lang'
 EMAIL_SUBJ_FIELD_NAME = 'email_subj'
 EMAIL_MSG_FIELD_NAME = 'email_msg'
 

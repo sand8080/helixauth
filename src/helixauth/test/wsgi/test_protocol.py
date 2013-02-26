@@ -521,18 +521,22 @@ class ProtocolTestCase(RootTestCase, ProtocolTester):
         self.api.validate_response(a_name, {'status': 'ok', 'total': 4,
             'notifications': [
                 {'id': 42, 'event': 'e', 'is_active': True,
-                    'type': 'email', 'message': {'email_subj': 's',
-                    'email_msg': 'm'}},
+                    'type': 'email', 'messages': [{'lang': 'ru',
+                    'email_subj': 's', 'email_msg': 'm'},
+                    {'lang': 'en', 'email_subj': 's', 'email_msg': 'm'}]
+                },
             ]
         })
         self.api.validate_response(a_name, {'status': 'ok', 'total': 4,
             'notifications': [
                 {'id': 42, 'event': 'e', 'is_active': True,
-                    'type': 'email', 'message': {'email_subj': 'ss',
-                    'email_msg': 'mm'}},
+                    'type': 'email', 'messages': [{'lang': 'en',
+                    'email_subj': 'ss', 'email_msg': 'mm'},
+                    {'lang': 'ru', 'email_subj': 'sss',
+                    'email_msg': 'mmm'}]},
                 {'id': 42, 'event': 'e', 'is_active': True,
-                    'type': 'email', 'message': {'email_subj': 's',
-                    'email_msg': 'm'}},
+                    'type': 'email', 'messages': [{'lang': 'ru',
+                    'email_subj': 's', 'email_msg': 'm'}]},
             ]
         })
         self.validate_error_response(a_name)
