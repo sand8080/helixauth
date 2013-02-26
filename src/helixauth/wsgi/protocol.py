@@ -160,8 +160,8 @@ MODIFY_USERS_REQUEST = dict(
         'ids': [int],
         Optional('new_email'): TEXT,
         Optional('new_password'): TEXT,
-        Optional('new_is_active'): bool,
-        Optional('new_groups_ids'): [int],
+        Optional('new_is_active'): BOOLEAN,
+        Optional('new_groups_ids'): [ID],
         Optional('new_lang'): USER_LANGS,
     },
     **AUTHORIZED_REQUEST_AUTH_INFO
@@ -389,6 +389,18 @@ GET_NOTIFICATIONS_RESPONSE = AnyOf(
     RESPONSE_STATUS_ERROR
 )
 
+MODIFY_NOTIFICATIONS_REQUEST = dict(
+    {
+        'ids': [ID],
+        Optional('new_is_active'): BOOLEAN,
+        Optional('new_messages'): [AnyOf(EMAIL_MESSAGE)],
+    },
+    **AUTHORIZED_REQUEST_AUTH_INFO
+)
+
+MODIFY_NOTIFICATIONS_RESPONSE = RESPONSE_STATUS_ONLY
+
+
 unauthorized_actions = ('ping', 'get_api_actions', 'add_environment',
     'get_authorized_api_actions', 'login', 'logout')
 
@@ -486,4 +498,7 @@ protocol = [
     # notifications
     ApiCall('get_notifications_request', Scheme(GET_NOTIFICATIONS_REQUEST)),
     ApiCall('get_notifications_response', Scheme(GET_NOTIFICATIONS_RESPONSE)),
+
+    ApiCall('modify_notifications_request', Scheme(MODIFY_NOTIFICATIONS_REQUEST)),
+    ApiCall('modify_notifications_response', Scheme(MODIFY_NOTIFICATIONS_RESPONSE)),
 ]

@@ -541,6 +541,27 @@ class ProtocolTestCase(RootTestCase, ProtocolTester):
         })
         self.validate_error_response(a_name)
 
+    def test_modify_notifications(self):
+        a_name = 'modify_notifications'
+        self.api.validate_request(a_name, {'session_id': 'i',
+            'ids': []})
+        self.api.validate_request(a_name, {'session_id': 'i',
+            'ids': [1]})
+        self.api.validate_request(a_name, {'session_id': 'i',
+            'ids': [1, 2], 'new_is_active': True})
+        self.api.validate_request(a_name, {'session_id': 'i',
+            'ids': [1, 2], 'new_is_active': False})
+        self.api.validate_request(a_name, {'session_id': 'i',
+            'ids': [1, 2], 'new_messages': []})
+        self.api.validate_request(a_name, {'session_id': 'i',
+            'ids': [1, 2], 'new_messages': [
+                {'lang': 'en', 'email_subj': 's', 'email_msg': 'm'},
+                {'lang': 'ru', 'email_subj': 'ss', 'email_msg': 'mm'},
+            ]})
+
+        self.validate_status_response(a_name)
+
+
 
 if __name__ == '__main__':
     unittest.main()
