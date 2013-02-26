@@ -521,16 +521,18 @@ class ProtocolTestCase(RootTestCase, ProtocolTester):
         self.api.validate_response(a_name, {'status': 'ok', 'total': 4,
             'notifications': [
                 {'id': 42, 'event': 'e', 'is_active': True,
-                    'type': 'email', 'messages': {}},
+                    'type': 'email', 'message': {'email_subj': 's',
+                    'email_msg': 'm'}},
             ]
         })
         self.api.validate_response(a_name, {'status': 'ok', 'total': 4,
             'notifications': [
                 {'id': 42, 'event': 'e', 'is_active': True,
-                    'type': 'email', 'messages': {}},
+                    'type': 'email', 'message': {'email_subj': 'ss',
+                    'email_msg': 'mm'}},
                 {'id': 42, 'event': 'e', 'is_active': True,
-                    'type': 'email', 'messages': {'subj': 's',
-                    'message': 'm'}},
+                    'type': 'email', 'message': {'email_subj': 's',
+                    'email_msg': 'm'}},
             ]
         })
         self.validate_error_response(a_name)

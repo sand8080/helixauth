@@ -1,5 +1,5 @@
 from helixcore.json_validator import (Optional, AnyOf, NON_NEGATIVE_INT,
-    Scheme, ISO_DATETIME, TEXT, NULLABLE_TEXT, ID, BOOLEAN, EMAIL, DICT)
+    Scheme, ISO_DATETIME, TEXT, NULLABLE_TEXT, ID, BOOLEAN, EMAIL)
 from helixcore.server.api import ApiCall
 from helixcore.server.protocol_primitives import (REQUEST_PAGING_PARAMS,
     RESPONSE_STATUS_OK, RESPONSE_STATUS_ERROR, RESPONSE_STATUS_ONLY,
@@ -13,6 +13,7 @@ from helixcore.server.protocol_primitives import (REQUEST_PAGING_PARAMS,
     authorized_req, resp)
 
 from helixauth.db import dataobject
+from helixauth.logic import message
 
 
 GET_API_ACTIONS_REQUEST = {}
@@ -365,12 +366,15 @@ GET_NOTIFICATIONS_REQUEST = dict(
     **AUTHORIZED_REQUEST_AUTH_INFO
 )
 
+EMAIL_MESSAGE = {message.EMAIL_SUBJ_FIELD_NAME: TEXT,
+    message.EMAIL_MSG_FIELD_NAME: TEXT}
+
 NOTIFICATION_INFO = {
     'id': ID,
     'event': TEXT,
     'is_active': BOOLEAN,
     'type': NOTIFICATIONS_TYPES,
-    'messages': DICT,
+    'message': AnyOf(EMAIL_MESSAGE),
 }
 
 GET_NOTIFICATIONS_RESPONSE = AnyOf(
