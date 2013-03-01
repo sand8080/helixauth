@@ -102,7 +102,11 @@ class ProtocolTestCase(RootTestCase, ProtocolTester):
             'groups_ids': [1, 2, 3], 'lang': 'en'})
 
         self.api.validate_response(a_name,
-            {'status': 'ok', 'id': 1})
+            {'status': 'ok', 'id': 1, 'notification': {'is_sent': False,
+                'processing_steps': []}})
+        self.api.validate_response(a_name,
+            {'status': 'ok', 'id': 1, 'notification': {'is_sent': True,
+                'processing_steps': ['a', 'b']}})
         self.validate_error_response(a_name)
 
     def test_modify_user_self(self):

@@ -1,6 +1,18 @@
 from helixauth.logic import message as m
 
 
+class NotificationProcessing(object):
+    def __init__(self):
+        self.is_sent = False
+        self.processing_steps = []
+
+    def add_step(self, step):
+        self.processing_steps.append(step)
+
+    def to_dict(self):
+        return dict(self.__dict__)
+
+
 class Notifier(object):
     def default_email_notif_struct(self, event):
         res = []
@@ -14,3 +26,8 @@ class Notifier(object):
 
     def default_register_user_notif(self, environment_id):
         return self.default_email_notif_struct(m.EVENT_REGISTER_USER)
+
+    def register_user_notif(self):
+        n_p = NotificationProcessing()
+        n_p.add_step('NOT_IMPLEMENTED')
+        return n_p.to_dict()

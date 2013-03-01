@@ -10,6 +10,7 @@ from helixcore.server.protocol_primitives import (REQUEST_PAGING_PARAMS,
     LOGIN_REQUEST, LOGIN_RESPONSE,
     LOGOUT_REQUEST, LOGOUT_RESPONSE,
     CHECK_ACCESS_REQUEST, CHECK_ACCESS_RESPONSE,
+    NOTIFICATION_PROCESSING,
     authorized_req, resp)
 
 from helixauth.db import dataobject
@@ -151,7 +152,7 @@ ADD_USER_REQUEST = dict(
 )
 
 ADD_USER_RESPONSE = AnyOf(
-    dict({'id': int,}, **RESPONSE_STATUS_OK),
+    dict({'id': int, 'notification': NOTIFICATION_PROCESSING}, **RESPONSE_STATUS_OK),
     RESPONSE_STATUS_ERROR
 )
 

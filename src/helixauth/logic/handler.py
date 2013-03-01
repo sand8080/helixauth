@@ -341,7 +341,9 @@ class Handler(AbstractHandler):
 
         # For correct action logging
         data['id'] = [user.id]
-        return response_ok(id=user.id)
+        n = Notifier()
+        n_process = n.register_user_notif()
+        return response_ok(id=user.id, notification=n_process)
 
     @execution_time
     @transaction()
