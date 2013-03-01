@@ -27,7 +27,7 @@ class Notifier(object):
     def default_register_user_notif(self, environment_id):
         return self.default_email_notif_struct(m.EVENT_REGISTER_USER)
 
-    def register_user_notif(self):
+    def register_user(self):
         n_p = NotificationProcessing()
         n_p.add_step('NOT_IMPLEMENTED')
         return n_p.to_dict()
