@@ -27,4 +27,4 @@ patches_path = os.path.join(os.path.realpath(os.path.dirname(__file__)),
     '..', '..', 'patches')
 
 
-settings.notifications_enabled = True
+settings.email_notifications_enabled = False

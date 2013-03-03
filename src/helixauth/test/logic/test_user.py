@@ -11,20 +11,6 @@ class UserTestCase(ActorLogicTestCase):
         super(UserTestCase, self).setUp()
         self.create_actor_env()
 
-    def _get_users(self, sess_id, ids):
-        req = {'session_id': sess_id, 'filter_params': {'ids': ids},
-            'paging_params': {}}
-        resp = self.get_users(**req)
-        self.check_response_ok(resp)
-        return resp['users']
-
-    def _get_user(self, sess_id, email):
-        req = {'session_id': sess_id, 'filter_params': {'email': email},
-            'paging_params': {}}
-        resp = self.get_users(**req)
-        self.check_response_ok(resp)
-        return resp['users'][0]
-
     def test_add_user_by_super(self):
         sess_id = self.login_actor()
         req = {'session_id': sess_id, 'email': 'user_1@h.com',
@@ -111,7 +97,7 @@ class UserTestCase(ActorLogicTestCase):
         self.assertRaises(RequestProcessingError, self.modify_users, **req)
         # checking modification canceled
         for i, u_id in enumerate(u_ids):
-            users = self._get_users(sess_id, [u_id])
+            users = self.get_users_info(sess_id, [u_id])
             u = users[0]
             self.assertEquals('user_%s@h.com' % i, u['email'])
 
@@ -127,7 +113,7 @@ class UserTestCase(ActorLogicTestCase):
         self.check_response_ok(resp)
         u0_id = resp['id']
 
-        users = self._get_users(sess_id, [u0_id])
+        users = self.get_users_info(sess_id, [u0_id])
         self.assertEquals(1, len(users))
         u = users[0]
         self.assertEquals(u0_email, u['email'])
@@ -160,7 +146,7 @@ class UserTestCase(ActorLogicTestCase):
         self.check_response_ok(resp)
         u_id = resp['id']
 
-        users = self._get_users(sess_id, [u_id])
+        users = self.get_users_info(sess_id, [u_id])
         self.assertEquals(1, len(users))
         u = users[0]
         self.assertEquals(email, u['email'])
@@ -187,7 +173,7 @@ class UserTestCase(ActorLogicTestCase):
         resp = self.modify_users(**req)
         self.check_response_ok(resp)
         # checking modification
-        users = self._get_users(sess_id, [u_id])
+        users = self.get_users_info(sess_id, [u_id])
         self.assertEquals(1, len(users))
         u = users[0]
         self.assertEquals(new_email, u['email'])
@@ -355,7 +341,7 @@ class UserTestCase(ActorLogicTestCase):
         resp = self.delete_group(**req)
         self.check_response_ok(resp)
 
-        users = self._get_users(sess_id, [u_id])
+        users = self.get_users_info(sess_id, [u_id])
         self.assertEquals(1, len(users))
         user = users[0]
         self.assertTrue(grp['id'] not in user['groups_ids'])

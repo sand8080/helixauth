@@ -25,3 +25,18 @@ class ActorLogicTestCase(LogicTestCase):
             'su_password': self.actor_password,
             'custom_actor_info': 'from %s' % self.actor_env_name}
         self.add_environment(**req)
+
+    def get_users_info(self, sess_id, ids):
+        req = {'session_id': sess_id, 'filter_params': {'ids': ids},
+            'paging_params': {}}
+        resp = self.get_users(**req)
+        self.check_response_ok(resp)
+        return resp['users']
+
+    def get_user_info(self, sess_id, email):
+        req = {'session_id': sess_id, 'filter_params': {'email': email},
+            'paging_params': {}}
+        resp = self.get_users(**req)
+        self.check_response_ok(resp)
+        return resp['users'][0]
+

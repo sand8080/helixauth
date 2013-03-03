@@ -136,3 +136,7 @@ class NotificatonNotFound(HelixauthObjectNotFound):
     def __init__(self, **kwargs):
         super(NotificatonNotFound, self).__init__("Notification", **kwargs)
         self.code = error_code.HELIXAUTH_GROUP_NOT_FOUND
+
+
+class NotificatoinPreparingError(HelixauthError):
+    pass
