@@ -40,3 +40,16 @@ class ActorLogicTestCase(LogicTestCase):
         self.check_response_ok(resp)
         return resp['users'][0]
 
+    def get_notifications_info(self, sess_id, ids=None, notif_type=None):
+        f_params = {}
+        if ids is not None:
+            f_params['ids'] = ids
+        if notif_type is not None:
+            f_params['type'] = notif_type
+
+        req = {'session_id': sess_id, 'filter_params': f_params,
+            'paging_params': {}}
+        resp = self.get_notifications(**req)
+        self.check_response_ok(resp)
+        return resp['notifications']
+

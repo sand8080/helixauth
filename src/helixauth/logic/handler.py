@@ -624,3 +624,16 @@ class Handler(AbstractHandler):
                 'serialized_messages', 'messages')
             return result
         return response_ok(notifications=self.objects_info(notifs, viewer), total=total)
+
+    @execution_time
+    @transaction()
+    @authenticate
+    @detalize_error(DataIntegrityError, 'ids')
+    def modify_notifications(self, data, req_info, session, curs=None):
+        n_ids = data['ids']
+        f = NotificatonFilter(session.environment_id, {'ids': n_ids},
+            {}, None)
+        loader = partial(f.filter_objs, curs, for_update=True)
+        self.update_objs(curs, data, loader)
+        return response_ok()
+
