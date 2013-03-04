@@ -7,6 +7,7 @@ from helixauth.conf.db import transaction
 from helixauth.db.dataobject import Notification
 from helixauth.logic import message
 from helixauth.logic.notifier import Notifier, NotificationProcessing
+from helixauth.logic.message import EVENT_REGISTER_USER
 
 
 class NotifierTestCase(ActorLogicTestCase):
@@ -53,6 +54,14 @@ class NotifierTestCase(ActorLogicTestCase):
             raise e
         finally:
             settings.email_notifications_enabled = s_old
+
+    def test_prepare_notif_disabled(self, curs=None):
+        sess_id = self.login_actor()
+        req = {'session_id': sess_id, 'filter_params': {
+            'type': Notification.TYPE_EMAIL, 'event': EVENT_REGISTER_USER},
+            'paging_params': {}}
+        resp = self.get_notifications(**req)
+        self.check_response_ok(resp)
 
 
 if __name__ == '__main__':
