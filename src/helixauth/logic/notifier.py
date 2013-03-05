@@ -4,9 +4,12 @@ from helixauth.conf import settings
 from helixauth.db.dataobject import Notification
 from helixauth.error import NotificatoinPreparingError, HelixauthError,\
     NotificatonNotFound
+from helixauth.conf.log import logger
 
 
 class NotificationProcessing(object):
+    STEP_UNEXPECTED_ERROR = 'STEP_UNEXPECTED_ERROR'
+
     STEP_NOTIFECATIONS_DISABLED = 'STEP_NOTIFECATIONS_DISABLED'
     STEP_NOTIFECATIONS_ENABLED = 'STEP_NOTIFECATIONS_ENABLED'
 
@@ -18,7 +21,7 @@ class NotificationProcessing(object):
     def __init__(self):
         self.is_sent = False
         self.processing_steps = []
-        self.message = ""
+        self.message_data = {}
 
     def add_step(self, step):
         self.processing_steps.append(step)
@@ -58,15 +61,15 @@ class Notifier(object):
             'type': Notification.TYPE_EMAIL}, {}, None)
         try:
             notif = n_f.filter_one_obj(curs)
-            if not notif.is_active:
+            if notif.is_active:
+                n_p.add_step(n_p.STEP_EVENT_NOTIFICATION_ENABLED)
+            else:
                 n_p.add_step(n_p.STEP_EVENT_NOTIFICATION_DISABLED)
                 raise NotificatoinPreparingError()
-            else:
-                n_p.add_step(n_p.STEP_EVENT_NOTIFICATION_ENABLED)
             return notif
         except NotificatonNotFound:
             n_p.add_step(n_p.STEP_UNKNOWN_EVENT)
-            raise NotificatoinPreparingError()
+        raise NotificatoinPreparingError()
 
     def _prepare_notif(self, env_id, event_name, notif_type, lang, curs):
         n_p = NotificationProcessing()
@@ -75,6 +78,9 @@ class Notifier(object):
             notif = self._get_notification(n_p, env_id, event_name, curs)
         except HelixauthError:
             pass
+        except Exception, e:
+            n_p.add_step(n_p.STEP_UNEXPECTED_ERROR)
+            logger.exception("Notification processing error: %s", e)
         finally:
             return n_p
 
