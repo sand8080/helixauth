@@ -27,13 +27,15 @@ class NotificationsTestCase(ActorLogicTestCase):
         notifs = self.get_notifications_info(sess_id)
         ids = [n['id'] for n in notifs]
 
-        req = {'session_id': sess_id, 'ids': ids, 'new_is_active': False}
+        req = {'session_id': sess_id, 'ids': ids, 'new_is_active': False,
+            'new_messages': []}
         resp = self.modify_notifications(**req)
         self.check_response_ok(resp)
 
         notifs = self.get_notifications_info(sess_id)
         for n_info in notifs:
             self.assertEquals(False, n_info['is_active'])
+            self.assertEquals([], n_info['messages'])
 
 
 if __name__ == '__main__':

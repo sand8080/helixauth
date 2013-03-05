@@ -633,7 +633,8 @@ class Handler(AbstractHandler):
         n_ids = data['ids']
         f = NotificatonFilter(session.environment_id, {'ids': n_ids},
             {}, None)
+        d = mapping.objects.serialize_field(data, 'new_messages', 'new_serialized_messages')
         loader = partial(f.filter_objs, curs, for_update=True)
-        self.update_objs(curs, data, loader)
+        self.update_objs(curs, d, loader)
         return response_ok()
 
