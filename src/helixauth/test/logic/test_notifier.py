@@ -14,48 +14,48 @@ class NotifierTestCase(ActorLogicTestCase):
         super(NotifierTestCase, self).setUp()
         self.create_actor_env()
 
-    def test_prepare_notif_emailing_disabled(self):
+    def test_get_message_data_emailing_disabled(self):
         env = self.get_environment_by_name(self.actor_env_name)
         n = Notifier()
         s_old = settings.email_notifications_enabled
         settings.email_notifications_enabled = False
         try:
-            n_proc = n._prepare_notif(env.id, message.EVENT_REGISTER_USER,
+            n_proc = n._get_message_data(env.id, message.EVENT_REGISTER_USER,
                 Notification.TYPE_EMAIL, message.LANG_EN, None)
             n_proc_info = n_proc.to_dict()
-            self.assertEquals(False, n_proc_info['is_sent'])
+            self.assertEquals(False, n_proc_info['is_processable'])
             self.assertEquals({}, n_proc_info['message_data'])
             self.assertEquals(
                 [NotificationProcessing.STEP_NOTIFECATIONS_DISABLED],
-                n_proc_info['processing_steps'])
+                n_proc_info['checking_steps'])
         except Exception, e:
             raise e
         finally:
             settings.email_notifications_enabled = s_old
 
     @transaction()
-    def test_prepare_notif_unknown_event(self, curs=None):
+    def test_get_message_data_unknown_event(self, curs=None):
         env = self.get_environment_by_name(self.actor_env_name)
         n = Notifier()
         s_old = settings.email_notifications_enabled
         settings.email_notifications_enabled = True
         try:
-            n_proc = n._prepare_notif(env.id, 'FAKE',
+            n_proc = n._get_message_data(env.id, 'FAKE',
                 Notification.TYPE_EMAIL, message.LANG_EN, curs)
             n_proc_info = n_proc.to_dict()
-            self.assertEquals(False, n_proc_info['is_sent'])
+            self.assertEquals(False, n_proc_info['is_processable'])
             self.assertEquals({}, n_proc_info['message_data'])
             self.assertEquals(
                 [NotificationProcessing.STEP_NOTIFECATIONS_ENABLED,
                 NotificationProcessing.STEP_UNKNOWN_EVENT],
-                n_proc_info['processing_steps'])
+                n_proc_info['checking_steps'])
         except Exception, e:
             raise e
         finally:
             settings.email_notifications_enabled = s_old
 
     @transaction()
-    def test_prepare_notif_disabled(self, curs=None):
+    def test_get_message_data_disabled(self, curs=None):
         sess_id = self.login_actor()
         ns_info = self.get_notifications_info(sess_id)
         n_info = ns_info[0]
@@ -70,37 +70,37 @@ class NotifierTestCase(ActorLogicTestCase):
         s_old = settings.email_notifications_enabled
         settings.email_notifications_enabled = True
         try:
-            n_proc = n._prepare_notif(env.id, message.EVENT_REGISTER_USER,
+            n_proc = n._get_message_data(env.id, message.EVENT_REGISTER_USER,
                 Notification.TYPE_EMAIL, message.LANG_EN, curs)
             n_proc_info = n_proc.to_dict()
-            self.assertEquals(False, n_proc_info['is_sent'])
+            self.assertEquals(False, n_proc_info['is_processable'])
             self.assertEquals({}, n_proc_info['message_data'])
             self.assertEquals(
                 [NotificationProcessing.STEP_NOTIFECATIONS_ENABLED,
                 NotificationProcessing.STEP_EVENT_NOTIFICATION_DISABLED],
-                n_proc_info['processing_steps'])
+                n_proc_info['checking_steps'])
         except Exception, e:
             raise e
         finally:
             settings.email_notifications_enabled = s_old
 
     @transaction()
-    def test_prepare_notif_default_lang_selection(self, curs=None):
+    def test_get_message_data_default_lang_selection(self, curs=None):
         env = self.get_environment_by_name(self.actor_env_name)
         n = Notifier()
         s_old = settings.email_notifications_enabled
         settings.email_notifications_enabled = True
         try:
-            n_proc = n._prepare_notif(env.id, message.EVENT_REGISTER_USER,
+            n_proc = n._get_message_data(env.id, message.EVENT_REGISTER_USER,
                 Notification.TYPE_EMAIL, 'FAKE', curs)
             n_proc_info = n_proc.to_dict()
-            self.assertEquals(False, n_proc_info['is_sent'])
+            self.assertEquals(False, n_proc_info['is_processable'])
             self.assertEquals(
                 [NotificationProcessing.STEP_NOTIFECATIONS_ENABLED,
                 NotificationProcessing.STEP_EVENT_NOTIFICATION_ENABLED,
                 NotificationProcessing.STEP_MSG_LANG_NOT_FOUND,
                 NotificationProcessing.STEP_MSG_DFLT_LANG_FOUND],
-                n_proc_info['processing_steps'])
+                n_proc_info['checking_steps'])
         except Exception, e:
             raise e
         finally:
