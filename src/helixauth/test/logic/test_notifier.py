@@ -84,6 +84,28 @@ class NotifierTestCase(ActorLogicTestCase):
         finally:
             settings.email_notifications_enabled = s_old
 
+    @transaction()
+    def test_prepare_notif_default_lang_selection(self, curs=None):
+        env = self.get_environment_by_name(self.actor_env_name)
+        n = Notifier()
+        s_old = settings.email_notifications_enabled
+        settings.email_notifications_enabled = True
+        try:
+            n_proc = n._prepare_notif(env.id, message.EVENT_REGISTER_USER,
+                Notification.TYPE_EMAIL, 'FAKE', curs)
+            n_proc_info = n_proc.to_dict()
+            self.assertEquals(False, n_proc_info['is_sent'])
+            self.assertEquals(
+                [NotificationProcessing.STEP_NOTIFECATIONS_ENABLED,
+                NotificationProcessing.STEP_EVENT_NOTIFICATION_ENABLED,
+                NotificationProcessing.STEP_MSG_LANG_NOT_FOUND,
+                NotificationProcessing.STEP_MSG_DFLT_LANG_FOUND],
+                n_proc_info['processing_steps'])
+        except Exception, e:
+            raise e
+        finally:
+            settings.email_notifications_enabled = s_old
+
 
 if __name__ == '__main__':
     unittest.main()

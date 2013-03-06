@@ -18,6 +18,12 @@ class NotificationProcessing(object):
     STEP_EVENT_NOTIFICATION_DISABLED = 'STEP_EVENT_NOTIFICATION_DISABLED'
     STEP_EVENT_NOTIFICATION_ENABLED = 'STEP_EVENT_NOTIFICATION_ENABLED'
 
+    STEP_MSG_LANG_FOUND = 'STEP_MSG_LANG_FOUND'
+    STEP_MSG_LANG_NOT_FOUND = 'STEP_MSG_LANG_NOT_FOUND'
+
+    STEP_MSG_DFLT_LANG_FOUND = 'STEP_MSG_DFLT_LANG_FOUND'
+    STEP_MSG_DFLT_LANG_NOT_FOUND = 'STEP_MSG_DFLT_LANG_NOT_FOUND'
+
     def __init__(self):
         self.is_sent = False
         self.processing_steps = []
@@ -71,11 +77,31 @@ class Notifier(object):
             n_p.add_step(n_p.STEP_UNKNOWN_EVENT)
         raise NotificatoinPreparingError()
 
+    def _get_message(self, n_p, notif, lang):
+        msgs = notif.deserialized('serialized_messages')
+#        print "### msgs", msgs
+        msgs_lang_idx = {}
+        for msg_d in msgs:
+            msgs_lang_idx[msg_d['lang']] = msg_d
+        if lang in msgs_lang_idx:
+            n_p.add_step(n_p.STEP_MSG_LANG_FOUND)
+            return msgs_lang_idx[lang]
+        else:
+            n_p.add_step(n_p.STEP_MSG_LANG_NOT_FOUND)
+            dflt_lang = settings.default_messages_lang
+            if dflt_lang not in msgs_lang_idx:
+                n_p.add_step(n_p.STEP_MSG_DFLT_LANG_NOT_FOUND)
+                raise NotificatoinPreparingError()
+            else:
+                n_p.add_step(n_p.STEP_MSG_DFLT_LANG_FOUND)
+                return msgs_lang_idx[dflt_lang]
+
     def _prepare_notif(self, env_id, event_name, notif_type, lang, curs):
         n_p = NotificationProcessing()
         try:
             self._check_emailing_enabled(n_p)
             notif = self._get_notification(n_p, env_id, event_name, curs)
+            msg_data = self._get_message(n_p, notif, lang)
         except HelixauthError:
             pass
         except Exception, e:
