@@ -96,11 +96,15 @@ class Notifier(object):
                 return msgs_lang_idx[dflt_lang]
 
     def _get_message_data(self, env_id, event_name, notif_type, lang, curs):
+        """
+        returns (message_data_dict, NotificationProcessing)
+        """
         n_p = NotificationProcessing()
         try:
             self._check_emailing_enabled(n_p)
             notif = self._get_notification(n_p, env_id, event_name, curs)
-            msg_data = self._extract_message(n_p, notif, lang)
+            n_p.message_data = self._extract_message(n_p, notif, lang)
+            n_p.is_processable = True
         except HelixauthError:
             pass
         except Exception, e:
@@ -108,5 +112,3 @@ class Notifier(object):
             logger.exception("Notification processing error: %s", e)
         finally:
             return n_p
-
-
