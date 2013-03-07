@@ -94,7 +94,7 @@ class NotifierTestCase(ActorLogicTestCase):
             n_proc = n._get_message_data(env.id, message.EVENT_REGISTER_USER,
                 Notification.TYPE_EMAIL, 'FAKE', curs)
             n_proc_info = n_proc.to_dict()
-            self.assertEquals(False, n_proc_info['is_processable'])
+            self.assertEquals(True, n_proc_info['is_processable'])
             self.assertEquals(
                 [NotificationProcessing.STEP_NOTIFECATIONS_ENABLED,
                 NotificationProcessing.STEP_EVENT_NOTIFICATION_ENABLED,
