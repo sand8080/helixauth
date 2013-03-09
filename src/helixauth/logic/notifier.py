@@ -26,6 +26,7 @@ class NotificationProcessing(object):
 
     def __init__(self):
         self.is_processable = False
+        self.is_sent = False
         self.checking_steps = []
         self.message_data = {}
 

@@ -61,13 +61,13 @@ class UserTestCase(ActorLogicTestCase):
         req = {'session_id': sess_id, 'new_lang': User.LANG_EN}
         resp = self.modify_user_self(**req)
         self.check_response_ok(resp)
-        user = self._get_user(sess_id, self.actor_login)
+        user = self.get_user_info(sess_id, self.actor_login)
         self.assertEquals(User.LANG_EN, user['lang'])
 
         req = {'session_id': sess_id, 'new_lang': User.LANG_RU}
         resp = self.modify_user_self(**req)
         self.check_response_ok(resp)
-        user = self._get_user(sess_id, self.actor_login)
+        user = self.get_user_info(sess_id, self.actor_login)
         self.assertEquals(User.LANG_RU, user['lang'])
 
     def test_modify_super_users_failed(self):
