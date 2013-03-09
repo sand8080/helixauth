@@ -291,6 +291,24 @@ class ActionLogTestCase(ActorLogicTestCase, ActionsLogTester):
         req = {'session_id': sess_id, 'id': 1}
         self._not_logged_action(action, sess_id, req)
 
+    def test_get_notifications(self):
+        action = 'get_notifications'
+        sess_id = self.login_actor()
+        req = {'session_id': sess_id, 'filter_params': {},
+            'paging_params': {}, 'ordering_params': []}
+        self._not_logged_action(action, sess_id, req)
+
+    def test_modify_notifications(self):
+        sess_id = self.login_actor()
+        notifs = self.get_notifications_info(sess_id)
+        notif = notifs[0]
+        n_id = notif['id']
+
+        action = 'modify_notifications'
+        req = {'session_id': sess_id, 'ids': [n_id],
+            'new_is_active': not notif['is_active']}
+        self._logged_action(action, req)
+
 
 if __name__ == '__main__':
     unittest.main()
