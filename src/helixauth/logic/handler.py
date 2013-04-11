@@ -638,3 +638,19 @@ class Handler(AbstractHandler):
         self.update_objs(curs, d, loader)
         return response_ok()
 
+    @execution_time
+    @transaction()
+    @authenticate
+    @detalize_error(DataIntegrityError, 'ids')
+    def reset_notifications(self, data, req_info, session, curs=None):
+        n_ids = data['ids']
+        f = NotificatonFilter(session.environment_id, {'ids': n_ids},
+            {}, None)
+        objs = f.filter_objs(curs, for_update=True)
+        n = Notifier()
+        for o in objs:
+            if o.type == Notification.TYPE_EMAIL:
+                msg_struct = n.default_email_notif_struct(o.event)
+                o.serialized_messages = json.dumps(msg_struct)
+                mapping.save(curs, o)
+        return response_ok()
