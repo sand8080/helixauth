@@ -137,7 +137,7 @@ GET_GROUPS_RESPONSE = AnyOf(
     RESPONSE_STATUS_ERROR
 )
 
-USER_LANGS = AnyOf(*dataobject.User.LANGS)
+USER_LANG = AnyOf(*dataobject.User.LANGS)
 
 ADD_USER_REQUEST = dict(
     {
@@ -146,7 +146,7 @@ ADD_USER_REQUEST = dict(
         Optional('role'): AnyOf(dataobject.User.ROLE_USER),
         Optional('is_active'): bool,
         Optional('groups_ids'): [int],
-        Optional('lang'): USER_LANGS,
+        Optional('lang'): USER_LANG,
     },
     **AUTHORIZED_REQUEST_AUTH_INFO
 )
@@ -163,7 +163,7 @@ MODIFY_USERS_REQUEST = dict(
         Optional('new_password'): TEXT,
         Optional('new_is_active'): BOOLEAN,
         Optional('new_groups_ids'): [ID],
-        Optional('new_lang'): USER_LANGS,
+        Optional('new_lang'): USER_LANG,
     },
     **AUTHORIZED_REQUEST_AUTH_INFO
 )
@@ -174,7 +174,7 @@ MODIFY_USER_SELF_REQUEST = dict(
     {
         Optional('old_password'): TEXT,
         Optional('new_password'): TEXT,
-        Optional('new_lang'): USER_LANGS,
+        Optional('new_lang'): USER_LANG,
     },
     **AUTHORIZED_REQUEST_AUTH_INFO
 )
@@ -203,7 +203,7 @@ USER_INFO = {
     'role': AnyOf(dataobject.User.ROLE_SUPER, dataobject.User.ROLE_USER),
     'is_active': BOOLEAN,
     'groups_ids': [ID],
-    'lang': USER_LANGS,
+    'lang': USER_LANG,
 }
 
 GET_USERS_RESPONSE = AnyOf(
@@ -367,7 +367,7 @@ GET_NOTIFICATIONS_REQUEST = dict(
     **AUTHORIZED_REQUEST_AUTH_INFO
 )
 
-EMAIL_MESSAGE = {message.LANG_FIELD_NAME: USER_LANGS,
+EMAIL_MESSAGE = {message.LANG_FIELD_NAME: USER_LANG,
     message.EMAIL_SUBJ_FIELD_NAME: TEXT,
     message.EMAIL_MSG_FIELD_NAME: TEXT}
 
@@ -400,6 +400,15 @@ MODIFY_NOTIFICATIONS_REQUEST = dict(
 )
 
 MODIFY_NOTIFICATIONS_RESPONSE = RESPONSE_STATUS_ONLY
+
+RESET_NOTIFICATIONS_REQUEST = dict(
+    {
+        'ids': [ID],
+    },
+    **AUTHORIZED_REQUEST_AUTH_INFO
+)
+
+RESET_NOTIFICATIONS_RESPONSE = RESPONSE_STATUS_ONLY
 
 
 unauthorized_actions = ('ping', 'get_api_actions', 'add_environment',
@@ -502,4 +511,7 @@ protocol = [
 
     ApiCall('modify_notifications_request', Scheme(MODIFY_NOTIFICATIONS_REQUEST)),
     ApiCall('modify_notifications_response', Scheme(MODIFY_NOTIFICATIONS_RESPONSE)),
+
+    ApiCall('reset_notifications_request', Scheme(RESET_NOTIFICATIONS_REQUEST)),
+    ApiCall('reset_notifications_response', Scheme(RESET_NOTIFICATIONS_RESPONSE)),
 ]

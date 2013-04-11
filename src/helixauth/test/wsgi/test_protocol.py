@@ -567,6 +567,15 @@ class ProtocolTestCase(RootTestCase, ProtocolTester):
 
         self.validate_status_response(a_name)
 
+    def test_reset_notifications(self):
+        a_name = 'reset_notifications'
+        self.api.validate_request(a_name, {'session_id': 'i',
+            'ids': []})
+        self.api.validate_request(a_name, {'session_id': 'i',
+            'ids': [1]})
+        self.api.validate_request(a_name, {'session_id': 'i',
+            'ids': [1, 2]})
+        self.validate_status_response(a_name)
 
 
 if __name__ == '__main__':
