@@ -37,6 +37,27 @@ class NotificationsTestCase(ActorLogicTestCase):
             self.assertEquals(False, n_info['is_active'])
             self.assertEquals([], n_info['messages'])
 
+    def test_reset_notifications(self):
+        sess_id = self.login_actor()
+        notifs = self.get_notifications_info(sess_id)
+        ids = [n['id'] for n in notifs]
+
+        req = {'session_id': sess_id, 'ids': ids,
+            'new_messages': []}
+        resp = self.modify_notifications(**req)
+        self.check_response_ok(resp)
+        notifs = self.get_notifications_info(sess_id)
+        for n_info in notifs:
+            self.assertEquals([], n_info['messages'])
+
+        req = {'session_id': sess_id, 'ids': ids}
+        resp = self.reset_notifications(**req)
+        self.check_response_ok(resp)
+        notifs = self.get_notifications_info(sess_id)
+        for n_info in notifs:
+            self.assertNotEquals([], n_info['messages'])
+
+
 
 if __name__ == '__main__':
     unittest.main()
