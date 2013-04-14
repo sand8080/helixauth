@@ -309,6 +309,21 @@ class ActionLogTestCase(ActorLogicTestCase, ActionsLogTester):
             'new_is_active': not notif['is_active']}
         self._logged_action(action, req)
 
+    def test_reset_notifications(self):
+        sess_id = self.login_actor()
+        notifs = self.get_notifications_info(sess_id)
+        notif = notifs[0]
+        n_id = notif['id']
+
+        action = 'modify_notifications'
+        req = {'session_id': sess_id, 'ids': [n_id],
+            'new_is_active': not notif['is_active']}
+        self._logged_action(action, req)
+
+        action = 'reset_notifications'
+        req = {'session_id': sess_id, 'ids': [n_id]}
+        self._logged_action(action, req)
+
 
 if __name__ == '__main__':
     unittest.main()
