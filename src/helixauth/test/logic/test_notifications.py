@@ -2,6 +2,7 @@ import unittest
 
 from helixauth.test.logic.actor_logic_test import ActorLogicTestCase
 from helixauth.db.dataobject import Notification
+from helixauth.logic.notifier import Notifier
 
 
 class NotificationsTestCase(ActorLogicTestCase):
@@ -54,9 +55,11 @@ class NotificationsTestCase(ActorLogicTestCase):
         resp = self.reset_notifications(**req)
         self.check_response_ok(resp)
         notifs = self.get_notifications_info(sess_id)
+        n = Notifier()
         for n_info in notifs:
             self.assertNotEquals([], n_info['messages'])
-
+            for n_exp in n.default_email_notif_struct(n_info['event']):
+                self.assertTrue(n_exp in n_info['messages'])
 
 
 if __name__ == '__main__':
