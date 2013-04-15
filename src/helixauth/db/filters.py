@@ -140,7 +140,7 @@ class NotificatonFilter(EnvironmentObjectsFilter):
         ('id', 'id', Eq),
         ('ids', 'id', In),
         ('type', 'type', Eq),
-        ('event', 'event', Eq),
+        ('event', 'event', Like),
         ('is_active', 'is_active', Eq),
     ]
 
