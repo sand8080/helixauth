@@ -26,7 +26,7 @@ class NotifierTestCase(ActorLogicTestCase):
             self.assertEquals(False, n_proc_info['is_processable'])
             self.assertEquals({}, n_proc_info['message_data'])
             self.assertEquals(
-                [NotificationProcessing.STEP_NOTIFECATIONS_DISABLED],
+                [NotificationProcessing.STEP_NOTIFICATIONS_DISABLED],
                 n_proc_info['checking_steps'])
         except Exception, e:
             raise e
@@ -46,7 +46,7 @@ class NotifierTestCase(ActorLogicTestCase):
             self.assertEquals(False, n_proc_info['is_processable'])
             self.assertEquals({}, n_proc_info['message_data'])
             self.assertEquals(
-                [NotificationProcessing.STEP_NOTIFECATIONS_ENABLED,
+                [NotificationProcessing.STEP_NOTIFICATIONS_ENABLED,
                 NotificationProcessing.STEP_UNKNOWN_EVENT],
                 n_proc_info['checking_steps'])
         except Exception, e:
@@ -76,7 +76,7 @@ class NotifierTestCase(ActorLogicTestCase):
             self.assertEquals(False, n_proc_info['is_processable'])
             self.assertEquals({}, n_proc_info['message_data'])
             self.assertEquals(
-                [NotificationProcessing.STEP_NOTIFECATIONS_ENABLED,
+                [NotificationProcessing.STEP_NOTIFICATIONS_ENABLED,
                 NotificationProcessing.STEP_EVENT_NOTIFICATION_DISABLED],
                 n_proc_info['checking_steps'])
         except Exception, e:
@@ -96,7 +96,7 @@ class NotifierTestCase(ActorLogicTestCase):
             n_proc_info = n_proc.to_dict()
             self.assertEquals(True, n_proc_info['is_processable'])
             self.assertEquals(
-                [NotificationProcessing.STEP_NOTIFECATIONS_ENABLED,
+                [NotificationProcessing.STEP_NOTIFICATIONS_ENABLED,
                 NotificationProcessing.STEP_EVENT_NOTIFICATION_ENABLED,
                 NotificationProcessing.STEP_MSG_LANG_NOT_FOUND,
                 NotificationProcessing.STEP_MSG_DFLT_LANG_FOUND],
@@ -130,7 +130,7 @@ class NotifierTestCase(ActorLogicTestCase):
             n_proc_info = n_proc.to_dict()
             self.assertEquals(False, n_proc_info['is_processable'])
             self.assertEquals(
-                [NotificationProcessing.STEP_NOTIFECATIONS_ENABLED,
+                [NotificationProcessing.STEP_NOTIFICATIONS_ENABLED,
                 NotificationProcessing.STEP_EVENT_NOTIFICATION_ENABLED,
                 NotificationProcessing.STEP_MSG_LANG_NOT_FOUND,
                 NotificationProcessing.STEP_MSG_DFLT_LANG_NOT_FOUND],
@@ -153,7 +153,7 @@ class NotifierTestCase(ActorLogicTestCase):
             n_proc_info = n_proc.to_dict()
             self.assertEquals(True, n_proc_info['is_processable'])
             self.assertEquals(
-                [NotificationProcessing.STEP_NOTIFECATIONS_ENABLED,
+                [NotificationProcessing.STEP_NOTIFICATIONS_ENABLED,
                 NotificationProcessing.STEP_EVENT_NOTIFICATION_ENABLED,
                 NotificationProcessing.STEP_MSG_LANG_FOUND],
                 n_proc_info['checking_steps'])

@@ -10,8 +10,8 @@ from helixauth.conf.log import logger
 class NotificationProcessing(object):
     STEP_UNEXPECTED_ERROR = 'STEP_UNEXPECTED_ERROR'
 
-    STEP_NOTIFECATIONS_DISABLED = 'STEP_NOTIFECATIONS_DISABLED'
-    STEP_NOTIFECATIONS_ENABLED = 'STEP_NOTIFECATIONS_ENABLED'
+    STEP_NOTIFICATIONS_DISABLED = 'STEP_NOTIFICATIONS_DISABLED'
+    STEP_NOTIFICATIONS_ENABLED = 'STEP_NOTIFICATIONS_ENABLED'
 
     STEP_UNKNOWN_EVENT = 'STEP_UNKNOWN_EVENT'
 
@@ -51,17 +51,18 @@ class Notifier(object):
     def default_register_user_notif(self, environment_id):
         return self.default_email_notif_struct(m.EVENT_REGISTER_USER)
 
-    def register_user(self, user, session):
-        n_p = NotificationProcessing()
-        n_p.add_step('NOT_IMPLEMENTED')
+    def register_user(self, curs, user, session):
+        env_id = session.environment_id
+        n_p = self._get_message_data(env_id, m.EVENT_REGISTER_USER,
+            Notification.TYPE_EMAIL, user.lang, curs)
         return n_p.to_dict()
 
     def _check_emailing_enabled(self, n_p):
         if not settings.email_notifications_enabled:
-            n_p.add_step(n_p.STEP_NOTIFECATIONS_DISABLED)
+            n_p.add_step(n_p.STEP_NOTIFICATIONS_DISABLED)
             raise NotificatoinPreparingError()
         else:
-            n_p.add_step(n_p.STEP_NOTIFECATIONS_ENABLED)
+            n_p.add_step(n_p.STEP_NOTIFICATIONS_ENABLED)
 
     def _get_notification(self, n_p, env_id, event_name, curs):
         n_f = NotificatonFilter(env_id, {'event': event_name,
