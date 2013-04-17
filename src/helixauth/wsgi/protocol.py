@@ -152,7 +152,7 @@ ADD_USER_REQUEST = dict(
 )
 
 ADD_USER_RESPONSE = AnyOf(
-    dict({'id': int, 'notification': NOTIFICATION_PROCESSING}, **RESPONSE_STATUS_OK),
+    dict({'id': int, Optional('notification'): NOTIFICATION_PROCESSING}, **RESPONSE_STATUS_OK),
     RESPONSE_STATUS_ERROR
 )
 
