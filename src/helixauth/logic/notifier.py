@@ -1,10 +1,13 @@
-from helixauth.logic import message as m
-from helixauth.db.filters import NotificatonFilter
+from email.mime.text import MIMEText
+import smtplib
+
 from helixauth.conf import settings
+from helixauth.conf.log import logger
+from helixauth.db.filters import NotificatonFilter
 from helixauth.db.dataobject import Notification
 from helixauth.error import NotificatoinPreparingError, HelixauthError,\
     NotificatonNotFound
-from helixauth.conf.log import logger
+from helixauth.logic import message as m
 
 
 class NotificationProcessing(object):
@@ -23,6 +26,9 @@ class NotificationProcessing(object):
 
     STEP_MSG_DFLT_LANG_FOUND = 'STEP_MSG_DFLT_LANG_FOUND'
     STEP_MSG_DFLT_LANG_NOT_FOUND = 'STEP_MSG_DFLT_LANG_NOT_FOUND'
+
+    STEP_NOTIFICATION_SENT = 'STEP_NOTIFICATION_SENT'
+    STEP_NOTIFICATION_SENDING_ERROR = 'STEP_NOTIFICATION_SENDING_ERROR'
 
     def __init__(self):
         self.is_processable = False
@@ -51,10 +57,29 @@ class Notifier(object):
     def default_register_user_notif(self, environment_id):
         return self.default_email_notif_struct(m.EVENT_REGISTER_USER)
 
+    def _send_email(self, to, n_p):
+        if n_p.is_processable:
+            try:
+                msg_d = n_p.message_data
+                msg = MIMEText(msg_d[m.EMAIL_MSG_FIELD_NAME], _charset='utf8')
+                msg['Subject'] = msg_d[m.EMAIL_SUBJ_FIELD_NAME]
+                msg['From'] = settings.email_notifications_sender
+                msg['To'] = to
+                s = smtplib.SMTP(settings.email_server)
+                s.sendmail(settings.email_notifications_sender, [to],
+                    msg.as_string())
+                s.quit()
+                n_p.add_step(n_p.STEP_NOTIFICATION_SENT)
+                n_p.is_sent = True
+            except Exception, e:
+                n_p.add_step(n_p.STEP_NOTIFICATION_SENDING_ERROR)
+                logger.exception("Sending email failed: %s", e)
+
     def register_user(self, curs, user, session):
         env_id = session.environment_id
         n_p = self._get_message_data(env_id, m.EVENT_REGISTER_USER,
             Notification.TYPE_EMAIL, user.lang, curs)
+        self._send_email(user.email, n_p)
         return n_p.to_dict()
 
     def _check_emailing_enabled(self, n_p):
@@ -89,7 +114,7 @@ class Notifier(object):
             return msgs_lang_idx[lang]
         else:
             n_p.add_step(n_p.STEP_MSG_LANG_NOT_FOUND)
-            dflt_lang = settings.default_messages_lang
+            dflt_lang = settings.default_notifications_lang
             if dflt_lang not in msgs_lang_idx:
                 n_p.add_step(n_p.STEP_MSG_DFLT_LANG_NOT_FOUND)
                 raise NotificatoinPreparingError()

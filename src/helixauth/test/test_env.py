@@ -28,3 +28,4 @@ patches_path = os.path.join(os.path.realpath(os.path.dirname(__file__)),
 
 
 settings.email_notifications_enabled = False
+settings.email_notifications_sender = 'test-robot@helixproject.com'

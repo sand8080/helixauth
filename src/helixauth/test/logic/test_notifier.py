@@ -7,6 +7,8 @@ from helixauth.conf.db import transaction
 from helixauth.db.dataobject import Notification
 from helixauth.logic import message
 from helixauth.logic.notifier import Notifier, NotificationProcessing
+import smtplib
+from smtplib import SMTPException
 
 
 class NotifierTestCase(ActorLogicTestCase):
@@ -161,6 +163,23 @@ class NotifierTestCase(ActorLogicTestCase):
             raise e
         finally:
             settings.email_notifications_enabled = s_old
+
+#    @transaction()
+#    def test_send_email(self, curs=None):
+#        env = self.get_environment_by_name(self.actor_env_name)
+#        n = Notifier()
+#        s_old = settings.email_notifications_enabled
+#        settings.email_notifications_enabled = True
+#        try:
+#            n_proc = n._get_message_data(env.id, message.EVENT_REGISTER_USER,
+#                Notification.TYPE_EMAIL, message.LANG_RU, curs)
+#            n_proc_info = n_proc.to_dict()
+#            self.assertEquals(True, n_proc_info['is_processable'])
+#            n._send_email('sand8080@gmail.com', n_proc)
+#        except Exception, e:
+#            raise e
+#        finally:
+#            settings.email_notifications_enabled = s_old
 
 
 if __name__ == '__main__':

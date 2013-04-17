@@ -2,6 +2,7 @@ import unittest
 
 from helixcore.error import RequestProcessingError
 
+from helixauth.conf import settings
 from helixauth.test.logic.actor_logic_test import ActorLogicTestCase
 from helixauth.db.dataobject import User, Service
 
@@ -345,13 +346,6 @@ class UserTestCase(ActorLogicTestCase):
         self.assertEquals(1, len(users))
         user = users[0]
         self.assertTrue(grp['id'] not in user['groups_ids'])
-
-    def test_sending_email(self):
-        sess_id = self.login_actor()
-        req = {'session_id': sess_id, 'email': 'user_1@h.com',
-            'password': '1', 'role': User.ROLE_USER}
-        resp = self.add_user(**req)
-        self.check_response_ok(resp)
 
 
 if __name__ == '__main__':
