@@ -342,7 +342,7 @@ class Handler(AbstractHandler):
         # For correct action logging
         data['id'] = [user.id]
         n = Notifier()
-        n_process = n.register_user(user, session)
+        n_process = n.register_user(curs, user, session)
         return response_ok(id=user.id, notification=n_process)
 
     @execution_time

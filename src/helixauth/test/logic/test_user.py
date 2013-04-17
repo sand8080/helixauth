@@ -346,6 +346,13 @@ class UserTestCase(ActorLogicTestCase):
         user = users[0]
         self.assertTrue(grp['id'] not in user['groups_ids'])
 
+    def test_sending_email(self):
+        sess_id = self.login_actor()
+        req = {'session_id': sess_id, 'email': 'user_1@h.com',
+            'password': '1', 'role': User.ROLE_USER}
+        resp = self.add_user(**req)
+        self.check_response_ok(resp)
+
 
 if __name__ == '__main__':
     unittest.main()
