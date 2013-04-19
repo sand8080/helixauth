@@ -32,8 +32,8 @@ class LogicTestCase(DbBasedTestCase):
         return f.filter_one_obj(curs)
 
     @transaction()
-    def get_subj_user(self, environment_id, login, password, curs=None):
-        filter_params = {'environment_id': environment_id, 'login': login}
+    def get_subj_user(self, environment_id, email, curs=None):
+        filter_params = {'environment_id': environment_id, 'email': email}
         f = SubjectUserFilter(environment_id, filter_params, {}, {})
         return f.filter_one_obj(curs)
 
