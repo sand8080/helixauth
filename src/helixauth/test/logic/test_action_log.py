@@ -13,12 +13,12 @@ class ActionLogTestCase(ActorLogicTestCase, ActionsLogTester):
         super(ActionLogTestCase, self).setUp()
         self.cli = Client()
         req = {'name': self.actor_env_name,
-            'su_email': self.actor_login, 'su_password': self.actor_password}
+            'su_email': self.actor_email, 'su_password': self.actor_password}
         self.cli.add_environment(**req)
 
     def login_actor(self):
         req = {'environment_name': self.actor_env_name,
-            'email': self.actor_login, 'password': self.actor_password}
+            'email': self.actor_email, 'password': self.actor_password}
         resp = self.cli.login(**req)
         self.check_response_ok(resp)
         return resp['session_id']
@@ -235,7 +235,7 @@ class ActionLogTestCase(ActorLogicTestCase, ActionsLogTester):
     def test_modify_users_failure_logged(self):
         sess_id = self.login_actor()
         req = {'session_id': sess_id, 'paging_params': {},
-            'filter_params': {'email': self.actor_login}}
+            'filter_params': {'email': self.actor_email}}
         resp = self.cli.get_users(**req)
         self.check_response_ok(resp)
         users = resp['users']

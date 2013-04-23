@@ -36,12 +36,12 @@ class UserTestCase(ActorLogicTestCase):
         self.check_response_ok(resp)
         # checking password changed
         req = {'environment_name': self.actor_env_name,
-            'email': self.actor_login, 'password': new_pw}
+            'email': self.actor_email, 'password': new_pw}
         resp = self.login(**req)
         self.check_response_ok(resp)
         # checking password changed
         req = {'environment_name': self.actor_env_name,
-            'email': self.actor_login, 'password': new_pw}
+            'email': self.actor_email, 'password': new_pw}
         resp = self.login(**req)
         self.check_response_ok(resp)
 
@@ -61,19 +61,19 @@ class UserTestCase(ActorLogicTestCase):
         req = {'session_id': sess_id, 'new_lang': User.LANG_EN}
         resp = self.modify_user_self(**req)
         self.check_response_ok(resp)
-        user = self.get_user_info(sess_id, self.actor_login)
+        user = self.get_user_info(sess_id, self.actor_email)
         self.assertEquals(User.LANG_EN, user['lang'])
 
         req = {'session_id': sess_id, 'new_lang': User.LANG_RU}
         resp = self.modify_user_self(**req)
         self.check_response_ok(resp)
-        user = self.get_user_info(sess_id, self.actor_login)
+        user = self.get_user_info(sess_id, self.actor_email)
         self.assertEquals(User.LANG_RU, user['lang'])
 
     def test_modify_super_users_failed(self):
         sess_id = self.login_actor()
         req = {'session_id': sess_id, 'paging_params': {},
-            'filter_params': {'email': self.actor_login}}
+            'filter_params': {'email': self.actor_email}}
         resp = self.get_users(**req)
         self.check_response_ok(resp)
         users = resp['users']
@@ -263,7 +263,7 @@ class UserTestCase(ActorLogicTestCase):
         self.assertEqual([1], user['groups_ids'])
 
         # checking groups ids ignored for super user
-        req = {'session_id': sess_id, 'filter_params': {'email': self.actor_login},
+        req = {'session_id': sess_id, 'filter_params': {'email': self.actor_email},
             'paging_params': {}}
         resp = self.get_users(**req)
         self.check_response_ok(resp)

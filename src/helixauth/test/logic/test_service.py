@@ -47,11 +47,11 @@ class ServiceTestCase(ActorLogicTestCase):
         self.check_response_ok(resp)
 
         # same type service in another environment
-        req = {'name': 'zero', 'su_email': self.actor_login,
+        req = {'name': 'zero', 'su_email': self.actor_email,
             'su_password': self.actor_password}
         self.add_environment(**req)
         req = {'environment_name': 'zero',
-            'email': self.actor_login, 'password': self.actor_password}
+            'email': self.actor_email, 'password': self.actor_password}
         resp = self.login(**req)
         self.check_response_ok(resp)
         req_srv['session_id'] = resp['session_id']

@@ -39,7 +39,7 @@ class AccessTestCase(ActorLogicTestCase):
         env = resp['environment']
         self.assertEquals(env_id, env['id'])
 
-        req = {'session_id': sess_id, 'filter_params': {'email': self.actor_login},
+        req = {'session_id': sess_id, 'filter_params': {'email': self.actor_email},
             'paging_params': {}}
         resp = self.get_users(**req)
         self.check_response_ok(resp)
