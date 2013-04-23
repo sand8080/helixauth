@@ -38,7 +38,7 @@ class LoginTestCase(LogicTestCase):
             email=self.su_email, password='_%s_' % self.su_password)
         # User is inactive
         env = self.get_environment_by_name(self.env_name)
-        user = self.get_subj_user(env.id, self.su_email, self.su_password)
+        user = self.get_subj_user(env.id, self.su_email)
         self.inactivate_user(user)
         self.assertRaises(RequestProcessingError,
             self.login, environment_name=self.env_name,

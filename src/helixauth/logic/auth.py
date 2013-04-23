@@ -11,7 +11,7 @@ from helixcore import mapping
 from helixauth.conf import settings
 from helixauth.conf.db import transaction
 from helixauth.conf.log import logger
-from helixauth.db.dataobject import Session, User
+from helixauth.db.dataobject import Session, User, Service
 from helixauth.db.filters import SessionFilter, ServiceFilter, GroupFilter
 from helixauth.error import SessionExpired, UserAccessDenied, SessionIpChanged,\
     SessionTooLargeFixedLifetime
@@ -112,8 +112,51 @@ class Authenticator(object):
 
     def create_session(self, curs, env, user, req_info,
         bind_to_ip=False, lifetime_minutes=None):
+        return self.__create_session(curs, env, user,
+            req_info, bind_to_ip=bind_to_ip,
+            lifetime_minutes=lifetime_minutes)
+
+    def create_restore_password_session(self, curs, env, user, req_info,
+        bind_to_ip=False, lifetime_minutes=None):
+        services_access_list = {Service.TYPE_AUTH: ['set_password_self']}
+        return self.__create_session(curs, env, user,
+            req_info, bind_to_ip=bind_to_ip,
+            lifetime_minutes=lifetime_minutes,
+            services_access_list=services_access_list)
+
+    def __merge_access_list(self, session_data, services_access_list):
+        print "### merge access list", session_data, services_access_list
+        if services_access_list is not None:
+            r_src = session_data.get('rights', {})
+            r_res = {}
+            for srv, props_acl in services_access_list.items():
+                if srv in r_src:
+                    props_src = r_src.get(srv, [])
+                    props_res = filter(lambda x: x in props_src, props_acl)
+                    r_res[srv] = props_res
+            session_data['rights'] = r_res
+        return session_data
+
+    def __create_session(self, curs, env, user, req_info,
+        bind_to_ip=False, lifetime_minutes=None,
+        services_access_list=None):
+        """
+        @param curs - db cursor
+        @param env - environment dataobject
+        @param user - user dataobject
+        @param req_info - request info, for fetching ip address
+        @param bind_to_ip - if True session will be binded with ip from req_info.
+          Usage session binded to ip from another ip generates AccessDenied error.
+        @param lifetime_minutes - session lifetime. If not None session will be
+          valid number of specified minutes after session generating time.
+        @param services_acess_list - dict of specified acl for generating sessions
+          with restricted access. Access list can't add privileges to user - it used
+          only for restriction. All superior privileges will be ignored.
+          This behaviour used in password restoration.
+        """
         d = datetime.now(pytz.utc)
         session_data = self._get_session_data(curs, env, user)
+        self.__merge_access_list(session_data, services_access_list)
         session_data['ip'] = req_info.remote_addr
         session_data['bind_to_ip'] = bind_to_ip
         session_data['fixed_lifetime'] = lifetime_minutes is not None

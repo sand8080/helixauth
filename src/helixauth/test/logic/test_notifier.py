@@ -7,6 +7,8 @@ from helixauth.conf.db import transaction
 from helixauth.db.dataobject import Notification
 from helixauth.logic import message
 from helixauth.logic.notifier import Notifier, NotificationProcessing
+import smtplib
+from smtplib import SMTPException
 
 
 class NotifierTestCase(ActorLogicTestCase):
@@ -26,7 +28,7 @@ class NotifierTestCase(ActorLogicTestCase):
             self.assertEquals(False, n_proc_info['is_processable'])
             self.assertEquals({}, n_proc_info['message_data'])
             self.assertEquals(
-                [NotificationProcessing.STEP_NOTIFECATIONS_DISABLED],
+                [NotificationProcessing.STEP_NOTIFICATIONS_DISABLED],
                 n_proc_info['checking_steps'])
         except Exception, e:
             raise e
@@ -46,7 +48,7 @@ class NotifierTestCase(ActorLogicTestCase):
             self.assertEquals(False, n_proc_info['is_processable'])
             self.assertEquals({}, n_proc_info['message_data'])
             self.assertEquals(
-                [NotificationProcessing.STEP_NOTIFECATIONS_ENABLED,
+                [NotificationProcessing.STEP_NOTIFICATIONS_ENABLED,
                 NotificationProcessing.STEP_UNKNOWN_EVENT],
                 n_proc_info['checking_steps'])
         except Exception, e:
@@ -76,7 +78,7 @@ class NotifierTestCase(ActorLogicTestCase):
             self.assertEquals(False, n_proc_info['is_processable'])
             self.assertEquals({}, n_proc_info['message_data'])
             self.assertEquals(
-                [NotificationProcessing.STEP_NOTIFECATIONS_ENABLED,
+                [NotificationProcessing.STEP_NOTIFICATIONS_ENABLED,
                 NotificationProcessing.STEP_EVENT_NOTIFICATION_DISABLED],
                 n_proc_info['checking_steps'])
         except Exception, e:
@@ -96,7 +98,7 @@ class NotifierTestCase(ActorLogicTestCase):
             n_proc_info = n_proc.to_dict()
             self.assertEquals(True, n_proc_info['is_processable'])
             self.assertEquals(
-                [NotificationProcessing.STEP_NOTIFECATIONS_ENABLED,
+                [NotificationProcessing.STEP_NOTIFICATIONS_ENABLED,
                 NotificationProcessing.STEP_EVENT_NOTIFICATION_ENABLED,
                 NotificationProcessing.STEP_MSG_LANG_NOT_FOUND,
                 NotificationProcessing.STEP_MSG_DFLT_LANG_FOUND],
@@ -130,7 +132,7 @@ class NotifierTestCase(ActorLogicTestCase):
             n_proc_info = n_proc.to_dict()
             self.assertEquals(False, n_proc_info['is_processable'])
             self.assertEquals(
-                [NotificationProcessing.STEP_NOTIFECATIONS_ENABLED,
+                [NotificationProcessing.STEP_NOTIFICATIONS_ENABLED,
                 NotificationProcessing.STEP_EVENT_NOTIFICATION_ENABLED,
                 NotificationProcessing.STEP_MSG_LANG_NOT_FOUND,
                 NotificationProcessing.STEP_MSG_DFLT_LANG_NOT_FOUND],
@@ -153,7 +155,7 @@ class NotifierTestCase(ActorLogicTestCase):
             n_proc_info = n_proc.to_dict()
             self.assertEquals(True, n_proc_info['is_processable'])
             self.assertEquals(
-                [NotificationProcessing.STEP_NOTIFECATIONS_ENABLED,
+                [NotificationProcessing.STEP_NOTIFICATIONS_ENABLED,
                 NotificationProcessing.STEP_EVENT_NOTIFICATION_ENABLED,
                 NotificationProcessing.STEP_MSG_LANG_FOUND],
                 n_proc_info['checking_steps'])
@@ -161,6 +163,23 @@ class NotifierTestCase(ActorLogicTestCase):
             raise e
         finally:
             settings.email_notifications_enabled = s_old
+
+#    @transaction()
+#    def test_send_email(self, curs=None):
+#        env = self.get_environment_by_name(self.actor_env_name)
+#        n = Notifier()
+#        s_old = settings.email_notifications_enabled
+#        settings.email_notifications_enabled = True
+#        try:
+#            n_proc = n._get_message_data(env.id, message.EVENT_REGISTER_USER,
+#                Notification.TYPE_EMAIL, message.LANG_RU, curs)
+#            n_proc_info = n_proc.to_dict()
+#            self.assertEquals(True, n_proc_info['is_processable'])
+#            n._send_email('sand8080@gmail.com', n_proc)
+#        except Exception, e:
+#            raise e
+#        finally:
+#            settings.email_notifications_enabled = s_old
 
 
 if __name__ == '__main__':

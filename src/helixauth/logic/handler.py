@@ -221,7 +221,8 @@ class Handler(AbstractHandler):
         d = {'environment_id': env.id, 'name': 'Users', 'is_active': True,
             'rights': [
                 {'service_id': s_auth.id, 'properties': ['modify_user_self',
-                    'get_user_rights', 'check_access', 'get_action_logs_self']},
+                    'get_user_rights', 'check_access', 'get_action_logs_self',
+                    'set_password_self']},
                 {'service_id': s_billing.id, 'properties': []},
             ]}
         g = Group(**d)
@@ -342,7 +343,7 @@ class Handler(AbstractHandler):
         # For correct action logging
         data['id'] = [user.id]
         n = Notifier()
-        n_process = n.register_user(user, session)
+        n_process = n.register_user(curs, user, session)
         return response_ok(id=user.id, notification=n_process)
 
     @execution_time
@@ -388,6 +389,20 @@ class Handler(AbstractHandler):
             salt = a.salt()
             d['new_salt'] = salt
             d['new_password'] = a.encrypt_password(data['new_password'], salt)
+        loader = partial(f.filter_one_obj, curs, for_update=True)
+        self.update_obj(curs, d, loader)
+        return response_ok()
+
+    @execution_time
+    @transaction()
+    @authenticate
+    def set_password_self(self, data, req_info, session, curs=None):
+        f = UserFilter(session, {'id': session.user_id}, {}, None)
+        d = {}
+        a = Authenticator()
+        salt = a.salt()
+        d['new_salt'] = salt
+        d['new_password'] = a.encrypt_password(data['new_password'], salt)
         loader = partial(f.filter_one_obj, curs, for_update=True)
         self.update_obj(curs, d, loader)
         return response_ok()

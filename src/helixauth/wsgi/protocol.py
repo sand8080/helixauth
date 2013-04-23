@@ -11,7 +11,7 @@ from helixcore.server.protocol_primitives import (REQUEST_PAGING_PARAMS,
     LOGOUT_REQUEST, LOGOUT_RESPONSE,
     CHECK_ACCESS_REQUEST, CHECK_ACCESS_RESPONSE,
     NOTIFICATION_PROCESSING,
-    authorized_req, resp)
+    authorized_req, resp, RESPONSE_STATUS_WITH_NOTIFICATION)
 
 from helixauth.db import dataobject
 from helixauth.logic import message
@@ -152,7 +152,7 @@ ADD_USER_REQUEST = dict(
 )
 
 ADD_USER_RESPONSE = AnyOf(
-    dict({'id': int, 'notification': NOTIFICATION_PROCESSING}, **RESPONSE_STATUS_OK),
+    dict({'id': int, Optional('notification'): NOTIFICATION_PROCESSING}, **RESPONSE_STATUS_OK),
     RESPONSE_STATUS_ERROR
 )
 
@@ -180,6 +180,13 @@ MODIFY_USER_SELF_REQUEST = dict(
 )
 
 MODIFY_USER_SELF_RESPONSE = RESPONSE_STATUS_ONLY
+
+SET_PASSWORD_SELF_REQUEST = dict(
+    {'new_password': TEXT,},
+    **AUTHORIZED_REQUEST_AUTH_INFO
+)
+
+SET_PASSWORD_SELF_RESPONSE = RESPONSE_STATUS_WITH_NOTIFICATION
 
 GET_USERS_REQUEST = dict(
     {
@@ -489,6 +496,9 @@ protocol = [
 
     ApiCall('modify_user_self_request', Scheme(MODIFY_USER_SELF_REQUEST)),
     ApiCall('modify_user_self_response', Scheme(MODIFY_USER_SELF_RESPONSE)),
+
+    ApiCall('set_password_self_request', Scheme(SET_PASSWORD_SELF_REQUEST)),
+    ApiCall('set_password_self_response', Scheme(SET_PASSWORD_SELF_RESPONSE)),
 
     # action log
     ApiCall('get_action_logs_request', Scheme(GET_ACTION_LOGS_REQUEST)),

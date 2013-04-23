@@ -119,6 +119,13 @@ class ProtocolTestCase(RootTestCase, ProtocolTester):
 
         self.validate_status_response(a_name)
 
+    def test_set_password_self(self):
+        a_name = 'set_password_self'
+        self.api.validate_request(a_name, {'session_id': 'i',
+            'new_password': 'pp',})
+
+        self.validate_status_response(a_name)
+
     def test_modify_users(self):
         a_name = 'modify_users'
         self.api.validate_request(a_name, {'session_id': 'i',
