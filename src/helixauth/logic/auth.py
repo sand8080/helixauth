@@ -125,7 +125,6 @@ class Authenticator(object):
             services_access_list=services_access_list)
 
     def __merge_access_list(self, session_data, services_access_list):
-        print "### merge access list", session_data, services_access_list
         if services_access_list is not None:
             r_src = session_data.get('rights', {})
             r_res = {}

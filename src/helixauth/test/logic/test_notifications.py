@@ -58,8 +58,12 @@ class NotificationsTestCase(ActorLogicTestCase):
         n = Notifier()
         for n_info in notifs:
             self.assertNotEquals([], n_info['messages'])
+            found = False
             for n_exp in n.default_email_notif_struct(n_info['event']):
-                self.assertTrue(n_exp in n_info['messages'])
+                if n_exp in n_info['messages']:
+                    found = True
+                    break
+            self.assertTrue(found)
 
 
 if __name__ == '__main__':

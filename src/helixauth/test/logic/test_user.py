@@ -308,15 +308,14 @@ class UserTestCase(ActorLogicTestCase):
         for rights in rights_l:
             if rights['service_type'] == Service.TYPE_AUTH:
                 self.assertEquals(sorted(['modify_user_self', 'get_user_rights',
-                    'get_action_logs_self', 'check_access']),
+                    'get_action_logs_self', 'check_access', 'set_password_self']),
                     sorted(rights['properties']))
 
     def test_removed_group_user_not_in_groups_ids(self):
         sess_id = self.login_actor()
         grp_name = 'grp_0'
         req = {'session_id': sess_id, 'name': grp_name,
-            'rights': [{'service_id': 1, 'properties': ['one', 'two']}]
-        }
+            'rights': [{'service_id': 1, 'properties': ['one', 'two']}]}
         resp = self.add_group(**req)
         self.check_response_ok(resp)
 
