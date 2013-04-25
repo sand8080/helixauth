@@ -346,6 +346,24 @@ class UserTestCase(ActorLogicTestCase):
         user = users[0]
         self.assertTrue(grp['id'] not in user['groups_ids'])
 
+    def test_set_password_self(self):
+        sess_id = self.login_actor()
+
+        new_pw = 'new_%s' % self.actor_password
+        req = {'session_id': sess_id, 'new_password': new_pw}
+        resp = self.set_password_self(**req)
+        self.check_response_ok(resp)
+
+        # checking password changed
+        req = {'environment_name': self.actor_env_name,
+            'email': self.actor_email, 'password': new_pw}
+        resp = self.login(**req)
+        self.check_response_ok(resp)
+
+        req = {'environment_name': self.actor_env_name,
+            'email': self.actor_email, 'password': self.actor_password}
+        self.assertRaises(RequestProcessingError, self.login, **req)
+
 
 if __name__ == '__main__':
     unittest.main()

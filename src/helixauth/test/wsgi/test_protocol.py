@@ -122,7 +122,7 @@ class ProtocolTestCase(RootTestCase, ProtocolTester):
     def test_set_password_self(self):
         a_name = 'set_password_self'
         self.api.validate_request(a_name, {'session_id': 'i',
-            'new_password': 'pp',})
+            'new_password': 'pp'})
 
         self.validate_status_response(a_name)
 

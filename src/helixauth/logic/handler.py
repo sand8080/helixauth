@@ -76,11 +76,11 @@ def authenticate(method):
 
 
 class Handler(AbstractHandler):
-    '''
+    """
     Handles all API actions. Method names are called like actions.
-    '''
+    """
     @execution_time
-    def ping(self, data, req_info): #IGNORE:W0613
+    def ping(self, data, req_info):  # IGNORE:W0613
         return response_ok()
 
     @execution_time
