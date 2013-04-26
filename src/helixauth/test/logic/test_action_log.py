@@ -324,6 +324,12 @@ class ActionLogTestCase(ActorLogicTestCase, ActionsLogTester):
         req = {'session_id': sess_id, 'ids': [n_id]}
         self._logged_action(action, req)
 
+    def test_set_password_self(self):
+        sess_id = self.login_actor()
+        action = 'set_password_self'
+        req = {'session_id': sess_id, 'new_password': 'n_p'}
+        self._logged_action(action, req)
+
 
 if __name__ == '__main__':
     unittest.main()
