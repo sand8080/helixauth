@@ -198,6 +198,18 @@ class ProtocolTestCase(RootTestCase, ProtocolTester):
         })
         self.validate_error_response(a_name)
 
+    def test_get_user_self(self):
+        a_name = 'get_user_self'
+        self.api.validate_request(a_name, {'session_id': 's'})
+
+        self.api.validate_response(a_name, {'status': 'ok',
+            'id': 42, 'email': 'l@h.com', 'is_active': True,
+            'role': 'user', 'groups_ids': [], 'lang': 'en'})
+        self.api.validate_response(a_name, {'status': 'ok',
+            'id': 42, 'email': 'l@h.com', 'is_active': False,
+            'role': 'user', 'groups_ids': [], 'lang': 'ru'})
+        self.validate_error_response(a_name)
+
     def test_add_service(self):
         a_name = 'add_service'
         self.api.validate_request(a_name, {'session_id': 'i',

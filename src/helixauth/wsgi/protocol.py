@@ -224,6 +224,16 @@ GET_USERS_RESPONSE = AnyOf(
     RESPONSE_STATUS_ERROR
 )
 
+GET_USER_SELF_REQUEST = AUTHORIZED_REQUEST_AUTH_INFO
+
+GET_USER_SELF_RESPONSE = AnyOf(
+    dict(
+        RESPONSE_STATUS_OK,
+        **USER_INFO
+    ),
+    RESPONSE_STATUS_ERROR
+)
+
 ADD_SERVICE_REQUEST = authorized_req({
     'name': TEXT,
     'type': TEXT,
@@ -499,6 +509,9 @@ protocol = [
 
     ApiCall('set_password_self_request', Scheme(SET_PASSWORD_SELF_REQUEST)),
     ApiCall('set_password_self_response', Scheme(SET_PASSWORD_SELF_RESPONSE)),
+
+    ApiCall('get_user_self_request', Scheme(GET_USER_SELF_REQUEST)),
+    ApiCall('get_user_self_response', Scheme(GET_USER_SELF_RESPONSE)),
 
     # action log
     ApiCall('get_action_logs_request', Scheme(GET_ACTION_LOGS_REQUEST)),
