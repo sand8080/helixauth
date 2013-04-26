@@ -364,6 +364,12 @@ class UserTestCase(ActorLogicTestCase):
             'email': self.actor_email, 'password': self.actor_password}
         self.assertRaises(RequestProcessingError, self.login, **req)
 
+    def test_get_user_self(self):
+        sess_id = self.login_actor()
+        req = {'session_id': sess_id}
+        resp = self.get_user_self(**req)
+        self.check_response_ok(resp)
+
 
 if __name__ == '__main__':
     unittest.main()

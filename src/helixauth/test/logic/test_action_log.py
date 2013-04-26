@@ -203,6 +203,11 @@ class ActionLogTestCase(ActorLogicTestCase, ActionsLogTester):
         sess_id = self.login_actor()
         self._not_logged_filtering_action(action, sess_id)
 
+    def test_get_user_self(self):
+        action = 'get_user_self'
+        sess_id = self.login_actor()
+        self._not_logged_action(action, sess_id, {})
+
     def test_get_user_rights(self):
         action = 'get_user_rights'
         sess_id = self.login_actor()
