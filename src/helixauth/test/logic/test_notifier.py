@@ -175,7 +175,7 @@ class NotifierTestCase(ActorLogicTestCase):
 #                Notification.TYPE_EMAIL, message.LANG_RU, curs)
 #            n_proc_info = n_proc.to_dict()
 #            self.assertEquals(True, n_proc_info['is_processable'])
-#            n._send_email('sand8080@gmail.com', n_proc)
+#            n._send_email('sand8080@gmail.com', n_proc, {'login': 'test_l'})
 #        except Exception, e:
 #            raise e
 #        finally:

@@ -57,11 +57,12 @@ class Notifier(object):
     def default_register_user_notif(self, environment_id):
         return self.default_email_notif_struct(m.EVENT_REGISTER_USER)
 
-    def _send_email(self, to, n_p):
+    def _send_email(self, to, n_p, tpl_data):
         if n_p.is_processable:
             try:
                 msg_d = n_p.message_data
-                msg = MIMEText(msg_d[m.EMAIL_MSG_FIELD_NAME], _charset='utf8')
+                msg_text = msg_d[m.EMAIL_MSG_FIELD_NAME] % tpl_data
+                msg = MIMEText(msg_text, _charset='utf8')
                 msg['Subject'] = msg_d[m.EMAIL_SUBJ_FIELD_NAME]
                 msg['From'] = settings.email_notifications_sender
                 msg['To'] = to
@@ -79,7 +80,8 @@ class Notifier(object):
         env_id = session.environment_id
         n_p = self._get_message_data(env_id, m.EVENT_REGISTER_USER,
             Notification.TYPE_EMAIL, user.lang, curs)
-        self._send_email(user.email, n_p)
+        tpl_data = {'login': user.email}
+        self._send_email(user.email, n_p, tpl_data)
         return n_p.to_dict()
 
     def _check_emailing_enabled(self, n_p):

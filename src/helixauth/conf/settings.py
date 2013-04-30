@@ -27,6 +27,6 @@ log_backup_count = 20
 import lock_order #IGNORE:W0611 @UnusedImport
 
 default_notifications_lang = 'en'
-email_notifications_enabled = False
-email_notifications_sender = 'robot@helixproject.com'
+email_notifications_enabled = True
+email_notifications_sender = 'robot@helixproject.ws'
 email_server = 'localhost'
