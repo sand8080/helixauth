@@ -1,5 +1,5 @@
 from helixcore.mapping.objects import Mapped, serialize_field
-from helixcore.db.dataobject import ActionLog #@UnusedImport
+from helixcore.db.dataobject import ActionLog, Notification #@UnusedImport
 
 
 class Environment(Mapped):
@@ -48,14 +48,3 @@ class Service(Mapped):
     def __init__(self, **kwargs):
         d = serialize_field(kwargs, 'properties', 'serialized_properties')
         super(Service, self).__init__(**d)
-
-
-class Notification(Mapped):
-    TYPE_EMAIL = 'email'
-    __slots__ = ['id', 'environment_id', 'event', 'is_active',
-        'type', 'serialized_messages']
-    table = 'notification'
-
-    def __init__(self, **kwargs):
-        d = serialize_field(kwargs, 'messages', 'serialized_messages')
-        super(Notification, self).__init__(**d)
