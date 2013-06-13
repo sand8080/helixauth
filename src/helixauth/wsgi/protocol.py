@@ -11,7 +11,7 @@ from helixcore.server.protocol_primitives import (REQUEST_PAGING_PARAMS,
     LOGOUT_REQUEST, LOGOUT_RESPONSE,
     CHECK_ACCESS_REQUEST, CHECK_ACCESS_RESPONSE,
     NOTIFICATION_PROCESSING,
-    authorized_req, resp, RESPONSE_STATUS_WITH_NOTIFICATION)
+    authorized_req, resp)
 
 from helixauth.db import dataobject
 from helixauth.logic import message
@@ -427,6 +427,20 @@ RESET_NOTIFICATIONS_REQUEST = dict(
 
 RESET_NOTIFICATIONS_RESPONSE = RESPONSE_STATUS_ONLY
 
+REGISTER_USER_REQUEST = {
+    'email': EMAIL,
+    'password': TEXT,
+    'environment_name': TEXT,
+    Optional('lang'): USER_LANG,
+}
+
+REGISTER_USER_RESPONSE = AnyOf(
+    dict({'id': int, 'session_id': TEXT,
+          Optional('notification'): NOTIFICATION_PROCESSING},
+         **RESPONSE_STATUS_OK),
+    RESPONSE_STATUS_ERROR
+)
+
 
 unauthorized_actions = ('ping', 'get_api_actions', 'add_environment',
     'get_authorized_api_actions', 'login', 'logout')
@@ -512,6 +526,9 @@ protocol = [
 
     ApiCall('get_user_self_request', Scheme(GET_USER_SELF_REQUEST)),
     ApiCall('get_user_self_response', Scheme(GET_USER_SELF_RESPONSE)),
+
+    ApiCall('register_user_request', Scheme(REGISTER_USER_REQUEST)),
+    ApiCall('register_user_response', Scheme(REGISTER_USER_RESPONSE)),
 
     # action log
     ApiCall('get_action_logs_request', Scheme(GET_ACTION_LOGS_REQUEST)),

@@ -210,6 +210,20 @@ class ProtocolTestCase(RootTestCase, ProtocolTester):
             'role': 'user', 'groups_ids': [], 'lang': 'ru'}})
         self.validate_error_response(a_name)
 
+    def test_register_user(self):
+        a_name = 'register_user'
+        self.api.validate_request(a_name, {'environment_name': 'env_0',
+            'email': 'l@h.com', 'password': 'p'})
+        self.api.validate_request(a_name, {'environment_name': 'env_0',
+            'email': 'l@h.com', 'password': 'p', 'lang': 'ru'})
+
+        self.api.validate_response(a_name,
+            {'status': 'ok', 'session_id': 's', 'id': 1,
+                'notification': {'is_sent': False, 'is_processable': True,
+                    'message_data': {},
+                    'checking_steps': []}})
+        self.validate_error_response(a_name)
+
     def test_add_service(self):
         a_name = 'add_service'
         self.api.validate_request(a_name, {'session_id': 'i',
