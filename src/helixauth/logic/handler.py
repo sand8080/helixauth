@@ -350,6 +350,41 @@ class Handler(AbstractHandler):
 
     @execution_time
     @transaction()
+    @detalize_error(ObjectCreationError, 'email')
+    @detalize_error(EnvironmentNotFound, 'environment_name')
+    def register_user(self, data, req_info, curs=None):
+        env_name = data.get('environment_name')
+        env_f = EnvironmentFilter({'name': env_name}, {}, None)
+        env = env_f.filter_one_obj(curs)
+
+        # creating user
+        a = Authenticator()
+        salt = a.salt()
+        lang = data.get('lang', User.DEFAULT_LANG)
+        u_data = {'environment_id': env.id, 'email': data.get('email'),
+            'password': a.encrypt_password(data.get('password'), salt),
+            'salt': salt, 'role': User.ROLE_USER,
+            'lang': lang}
+
+        group_f = GroupFilter(env.id, {'is_default': True}, {}, None)
+        groups = group_f.filter_objs(curs)
+        groups_ids = [g.id for g in groups]
+
+        u_data['groups_ids'] = groups_ids
+        user = User(**u_data)
+
+        # For correct action logging
+        data['environment_id'] = env.id
+
+        mapping.save(curs, user)
+        auth = Authenticator()
+        session = auth.create_session(curs, env, user, req_info)
+        _add_log_info(data, session)
+
+        return response_ok(session_id=session.session_id, id=user.id)
+
+    @execution_time
+    @transaction()
     @authenticate
     def get_user_self(self, data, req_info, session, curs=None):
         f_params = {'id': session.user_id}

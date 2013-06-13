@@ -370,6 +370,27 @@ class UserTestCase(ActorLogicTestCase):
         resp = self.get_user_self(**req)
         self.check_response_ok(resp)
 
+    def test_register_user(self):
+        email = 'test_register@h.com'
+        req = {'email': email, 'password': 'p', 'environment_name': self.actor_env_name}
+        resp = self.register_user(**req)
+        self.check_response_ok(resp)
+        user_id = resp['id']
+
+        sess_id = self.login_actor()
+        users = self.get_users_info(sess_id, [user_id])
+        self.assertEquals(1, len(users))
+        user = users[0]
+        self.assertEquals(user['role'], User.ROLE_USER)
+        self.assertEquals(user['email'], email)
+
+    def test_register_user_duplication(self):
+        email = 'test_register@h.com'
+        req = {'email': email, 'password': 'p', 'environment_name': self.actor_env_name}
+        resp = self.register_user(**req)
+        self.check_response_ok(resp)
+        self.assertRaises(RequestProcessingError, self.register_user, **req)
+
 
 if __name__ == '__main__':
     unittest.main()

@@ -97,6 +97,7 @@ class GroupFilter(EnvironmentObjectsFilter):
         ('ids', 'id', In),
         ('name', 'name', Like),
         ('is_active', 'is_active', Eq),
+        ('is_default', 'is_default', Eq),
     ]
 
     def __init__(self, environment_id, filter_params, paging_params, ordering_params):

@@ -190,13 +190,24 @@ class ActionLogTestCase(ActorLogicTestCase, ActionsLogTester):
     def test_add_user(self):
         action = 'add_user'
         sess_id = self.login_actor()
-        email = 'login@h.com'
+        email = 'add_user@h.com'
         req = {'session_id': sess_id, 'email': email, 'password': 'p'}
         self._logged_action(action, req)
 
         # checking subject user ids are set
         user = self._get_user_by_login(sess_id, email)
         self._check_subject_users_ids_set(sess_id, action, user['id'])
+
+    def test_register_user(self):
+        action = 'register_user'
+        email = 'register_user@h.com'
+        req = {'email': email, 'password': 'p', 'environment_name': self.actor_env_name}
+        self.sess_id = self.login_actor()
+        try:
+            self._logged_action(action, req)
+            self._logged_action(action, req, check_resp=False)
+        finally:
+            self.sess_id = None
 
     def test_get_users(self):
         action = 'get_users'

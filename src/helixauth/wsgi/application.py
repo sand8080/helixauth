@@ -12,6 +12,7 @@ class HelixauthApplication(Application):
             'add_service', 'modify_service', 'delete_service',
             'add_group', 'modify_group', 'delete_group',
             'add_user', 'modify_user_self', 'modify_users', 'set_password_self',
+            'register_user',
             'modify_notifications', 'reset_notifications')
         super(HelixauthApplication, self).__init__(h, p, l, tracking_api_calls)
 
