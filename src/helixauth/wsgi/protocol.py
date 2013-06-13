@@ -80,6 +80,7 @@ ADD_GROUP_REQUEST = dict(
     {
         'name': TEXT,
         Optional('is_active'): bool,
+        Optional('is_default'): bool,
         'rights': RIGHTS_SCHEME,
     },
     **AUTHORIZED_REQUEST_AUTH_INFO
@@ -91,6 +92,7 @@ MODIFY_GROUP_REQUEST = dict(
     {
         'id': int,
         Optional('new_is_active'): bool,
+        Optional('new_is_default'): bool,
         Optional('new_name'): TEXT,
         Optional('new_rights'): RIGHTS_SCHEME,
     },
@@ -110,6 +112,7 @@ GROUP_INFO = {
     'id': int,
     'name': TEXT,
     'is_active': bool,
+    'is_default': bool,
     'rights': RIGHTS_SCHEME,
 }
 

@@ -309,10 +309,10 @@ class ProtocolTestCase(RootTestCase, ProtocolTester):
             'rights': [{'service_id': 1, 'properties': []}]})
         self.api.validate_request(a_name, {'session_id': 'i', 'name': 'n',
             'rights': [{'service_id': 1, 'properties': ['c']}],
-            'is_active': True})
+            'is_active': True, 'is_default': True})
         self.api.validate_request(a_name, {'session_id': 'i', 'name': 'n',
             'rights': [{'service_id': 1, 'properties': ['a', 'b']}],
-            'is_active': False})
+            'is_active': False, 'is_default': False})
 
         self.api.validate_response(a_name, {'status': 'ok', 'id': 1})
         self.validate_error_response(a_name)
@@ -325,11 +325,11 @@ class ProtocolTestCase(RootTestCase, ProtocolTester):
         self.api.validate_request(a_name, {'session_id': 'i', 'id': 1,
             'new_is_active': False, 'new_name': 'nn', 'new_rights': []})
         self.api.validate_request(a_name, {'session_id': 'i', 'id': 1,
-            'new_is_active': False, 'new_rights': [{'service_id': 1,
-            'properties': []}]})
+            'new_is_active': False, 'new_is_default': True,
+            'new_rights': [{'service_id': 1, 'properties': []}]})
         self.api.validate_request(a_name, {'session_id': 'i', 'id': 1,
-            'new_is_active': False, 'new_rights': [{'service_id': 1,
-            'properties': ['a', 'b']}]})
+            'new_is_active': False, 'new_is_default': False,
+            'new_rights': [{'service_id': 1, 'properties': ['a', 'b']}]})
 
         self.validate_status_response(a_name)
 
@@ -366,18 +366,18 @@ class ProtocolTestCase(RootTestCase, ProtocolTester):
         self.api.validate_response(a_name, {'status': 'ok', 'total': 4,
             'groups': [
             {
-                'id': 42, 'is_active': True, 'name': u'группа0',
+                'id': 42, 'is_active': True, 'name': u'группа0', 'is_default': True,
                 'rights': [{'service_id': 1, 'properties': []}],
             },
         ]})
         self.api.validate_response(a_name, {'status': 'ok', 'total': 4,
             'groups': [
             {
-                'id': 42, 'is_active': True, 'name': u'группа0',
+                'id': 42, 'is_active': True, 'name': u'группа0', 'is_default': True,
                 'rights': [{'service_id': 1, 'properties': []}],
             },
             {
-                'id': 43, 'is_active': False, 'name': u'группа1',
+                'id': 43, 'is_active': False, 'name': u'группа1', 'is_default': False,
                 'rights': [{'service_id': 1, 'properties': ['a', 'b']}],
             },
         ]})

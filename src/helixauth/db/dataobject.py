@@ -23,7 +23,8 @@ class User(Mapped):
 
 
 class Group(Mapped):
-    __slots__ = ['id', 'environment_id', 'name', 'is_active', 'serialized_rights']
+    __slots__ = ['id', 'environment_id', 'name', 'is_active', 'serialized_rights',
+        'is_default']
     table = 'group_data'
 
     def __init__(self, **kwargs):
