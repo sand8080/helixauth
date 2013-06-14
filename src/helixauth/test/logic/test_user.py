@@ -376,6 +376,10 @@ class UserTestCase(ActorLogicTestCase):
         resp = self.register_user(**req)
         self.check_response_ok(resp)
         user_id = resp['id']
+        u_sess_id = resp['session_id']
+        req = {'session_id': u_sess_id, 'service_type': 'FAKE', 'property': 'fp'}
+        resp = self.check_access(**req)
+        self.check_response_ok(resp)
 
         sess_id = self.login_actor()
         users = self.get_users_info(sess_id, [user_id])

@@ -157,7 +157,7 @@ class Handler(AbstractHandler):
             pass
         return response_ok()
 
-    def _create_default_services(self, req_info, curs, env):
+    def _create_default_services_group(self, req_info, curs, env):
         # adding default service auth
         a_data = self.get_authorized_api_actions({}, req_info)
         actions_auth = a_data['actions']
@@ -250,7 +250,7 @@ class Handler(AbstractHandler):
             mapping.save(curs, n)
 
     def _create_default_objects(self, req_info, curs, env):
-        self._create_default_services(req_info, curs, env)
+        self._create_default_services_group(req_info, curs, env)
         self._create_default_notifications(curs, env)
 
     @execution_time
