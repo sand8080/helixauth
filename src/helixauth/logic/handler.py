@@ -381,7 +381,10 @@ class Handler(AbstractHandler):
         session = auth.create_session(curs, env, user, req_info)
         _add_log_info(data, session)
 
-        return response_ok(session_id=session.session_id, id=user.id)
+        n = Notifier()
+        n_process = n.register_user(curs, user, session)
+        return response_ok(session_id=session.session_id, id=user.id,
+                           notification=n_process)
 
     @execution_time
     @transaction()

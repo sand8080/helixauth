@@ -83,7 +83,7 @@ class Notifier(object):
 
     def register_user(self, curs, user, session):
         env_id = session.environment_id
-        env_name = self.get_env_name()
+        env_name = self.get_env_name(curs, env_id)
         n_p = self._get_message_data(env_id, m.EVENT_REGISTER_USER,
             Notification.TYPE_EMAIL, user.lang, curs)
         tpl_data = {'email': user.email, 'env_name': env_name}
