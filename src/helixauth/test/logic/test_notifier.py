@@ -7,8 +7,6 @@ from helixauth.conf.db import transaction
 from helixauth.db.dataobject import Notification
 from helixauth.logic import message
 from helixauth.logic.notifier import Notifier, NotificationProcessing
-import smtplib
-from smtplib import SMTPException
 
 
 class NotifierTestCase(ActorLogicTestCase):

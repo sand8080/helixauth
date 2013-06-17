@@ -3,7 +3,7 @@ import smtplib
 
 from helixauth.conf import settings
 from helixauth.conf.log import logger
-from helixauth.db.filters import NotificatonFilter
+from helixauth.db.filters import NotificatonFilter, EnvironmentFilter
 from helixauth.db.dataobject import Notification
 from helixauth.error import NotificatoinPreparingError, HelixauthError,\
     NotificatonNotFound
@@ -76,11 +76,17 @@ class Notifier(object):
                 n_p.add_step(n_p.STEP_NOTIFICATION_SENDING_ERROR)
                 logger.exception("Sending email failed: %s", e)
 
+    def get_env_name(self, curs, env_id):
+        f = EnvironmentFilter({'id': env_id}, {}, None)
+        env = f.filter_one_obj(curs)
+        return env.name
+
     def register_user(self, curs, user, session):
         env_id = session.environment_id
+        env_name = self.get_env_name()
         n_p = self._get_message_data(env_id, m.EVENT_REGISTER_USER,
             Notification.TYPE_EMAIL, user.lang, curs)
-        tpl_data = {'login': user.email}
+        tpl_data = {'email': user.email, 'env_name': env_name}
         self._send_email(user.email, n_p, tpl_data)
         return n_p.to_dict()
 

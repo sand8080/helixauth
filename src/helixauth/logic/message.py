@@ -17,14 +17,14 @@ EVENT_REGISTER_USER = 'REGISTER_USER'
 REGISTER_USER_EMAIL_SUBJ_EN = "Thanks for registration"
 REGISTER_USER_EMAIL_MSG_EN = """Hi!
 
-You are registered as user %(login)s at http://localhost:8000
+You are registered as user %(email)s at http://localhost:8000/%(env_name)/
 
 Thank you for registration and have a nice day!
 """
 REGISTER_USER_EMAIL_SUBJ_RU = "Благодарим за регистрацию"
 REGISTER_USER_EMAIL_MSG_RU = """Добрый день!
 
-Вы зарегистрировались на ресурсе http://localhost:8000 как пользователь %(login)s
+Вы зарегистрировались на ресурсе http://localhost:8000/%(env_name)/ как пользователь %(email)s
 
 Бдагодарим за регистрацию. Приятного пользования!
 """
