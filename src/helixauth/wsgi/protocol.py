@@ -435,6 +435,7 @@ REGISTER_USER_REQUEST = {
     'password': TEXT,
     'environment_name': TEXT,
     Optional('lang'): USER_LANG,
+    Optional('custom_actor_info'): NULLABLE_TEXT,
 }
 
 REGISTER_USER_RESPONSE = AnyOf(
