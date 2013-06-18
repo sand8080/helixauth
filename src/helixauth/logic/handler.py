@@ -17,7 +17,7 @@ from helixauth.error import (EnvironmentNotFound,
     GroupAlreadyExists, HelixauthObjectNotFound, UserWrongOldPassword,
     SuperUserCreationDenied, SuperUserModificationDenied, UserAccessDenied,
     ServiceDeletionError, ServiceNotFound, SessionIpChanged,
-    SessionTooLargeFixedLifetime, UserNewPasswordNotSet)
+    SessionTooLargeFixedLifetime, UserNewPasswordNotSet, UserAlreadyExists)
 from helixauth.db.filters import (EnvironmentFilter, UserFilter, ServiceFilter,
     SubjectUserFilter, GroupFilter, SessionFilter, ActionLogFilter,
     NotificatonFilter)
@@ -351,7 +351,7 @@ class Handler(AbstractHandler):
 
     @execution_time
     @transaction()
-    @detalize_error(ObjectCreationError, 'email')
+    @detalize_error(UserAlreadyExists, 'email')
     @detalize_error(EnvironmentNotFound, 'environment_name')
     def register_user(self, data, req_info, curs=None):
         env_name = data.get('environment_name')
@@ -376,8 +376,10 @@ class Handler(AbstractHandler):
 
         # For correct action logging
         data['environment_id'] = env.id
-
-        mapping.save(curs, user)
+        try:
+            mapping.save(curs, user)
+        except ObjectCreationError:
+            raise UserAlreadyExists
         auth = Authenticator()
         session = auth.create_session(curs, env, user, req_info)
         _add_log_info(data, session)

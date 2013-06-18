@@ -51,6 +51,13 @@ class UserNewPasswordNotSet(HelixauthError):
         self.code = error_code.HELIXAUTH_NEW_PASSWORD_NOT_SET
 
 
+class UserAlreadyExists(HelixauthError, ObjectCreationError):
+    def __init__(self, *args, **kwargs):
+        super(UserAlreadyExists, self).__init__(*args, **kwargs)
+        self.code = error_code.HELIXAUTH_USER_ALREADY_EXISTS
+
+
+
 class ServiceNotFound(HelixauthObjectNotFound):
     def __init__(self, **kwargs):
         super(ServiceNotFound, self).__init__("Service", **kwargs)
