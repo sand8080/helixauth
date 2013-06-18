@@ -221,7 +221,8 @@ class Handler(AbstractHandler):
         d = {'environment_id': env.id, 'name': 'Users',
             'is_active': True, 'is_default': True,
             'rights': [
-                {'service_id': s_auth.id, 'properties': ['modify_user_self',
+                {'service_id': s_auth.id, 'properties': [
+                    'get_user_self', 'modify_user_self',
                     'get_user_rights', 'check_access', 'get_action_logs_self',
                     'set_password_self']},
                 {'service_id': s_billing.id, 'properties': []},
