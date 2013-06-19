@@ -405,12 +405,9 @@ class Handler(AbstractHandler):
         user_f = SubjectUserFilter(env.id, {'email': data.get('email')}, {}, None)
         user = user_f.filter_one_obj(curs)
 
-        # creating user
-        a = Authenticator()
-        salt = a.salt()
-
+        # creating user session
         auth = Authenticator()
-        session = auth.create_session(curs, env, user, req_info,
+        session = auth.create_restore_password_session(curs, env, user, req_info,
             lifetime_minutes=settings.session_restore_password_lifetime_minutes)
         _add_log_info(data, session)
 
