@@ -148,15 +148,16 @@ class NotifierTestCase(ActorLogicTestCase):
         s_old = settings.email_notifications_enabled
         settings.email_notifications_enabled = True
         try:
-            n_proc = n._get_message_data(env.id, message.EVENT_REGISTER_USER,
-                Notification.TYPE_EMAIL, message.LANG_EN, curs)
-            n_proc_info = n_proc.to_dict()
-            self.assertEquals(True, n_proc_info['is_processable'])
-            self.assertEquals(
-                [NotificationProcessing.STEP_NOTIFICATIONS_ENABLED,
-                NotificationProcessing.STEP_EVENT_NOTIFICATION_ENABLED,
-                NotificationProcessing.STEP_MSG_LANG_FOUND],
-                n_proc_info['checking_steps'])
+            for event in message.EVENTS:
+                n_proc = n._get_message_data(env.id, event,
+                    Notification.TYPE_EMAIL, message.LANG_EN, curs)
+                n_proc_info = n_proc.to_dict()
+                self.assertEquals(True, n_proc_info['is_processable'])
+                self.assertEquals(
+                    [NotificationProcessing.STEP_NOTIFICATIONS_ENABLED,
+                    NotificationProcessing.STEP_EVENT_NOTIFICATION_ENABLED,
+                    NotificationProcessing.STEP_MSG_LANG_FOUND],
+                    n_proc_info['checking_steps'])
         except Exception, e:
             raise e
         finally:
