@@ -1,6 +1,7 @@
 import json
 from functools import partial
 from functools import wraps
+from helixauth.conf import settings
 
 from helixcore import mapping
 from helixcore.actions.handler import (detalize_error, AbstractHandler,
@@ -387,6 +388,35 @@ class Handler(AbstractHandler):
         n = Notifier()
         n_process = n.register_user(curs, user, session)
         return response_ok(session_id=session.session_id, id=user.id,
+                           notification=n_process)
+
+    @execution_time
+    @transaction()
+    @detalize_error(UserNotFound, 'email')
+    @detalize_error(EnvironmentNotFound, 'environment_name')
+    def restore_password(self, data, req_info, curs=None):
+        env_name = data.get('environment_name')
+        env_f = EnvironmentFilter({'name': env_name}, {}, None)
+        env = env_f.filter_one_obj(curs)
+
+        # For correct action logging
+        data['environment_id'] = env.id
+
+        user_f = SubjectUserFilter(env.id, {'email': data.get('email')}, {}, None)
+        user = user_f.filter_one_obj(curs)
+
+        # creating user
+        a = Authenticator()
+        salt = a.salt()
+
+        auth = Authenticator()
+        session = auth.create_session(curs, env, user, req_info,
+            lifetime_minutes=settings.session_restore_password_lifetime_minutes)
+        _add_log_info(data, session)
+
+        n = Notifier()
+        n_process = n.register_user(curs, user, session)
+        return response_ok(session_id=session.session_id, user_id=user.id,
                            notification=n_process)
 
     @execution_time

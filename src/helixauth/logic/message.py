@@ -15,7 +15,7 @@ EMAIL_MSG_FIELD_NAME = 'email_msg'
 # Register user
 EVENT_REGISTER_USER = 'REGISTER_USER'
 REGISTER_USER_EMAIL_SUBJ_EN = "Thanks for registration"
-REGISTER_USER_EMAIL_MSG_EN = """Hi!
+REGISTER_USER_EMAIL_MSG_EN = """Good day!
 
 You are registered as user %(email)s at http://localhost:8000/%(env_name)/
 
@@ -26,11 +26,29 @@ REGISTER_USER_EMAIL_MSG_RU = """Добрый день!
 
 Вы зарегистрировались на ресурсе http://localhost:8000/%(env_name)/ как пользователь %(email)s
 
-Бдагодарим за регистрацию. Приятного пользования!
+Бдагодарим за регистрацию!
 """
 
 # Restore password
-#RESTORE_PASSWORD = 'RESTORE_PASSWORD'
+EVENT_RESTORE_PASSWORD = 'REGISTER_USER'
+RESTORE_PASSWORD_EMAIL_SUBJ_EN = "Password restoration"
+RESTORE_PASSWORD_EMAIL_MSG_EN = """Good day!
+
+Password restoration requested at http://localhost:8000/%(env_name)/.
+For changing password please follow http://localhost:8000/restore_password/%(env_name)/?session_id=%(session_id)
+Link valid for changing password once and till %(valid_until).
+
+Thank you for using our service and have a nice day!
+"""
+RESTORE_PASSWORD_EMAIL_SUBJ_RU = "Восстановление пароля"
+RESTORE_PASSWORD_EMAIL_MSG_RU = """Добрый день!
+
+На сайте http://localhost:8000/%(env_name)/ было инициирована восстановление пароля.
+Для изменения пароля пожалуйста перейдите по ссылке http://localhost:8000/restore_password/%(env_name)/?session_id=%(session_id)
+Ссылка можно использовать для одноразового изменения пароля до %(valid_until).
+
+Спасибо за использование нашего сервиса!
+"""
 
 
 # Auto fetching event names and values

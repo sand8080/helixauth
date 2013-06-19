@@ -14,6 +14,7 @@ session_caching_enabled = True
 session_memcached_addr = '127.0.0.1:11211'
 session_dump_to_db_minutes = 5
 session_max_fixed_lifetime_minutes = 120
+session_restore_password_lifetime_minutes = 120
 
 import logging
 log_filename = '/opt/helixproject/helixauth/helixauth/log/helixauth.log'
@@ -30,3 +31,4 @@ default_notifications_lang = 'en'
 email_notifications_enabled = True
 email_notifications_sender = 'robot@helixproject.ws'
 email_server = 'localhost'
+

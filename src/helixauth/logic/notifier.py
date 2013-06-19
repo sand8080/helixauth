@@ -90,6 +90,17 @@ class Notifier(object):
         self._send_email(user.email, n_p, tpl_data)
         return n_p.to_dict()
 
+    def restore_password(self, curs, user, session):
+        env_id = session.environment_id
+        env_name = self.get_env_name(curs, env_id)
+        n_p = self._get_message_data(env_id, m.EVENT_RESTORE_PASSWORD,
+            Notification.TYPE_EMAIL, user.lang, curs)
+        tpl_data = {'email': user.email, 'env_name': env_name,
+                    'valid_till': session.update_date}
+        self._send_email(user.email, n_p, tpl_data)
+        return n_p.to_dict()
+
+
     def _check_emailing_enabled(self, n_p):
         if not settings.email_notifications_enabled:
             n_p.add_step(n_p.STEP_NOTIFICATIONS_DISABLED)
