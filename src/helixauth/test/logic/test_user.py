@@ -308,7 +308,8 @@ class UserTestCase(ActorLogicTestCase):
         for rights in rights_l:
             if rights['service_type'] == Service.TYPE_AUTH:
                 self.assertEquals(sorted(['modify_user_self', 'get_user_rights',
-                    'get_action_logs_self', 'check_access', 'set_password_self']),
+                    'get_user_self', 'get_action_logs_self', 'check_access',
+                    'set_password_self']),
                     sorted(rights['properties']))
 
     def test_removed_group_user_not_in_groups_ids(self):
@@ -394,6 +395,11 @@ class UserTestCase(ActorLogicTestCase):
         resp = self.register_user(**req)
         self.check_response_ok(resp)
         self.assertRaises(RequestProcessingError, self.register_user, **req)
+
+    def test_restore_password(self):
+        req = {'environment_name': self.actor_env_name, 'email': self.actor_email}
+        resp = self.restore_password(**req)
+        self.check_response_ok(resp)
 
 
 if __name__ == '__main__':

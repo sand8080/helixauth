@@ -413,8 +413,7 @@ class Handler(AbstractHandler):
 
         n = Notifier()
         n_process = n.register_user(curs, user, session)
-        return response_ok(session_id=session.session_id, user_id=user.id,
-                           notification=n_process)
+        return response_ok(notification=n_process)
 
     @execution_time
     @transaction()

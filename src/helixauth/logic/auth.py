@@ -118,7 +118,7 @@ class Authenticator(object):
 
     def create_restore_password_session(self, curs, env, user, req_info,
         bind_to_ip=False, lifetime_minutes=None):
-        services_access_list = {Service.TYPE_AUTH: ['set_password_self']}
+        services_access_list = {Service.TYPE_AUTH: ['set_password_self', 'check_access']}
         return self.__create_session(curs, env, user,
             req_info, bind_to_ip=bind_to_ip,
             lifetime_minutes=lifetime_minutes,
