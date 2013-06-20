@@ -224,6 +224,18 @@ class ProtocolTestCase(RootTestCase, ProtocolTester):
                     'checking_steps': []}})
         self.validate_error_response(a_name)
 
+    def test_restore_password(self):
+        a_name = 'restore_password'
+        self.api.validate_request(a_name, {'environment_name': 'env_0',
+            'email': 'l@h.com'})
+        self.api.validate_request(a_name, {'environment_name': 'env_0',
+            'email': 'l@h.com', 'custom_actor_info': 'info'})
+
+        self.api.validate_response(a_name,
+            {'status': 'ok', 'notification': {'is_sent': False,
+            'is_processable': True, 'message_data': {}, 'checking_steps': []}})
+        self.validate_error_response(a_name)
+
     def test_add_service(self):
         a_name = 'add_service'
         self.api.validate_request(a_name, {'session_id': 'i',

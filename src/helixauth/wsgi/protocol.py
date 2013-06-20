@@ -445,6 +445,18 @@ REGISTER_USER_RESPONSE = AnyOf(
     RESPONSE_STATUS_ERROR
 )
 
+RESTORE_PASSWORD_REQUEST = {
+    'email': EMAIL,
+    'environment_name': TEXT,
+    Optional('custom_actor_info'): NULLABLE_TEXT,
+}
+
+RESTORE_PASSWORD_RESPONSE = AnyOf(
+    dict({Optional('notification'): NOTIFICATION_PROCESSING},
+         **RESPONSE_STATUS_OK),
+    RESPONSE_STATUS_ERROR
+)
+
 
 unauthorized_actions = ('ping', 'get_api_actions', 'add_environment',
     'get_authorized_api_actions', 'login', 'logout')
@@ -533,6 +545,9 @@ protocol = [
 
     ApiCall('register_user_request', Scheme(REGISTER_USER_REQUEST)),
     ApiCall('register_user_response', Scheme(REGISTER_USER_RESPONSE)),
+
+    ApiCall('restore_password_request', Scheme(RESTORE_PASSWORD_REQUEST)),
+    ApiCall('restore_password_response', Scheme(RESTORE_PASSWORD_RESPONSE)),
 
     # action log
     ApiCall('get_action_logs_request', Scheme(GET_ACTION_LOGS_REQUEST)),
