@@ -36,7 +36,7 @@ RESTORE_PASSWORD_EMAIL_MSG_EN = """Good day!
 
 Password restoration requested at http://localhost:8000/%(env_name)/.
 For changing password please follow http://localhost:8000/restore_password/%(env_name)/?session_id=%(session_id)
-Link valid for changing password once and till %(valid_until).
+Link valid till %(valid_until).
 
 Thank you for using our service and have a nice day!
 """
@@ -45,7 +45,7 @@ RESTORE_PASSWORD_EMAIL_MSG_RU = """Добрый день!
 
 На сайте http://localhost:8000/%(env_name)/ было инициирована восстановление пароля.
 Для изменения пароля пожалуйста перейдите по ссылке http://localhost:8000/restore_password/%(env_name)/?session_id=%(session_id)
-Ссылка можно использовать для одноразового изменения пароля до %(valid_until).
+Ссылку можно использовать до %(valid_until).
 
 Спасибо за использование нашего сервиса!
 """
