@@ -17,14 +17,14 @@ EVENT_REGISTER_USER = 'REGISTER_USER'
 REGISTER_USER_EMAIL_SUBJ_EN = "Thanks for registration"
 REGISTER_USER_EMAIL_MSG_EN = """Good day!
 
-You are registered as user %(email)s at http://localhost:8000/%(env_name)/
+You are registered as user %(email)s at http://localhost:8000/%(env_name)s/
 
 Thank you for registration and have a nice day!
 """
 REGISTER_USER_EMAIL_SUBJ_RU = "Благодарим за регистрацию"
 REGISTER_USER_EMAIL_MSG_RU = """Добрый день!
 
-Вы зарегистрировались на ресурсе http://localhost:8000/%(env_name)/ как пользователь %(email)s
+Вы зарегистрировались на ресурсе http://localhost:8000/%(env_name)s/ как пользователь %(email)s
 
 Бдагодарим за регистрацию!
 """
@@ -34,9 +34,9 @@ EVENT_RESTORE_PASSWORD = 'RESTORE_PASSWORD'
 RESTORE_PASSWORD_EMAIL_SUBJ_EN = "Password restoration"
 RESTORE_PASSWORD_EMAIL_MSG_EN = """Good day!
 
-Password restoration requested at http://localhost:8000/%(env_name)/.
-For changing password please follow http://localhost:8000/restore_password/%(env_name)/?session_id=%(session_id)
-Link valid till %(valid_until).
+Password restoration requested at http://localhost:8000/%(env_name)s/.
+For changing password please follow http://localhost:8000/restore_password/%(env_name)s/?session_id=%(session_id)s
+Link valid till %(valid_until)s.
 
 Thank you for using our service and have a nice day!
 """
@@ -44,8 +44,8 @@ RESTORE_PASSWORD_EMAIL_SUBJ_RU = "Восстановление пароля"
 RESTORE_PASSWORD_EMAIL_MSG_RU = """Добрый день!
 
 На сайте http://localhost:8000/%(env_name)/ было инициирована восстановление пароля.
-Для изменения пароля пожалуйста перейдите по ссылке http://localhost:8000/restore_password/%(env_name)/?session_id=%(session_id)
-Ссылку можно использовать до %(valid_until).
+Для изменения пароля пожалуйста перейдите по ссылке http://localhost:8000/restore_password/%(env_name)s/?session_id=%(session_id)s
+Ссылку можно использовать до %(valid_until)s.
 
 Спасибо за использование нашего сервиса!
 """
