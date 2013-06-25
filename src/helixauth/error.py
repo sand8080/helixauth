@@ -25,6 +25,7 @@ class HelixauthObjectAlreadyExists(HelixauthError, ObjectCreationError):
 class UserNotFound(HelixauthObjectNotFound):
     def __init__(self, **kwargs):
         super(UserNotFound, self).__init__("User", **kwargs)
+        self.code = error_code.HELIXAUTH_USER_NOT_FOUND
 
 
 class SuperUserCreationDenied(HelixauthObjectNotFound):
