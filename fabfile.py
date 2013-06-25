@@ -73,6 +73,10 @@ def sync():
     print green("Project files synchronization")
     rsync_project(env.proj_dir, local_dir='%s/' % _project_dir(),
         exclude=env.rsync_exclude, delete=True, extra_opts='-q -L')
+
+    print green("Cleaning files")
+    run('find %s -name "*.pyc" -exec rm -f {} \;' % env.proj_dir)
+
     # project directory
     _fix_r_res(env.proj_dir, env.proj_dir_owner,
         env.proj_dir_group, env.proj_dir_perms)
