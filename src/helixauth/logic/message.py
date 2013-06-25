@@ -43,7 +43,7 @@ Thank you for using our service and have a nice day!
 RESTORE_PASSWORD_EMAIL_SUBJ_RU = "Восстановление пароля"
 RESTORE_PASSWORD_EMAIL_MSG_RU = """Добрый день!
 
-На сайте http://localhost:8000/%(env_name)/ было инициирована восстановление пароля.
+На сайте http://localhost:8000/%(env_name)s/ было инициирована восстановление пароля.
 Для изменения пароля пожалуйста перейдите по ссылке http://localhost:8000/restore_password/%(env_name)s/?session_id=%(session_id)s
 Ссылку можно использовать до %(valid_until)s.
 
