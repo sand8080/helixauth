@@ -163,22 +163,23 @@ class NotifierTestCase(ActorLogicTestCase):
         finally:
             settings.email_notifications_enabled = s_old
 
-#    @transaction()
-#    def test_send_email(self, curs=None):
-#        env = self.get_environment_by_name(self.actor_env_name)
-#        n = Notifier()
-#        s_old = settings.email_notifications_enabled
-#        settings.email_notifications_enabled = True
-#        try:
-#            n_proc = n._get_message_data(env.id, message.EVENT_REGISTER_USER,
-#                Notification.TYPE_EMAIL, message.LANG_RU, curs)
-#            n_proc_info = n_proc.to_dict()
-#            self.assertEquals(True, n_proc_info['is_processable'])
-#            n._send_email('sand8080@gmail.com', n_proc, {'login': 'test_l'})
-#        except Exception, e:
-#            raise e
-#        finally:
-#            settings.email_notifications_enabled = s_old
+    # @transaction()
+    # def test_send_email(self, curs=None):
+    #     env = self.get_environment_by_name(self.actor_env_name)
+    #     n = Notifier()
+    #     s_old = settings.email_notifications_enabled
+    #     settings.email_notifications_enabled = True
+    #     try:
+    #         n_proc = n._get_message_data(env.id, message.EVENT_RESTORE_PASSWORD,
+    #             Notification.TYPE_EMAIL, message.LANG_RU, curs)
+    #         n_proc_info = n_proc.to_dict()
+    #         self.assertEquals(True, n_proc_info['is_processable'])
+    #         n._send_email('sand8080@gmail.com', n_proc, {'email': 'EMAIL',
+    #             'env_name': 'ENV', 'session_id': 'SESSION', 'valid_until': 'TODAY'})
+    #     except Exception, e:
+    #         raise e
+    #     finally:
+    #         settings.email_notifications_enabled = s_old
 
 
 if __name__ == '__main__':
