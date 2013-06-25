@@ -412,7 +412,7 @@ class Handler(AbstractHandler):
         _add_log_info(data, session)
 
         n = Notifier()
-        n_process = n.register_user(curs, user, session)
+        n_process = n.restore_password(curs, user, session)
         return response_ok(notification=n_process)
 
     @execution_time
