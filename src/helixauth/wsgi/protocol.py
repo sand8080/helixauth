@@ -1,5 +1,5 @@
 from helixcore.json_validator import (Optional, AnyOf, NON_NEGATIVE_INT,
-    Scheme, ISO_DATETIME, TEXT, NULLABLE_TEXT, ID, BOOLEAN, EMAIL)
+    Scheme, ISO_DATETIME, TEXT, NULLABLE_TEXT, ID, BOOLEAN, EMAIL, POSITIVE_INT)
 from helixcore.server.api import ApiCall
 from helixcore.server.protocol_primitives import (REQUEST_PAGING_PARAMS,
     RESPONSE_STATUS_OK, RESPONSE_STATUS_ERROR, RESPONSE_STATUS_ONLY,
@@ -421,6 +421,16 @@ MODIFY_NOTIFICATIONS_REQUEST = dict(
 
 MODIFY_NOTIFICATIONS_RESPONSE = RESPONSE_STATUS_ONLY
 
+LOAD_NEW_NOTIFICATIONS_REQUEST = AUTHORIZED_REQUEST_AUTH_INFO
+
+LOAD_NEW_NOTIFICATIONS_RESPONSE = AnyOf(
+    dict(
+        RESPONSE_STATUS_OK,
+        **{'loaded': NON_NEGATIVE_INT}
+    ),
+    RESPONSE_STATUS_ERROR
+)
+
 RESET_NOTIFICATIONS_REQUEST = dict(
     {
         'ids': [ID],
@@ -573,4 +583,7 @@ protocol = [
 
     ApiCall('reset_notifications_request', Scheme(RESET_NOTIFICATIONS_REQUEST)),
     ApiCall('reset_notifications_response', Scheme(RESET_NOTIFICATIONS_RESPONSE)),
+
+    ApiCall('load_new_notifications_request', Scheme(LOAD_NEW_NOTIFICATIONS_REQUEST)),
+    ApiCall('load_new_notifications_response', Scheme(LOAD_NEW_NOTIFICATIONS_RESPONSE)),
 ]

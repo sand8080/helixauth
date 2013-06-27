@@ -622,6 +622,14 @@ class ProtocolTestCase(RootTestCase, ProtocolTester):
             'ids': [1, 2]})
         self.validate_status_response(a_name)
 
+    def test_load_new_notifications(self):
+        a_name = 'load_new_notifications'
+        self.api.validate_request(a_name, {'session_id': 'i'})
+
+        self.api.validate_response(a_name, {'status': 'ok', 'loaded': 0})
+        self.api.validate_response(a_name, {'status': 'ok', 'loaded': 10})
+        self.validate_error_response(a_name)
+
 
 if __name__ == '__main__':
     unittest.main()
