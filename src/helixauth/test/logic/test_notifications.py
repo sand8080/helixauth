@@ -3,6 +3,7 @@ import unittest
 from helixauth.test.logic.actor_logic_test import ActorLogicTestCase
 from helixauth.db.dataobject import Notification
 from helixauth.logic.notifier import Notifier
+from helixauth.logic import message
 
 
 class NotificationsTestCase(ActorLogicTestCase):
@@ -64,6 +65,26 @@ class NotificationsTestCase(ActorLogicTestCase):
                     found = True
                     break
             self.assertTrue(found)
+
+    def test_load_new_notifications(self):
+        e = 'TEST'
+        setattr(message, 'EVENT_TEST', e)
+        setattr(message, 'TEST_EMAIL_SUBJ_EN', 'subj')
+        setattr(message, 'TEST_EMAIL_MSG_EN', 'msg')
+        message.EVENTS_NAMES.append(e)
+        message.EVENTS.append(e)
+
+        sess_id = self.login_actor()
+        notifs = self.get_notifications_info(sess_id)
+        e_num_before = len(notifs)
+
+        req = {'session_id': sess_id}
+        resp = self.load_new_notifications(**req)
+        self.check_response_ok(resp)
+
+        notifs = self.get_notifications_info(sess_id)
+        e_num_after = len(notifs)
+        self.assertTrue(e_num_after > e_num_before)
 
 
 if __name__ == '__main__':

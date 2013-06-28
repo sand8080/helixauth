@@ -242,9 +242,9 @@ class Handler(AbstractHandler):
         g = Group(**d)
         mapping.save(curs, g)
 
-    def _create_default_notifications(self, curs, env):
+    def _create_default_notifications(self, curs, env, events):
         notifier = Notifier()
-        for event in message.EVENTS:
+        for event in events:
             e_msgs = notifier.default_email_notif_struct(event)
             n = Notification(environment_id=env.id, event=event,
                 is_active=True, type=Notification.TYPE_EMAIL,
@@ -253,7 +253,7 @@ class Handler(AbstractHandler):
 
     def _create_default_objects(self, req_info, curs, env):
         self._create_default_services_group(req_info, curs, env)
-        self._create_default_notifications(curs, env)
+        self._create_default_notifications(curs, env, message.EVENTS)
 
     @execution_time
     @transaction()
@@ -757,3 +757,16 @@ class Handler(AbstractHandler):
                 o.serialized_messages = json.dumps(msg_struct)
                 mapping.save(curs, o)
         return response_ok()
+
+    @execution_time
+    @transaction()
+    @authenticate
+    def load_new_notifications(self, data, req_info, session, curs=None):
+        f = NotificatonFilter(session.environment_id, {}, {}, None)
+        objs = f.filter_objs(curs, for_update=True)
+        e_names_cur = [o.event for o in objs]
+        e_names_to_load = [e_name for e_name in message.EVENTS if e_name not in e_names_cur]
+        env_f = EnvironmentFilter({'id': session.environment_id}, {}, None)
+        env = env_f.filter_one_obj(curs)
+        self._create_default_notifications(curs, env, e_names_to_load)
+        return response_ok(loaded=len(e_names_to_load))

@@ -47,11 +47,16 @@ class Notifier(object):
     def default_email_notif_struct(self, event):
         res = []
         for l in (m.LANG_EN, m.LANG_RU):
-            subj = '%s_EMAIL_SUBJ_%s' % (event, l.upper())
-            msg = '%s_EMAIL_MSG_%s' % (event, l.upper())
+            subj_name = '%s_EMAIL_SUBJ_%s' % (event, l.upper())
+            msg_name = '%s_EMAIL_MSG_%s' % (event, l.upper())
+            subj_value = getattr(m, subj_name, None)
+            msg_value = getattr(m, msg_name, None)
+            # Skipping empty or incorrect defined notifications
+            if subj_value is None or msg_value is None:
+                continue
             res.append({m.LANG_FIELD_NAME: l,
-                m.EMAIL_SUBJ_FIELD_NAME: getattr(m, subj, None),
-                m.EMAIL_MSG_FIELD_NAME: getattr(m, msg, None),})
+                m.EMAIL_SUBJ_FIELD_NAME: subj_value,
+                m.EMAIL_MSG_FIELD_NAME: msg_value,})
         return res
 
     def default_register_user_notif(self, environment_id):
